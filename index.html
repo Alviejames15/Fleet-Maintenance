@@ -209,6 +209,7 @@
                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Operational Phase Status</label>
                     <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="newUnitState" onchange="adjustFormDefaults()" required="">
                         <option value="ongoing">On-Going Repair</option>
+                        <option value="pms">PMS (Preventive Maintenance)</option>
                         <option value="waiting">Waiting for Parts/Manpower</option>
                         <option value="released">Released Unit</option>
                     </select>
@@ -286,6 +287,7 @@
                     </label>
                     <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold focus:outline-none focus:border-blue-500 text-slate-100" id="manageUnitStatus" onchange="handleStatusSelectChange(this.value)">
                         <option value="ongoing">On-Going Repair</option>
+                        <option value="pms">PMS (Preventive Maintenance)</option>
                         <option value="waiting">Waiting for Parts/Manpower</option>
                         <option value="released">Released Unit</option>
                     </select>
@@ -442,6 +444,8 @@
                 progressInput.value = 100; progressInput.disabled = true;
             } else if (stateKey === 'waiting') {
                 progressInput.value = 0; progressInput.disabled = false;
+            } else if (stateKey === 'pms') {
+                progressInput.value = 50; progressInput.disabled = false;
             } else {
                 progressInput.value = 25; progressInput.disabled = false;
             }
@@ -476,12 +480,13 @@
                 catRows.forEach(row => {
                     const matchesSearch = row.type.toLowerCase().includes(searchVal) ||
                                           (row.ongoing || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          (row.pms || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
                                           (row.waiting || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
                                           (row.released || []).some(u => u.id.toLowerCase().includes(searchVal));
 
                     if (searchVal && !matchesSearch) return;
 
-                    const ongoingList = row.ongoing || [];
+                    const ongoingList = [...(row.ongoing || []), ...(row.pms || [])];
                     const waitingList = row.waiting || [];
                     const releasedList = row.released || [];
 
@@ -498,13 +503,15 @@
 
                     let ongoingIDs = ongoingList.map(u => {
                         const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
+                        const isPmsUnit = (row.pms || []).some(p => p.id === u.id);
+                        const stateKey = isPmsUnit ? 'pms' : 'ongoing';
                         activeRepairsSum += u.completion; activeRepairsTotal++;
-                        const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : 'border-amber-500/30 text-amber-400 bg-amber-500/10';
+                        const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : (isPmsUnit ? 'border-purple-500/30 text-purple-400 bg-purple-500/10' : 'border-amber-500/30 text-amber-400 bg-amber-500/10');
                         return `
-                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'ongoing')" class="flex flex-col gap-1 p-2 border ${borderCls} text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
-                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 text-rose-400"></i>' : ''}</div>
-                                <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full ${isOverdue ? 'bg-rose-500': 'bg-amber-500'}" style="width: ${u.completion}%"></div></div>
-                                <div class="flex justify-between text-[8px] text-slate-400 font-medium"><span>${u.completion}%</span><span>${isOverdue ? 'LATE' : 'OK'}</span></div>
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', '${stateKey}')" class="flex flex-col gap-1 p-2 border ${borderCls} text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 text-rose-400"></i>' : (isPmsUnit ? '<span class="text-[9px] bg-purple-500/20 px-1 rounded text-purple-300">PMS</span>' : '')}</div>
+                                <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full ${isOverdue ? 'bg-rose-500': (isPmsUnit ? 'bg-purple-500' : 'bg-amber-500')}" style="width: ${u.completion}%"></div></div>
+                                <div class="flex justify-between text-[8px] text-slate-400 font-medium"><span>${u.completion}%</span><span>${isOverdue ? 'LATE' : (isPmsUnit ? 'PMS' : 'OK')}</span></div>
                             </div>`;
                     }).join(' ');
 
@@ -611,7 +618,7 @@
 
             let exists = false;
             state.forEach(row => {
-                const combined = [...(row.ongoing||[]), ...(row.waiting||[]), ...(row.released||[])];
+                const combined = [...(row.ongoing||[]), ...(row.pms||[]), ...(row.waiting||[]), ...(row.released||[])];
                 if (combined.some(u => u.id === code)) exists = true;
             });
 
@@ -622,6 +629,7 @@
 
             const row = state.find(item => item.type === type);
             if (row) {
+                if (!row[stateKey]) row[stateKey] = [];
                 row[stateKey].push({ id: code, completion: progress, targetDate: targetDate || null, description, location });
                 if (longDownVal > 0) row.longDown = (row.longDown || 0) + 1;
                 if (runningVal > 0) row.runningRepair = (row.runningRepair || 0) + 1;
@@ -635,7 +643,8 @@
         function openManageModal(category, type, unitCode, stateKey) {
             const index = state.findIndex(item => item.type === type); if (index === -1) return;
             const row = state[index];
-            const unit = row[stateKey].find(u => u.id === unitCode); if (!unit) return;
+            const list = row[stateKey] || [];
+            const unit = list.find(u => u.id === unitCode); if (!unit) return;
 
             activeManageState = { category, type, index, unitCode, stateKey, unitObj: unit };
             document.getElementById('manageUnitBadge').textContent = unitCode;
@@ -664,6 +673,9 @@
             } else if (newStatusKey === 'waiting' && activeManageState.unitObj.completion === 100) {
                 updateProgressDisplay(0);
                 slider.value = 0;
+            } else if (newStatusKey === 'pms' && activeManageState.unitObj.completion === 100) {
+                updateProgressDisplay(50);
+                slider.value = 50;
             }
         }
 
@@ -692,7 +704,10 @@
 
             // Operational Phase Status Re-assignment logic
             if (newStatusKey !== activeManageState.stateKey) {
-                row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
+                if (row[activeManageState.stateKey]) {
+                    row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
+                }
+                if (!row[newStatusKey]) row[newStatusKey] = [];
                 row[newStatusKey].push(activeManageState.unitObj);
             }
 
@@ -704,7 +719,7 @@
         async function deleteUnit() {
             if (confirm(`Remove asset ${activeManageState.unitCode} from logging registry channels?`)) {
                 const row = state[activeManageState.index];
-                if (row) {
+                if (row && row[activeManageState.stateKey]) {
                     row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
                     renderDashboard();
                     closeModal('manageUnitModal');
@@ -716,7 +731,7 @@
         function downloadCSV() {
             let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Long Down,Running Repair,Total Down,Ongoing Details,Waiting Details,Released Details\n";
             state.forEach(row => {
-                const ongoingList = row.ongoing || [];
+                const ongoingList = [...(row.ongoing || []), ...(row.pms || [])];
                 const waitingList = row.waiting || [];
                 const releasedList = row.released || [];
                 const totalDown = ongoingList.length + waitingList.length;
