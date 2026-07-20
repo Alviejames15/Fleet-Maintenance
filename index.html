@@ -312,10 +312,11 @@
 
     <!-- Core Interactive Tracking JS Engine -->
     <script>
-        // Set System Baseline Time to July 20, 2026
+        // Integrated Live Google Apps Script Endpoint
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
         const SYSTEM_TODAY = new Date("2026-07-20");
 
-        // High fidelity state dataset architecture
+        // Baseline equipment category schema defaults
         const RECONSTRUCTED_DEFAULTS = [
             // GEM Motorpool Items
             { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-15" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-10" },{ id: "BT-32", completion: 100, targetDate: "2026-07-11" },{ id: "BT-40", completion: 100, targetDate: "2026-07-12" },{ id: "BT-48", completion: 100, targetDate: "2026-07-13" },{ id: "BT-50", completion: 100, targetDate: "2026-07-14" }] },
@@ -360,21 +361,43 @@
             "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER"]
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedData = localStorage.getItem('gem_motorpool_state_v2');
-            if (savedData) {
-                try { state = JSON.parse(savedData); } catch(e) { state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS)); }
-            } else {
-                state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
-                localStorage.setItem('gem_motorpool_state_v2', JSON.stringify(state));
-            }
-
-            // Wire up change listener on location filter drop-down
+        window.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('locationFilter').addEventListener('change', renderDashboard);
-
             populateTypeSelect();
-            renderDashboard();
+            await fetchSheetData();
         });
+
+        // Sync State with Google Sheets (GET)
+        async function fetchSheetData() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    state = data;
+                } else {
+                    state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
+                    await saveToSheet();
+                }
+            } catch (e) {
+                console.warn("Unable to fetch from Sheet DB, utilizing fallback state.", e);
+                state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
+            }
+            renderDashboard();
+        }
+
+        // Sync State with Google Sheets (POST)
+        async function saveToSheet() {
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(state)
+                });
+            } catch (e) {
+                console.error("Failed to commit updates to Google Sheets:", e);
+            }
+        }
 
         function populateTypeSelect() {
             const selectEl = document.getElementById('newUnitType');
@@ -392,10 +415,10 @@
             fill();
         }
 
-        function resetToDefaults() {
+        async function resetToDefaults() {
             if (confirm("Reset current registry view back to original factory matrix fields?")) {
                 state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
-                localStorage.setItem('gem_motorpool_state_v2', JSON.stringify(state));
+                await saveToSheet();
                 renderDashboard();
             }
         }
@@ -429,16 +452,13 @@
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
 
             categories.forEach(catName => {
-                // Filter rows by category
                 let catRows = state.filter(row => row.category === catName);
                 
-                // Active Filtering Engine based on selected Location Dropdown
                 if (locationVal !== "All Motorpools") {
                     const allowedTypes = EQUIPMENT_BY_LOCATION[locationVal] || [];
                     catRows = catRows.filter(row => allowedTypes.includes(row.type));
                 }
 
-                // If no types match this category under this specific filter, don't render the header empty
                 if (catRows.length === 0) return;
 
                 const catHeaderRow = document.createElement('tr');
@@ -448,21 +468,28 @@
 
                 catRows.forEach(row => {
                     const matchesSearch = row.type.toLowerCase().includes(searchVal) ||
-                                          row.ongoing.some(u => u.id.toLowerCase().includes(searchVal)) ||
-                                          row.waiting.some(u => u.id.toLowerCase().includes(searchVal)) ||
-                                          row.released.some(u => u.id.toLowerCase().includes(searchVal));
+                                          (row.ongoing || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          (row.waiting || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          (row.released || []).some(u => u.id.toLowerCase().includes(searchVal));
 
                     if (searchVal && !matchesSearch) return;
 
-                    const totalDownRow = row.ongoing.length + row.waiting.length;
-                    overallLongDown += row.longDown; overallRunningRepair += row.runningRepair;
-                    overallTotalDown += totalDownRow; overallOngoing += row.ongoing.length;
-                    overallWaiting += row.waiting.length; overallReleased += row.released.length;
+                    const ongoingList = row.ongoing || [];
+                    const waitingList = row.waiting || [];
+                    const releasedList = row.released || [];
+
+                    const totalDownRow = ongoingList.length + waitingList.length;
+                    overallLongDown += row.longDown || 0; 
+                    overallRunningRepair += row.runningRepair || 0;
+                    overallTotalDown += totalDownRow; 
+                    overallOngoing += ongoingList.length;
+                    overallWaiting += waitingList.length; 
+                    overallReleased += releasedList.length;
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-700/30 transition group border-b border-slate-700/40";
 
-                    let ongoingIDs = row.ongoing.map(u => {
+                    let ongoingIDs = ongoingList.map(u => {
                         const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
                         activeRepairsSum += u.completion; activeRepairsTotal++;
                         const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : 'border-amber-500/30 text-amber-400 bg-amber-500/10';
@@ -474,7 +501,7 @@
                             </div>`;
                     }).join(' ');
 
-                    let waitingIDs = row.waiting.map(u => {
+                    let waitingIDs = waitingList.map(u => {
                         const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
                         activeRepairsSum += u.completion; activeRepairsTotal++;
                         const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : 'border-blue-500/30 text-blue-400 bg-blue-500/10';
@@ -486,7 +513,7 @@
                             </div>`;
                     }).join(' ');
 
-                    let releasedIDs = row.released.map(u => {
+                    let releasedIDs = releasedList.map(u => {
                         return `
                             <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'released')" class="flex flex-col gap-1 p-2 border border-emerald-500/30 text-emerald-400 bg-emerald-500/5 text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
                                 <div class="flex items-center justify-between"><span>${u.id}</span><i data-lucide="check-circle" class="w-3 h-3 text-emerald-400"></i></div>
@@ -500,23 +527,23 @@
                         <td class="py-3 px-3 text-center border-l border-slate-700 font-medium text-slate-300">
                             <div class="flex items-center justify-center gap-1.5">
                                 <button onclick="adjustField('${row.type}', 'longDown', -1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">-</button>
-                                <span class="w-6">${row.longDown}</span>
+                                <span class="w-6">${row.longDown || 0}</span>
                                 <button onclick="adjustField('${row.type}', 'longDown', 1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">+</button>
                             </div>
                         </td>
                         <td class="py-3 px-3 text-center font-medium text-slate-300">
                             <div class="flex items-center justify-center gap-1.5">
                                 <button onclick="adjustField('${row.type}', 'runningRepair', -1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">-</button>
-                                <span class="w-6">${row.runningRepair}</span>
+                                <span class="w-6">${row.runningRepair || 0}</span>
                                 <button onclick="adjustField('${row.type}', 'runningRepair', 1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">+</button>
                             </div>
                         </td>
                         <td class="py-3 px-3 text-center text-blue-400 font-black bg-blue-500/5 border-r border-slate-700">${totalDownRow}</td>
-                        <td class="py-3 px-3 text-center font-bold border-l border-slate-700/60 text-amber-400 bg-amber-500/5 w-16">${row.ongoing.length}</td>
+                        <td class="py-3 px-3 text-center font-bold border-l border-slate-700/60 text-amber-400 bg-amber-500/5 w-16">${ongoingList.length}</td>
                         <td class="py-3 px-4 border-r border-slate-700 bg-amber-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[280px]">${ongoingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
-                        <td class="py-3 px-3 text-center font-bold text-blue-400 bg-blue-500/5 w-16">${row.waiting.length}</td>
+                        <td class="py-3 px-3 text-center font-bold text-blue-400 bg-blue-500/5 w-16">${waitingList.length}</td>
                         <td class="py-3 px-4 border-r border-slate-700 bg-blue-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[280px]">${waitingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
-                        <td class="py-3 px-3 text-center font-bold text-emerald-400 bg-emerald-500/5 w-16">${row.released.length}</td>
+                        <td class="py-3 px-3 text-center font-bold text-emerald-400 bg-emerald-500/5 w-16">${releasedList.length}</td>
                         <td class="py-3 px-4 bg-emerald-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[280px]">${releasedIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                     `;
                     gridBody.appendChild(tr);
@@ -540,12 +567,12 @@
             lucide.createIcons();
         }
 
-        function adjustField(type, fieldName, amount) {
+        async function adjustField(type, fieldName, amount) {
             const item = state.find(row => row.type === type);
             if (item) {
-                item[fieldName] = Math.max(0, item[fieldName] + amount);
-                localStorage.setItem('gem_motorpool_state_v2', JSON.stringify(state));
+                item[fieldName] = Math.max(0, (item[fieldName] || 0) + amount);
                 renderDashboard();
+                await saveToSheet();
             }
         }
 
@@ -561,7 +588,7 @@
             openModal('addUnitModal');
         }
 
-        function handleAddUnit(e) {
+        async function handleAddUnit(e) {
             e.preventDefault();
             const type = document.getElementById('newUnitType').value;
             const code = document.getElementById('newUnitCode').value.toUpperCase().trim();
@@ -577,7 +604,7 @@
 
             let exists = false;
             state.forEach(row => {
-                const combined = [...row.ongoing, ...row.waiting, ...row.released];
+                const combined = [...(row.ongoing||[]), ...(row.waiting||[]), ...(row.released||[])];
                 if (combined.some(u => u.id === code)) exists = true;
             });
 
@@ -589,12 +616,12 @@
             const row = state.find(item => item.type === type);
             if (row) {
                 row[stateKey].push({ id: code, completion: progress, targetDate: targetDate || null, description, location });
-                if (longDownVal > 0) row.longDown += 1;
-                if (runningVal > 0) row.runningRepair += 1;
-                localStorage.setItem('gem_motorpool_state_v2', JSON.stringify(state));
+                if (longDownVal > 0) row.longDown = (row.longDown || 0) + 1;
+                if (runningVal > 0) row.runningRepair = (row.runningRepair || 0) + 1;
                 renderDashboard();
                 closeModal('addUnitModal');
                 document.getElementById('addUnitForm').reset();
+                await saveToSheet();
             }
         }
 
@@ -633,7 +660,7 @@
             }
         }
 
-        function changeUnitState(targetStateKey) {
+        async function changeUnitState(targetStateKey) {
             const row = state[activeManageState.index]; if (!row || !activeManageState.unitObj) return;
             row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
             
@@ -641,25 +668,25 @@
             else if (targetStateKey === 'waiting' && activeManageState.unitObj.completion === 100) activeManageState.unitObj.completion = 0;
 
             row[targetStateKey].push(activeManageState.unitObj);
-            localStorage.setItem('gem_motorpool_state_v2', JSON.stringify(state));
             renderDashboard();
             closeModal('manageUnitModal');
+            await saveToSheet();
         }
 
-        function saveAssetDetailedChanges() {
-            localStorage.setItem('gem_motorpool_state_v2', JSON.stringify(state));
+        async function saveAssetDetailedChanges() {
             renderDashboard();
             closeModal('manageUnitModal');
+            await saveToSheet();
         }
 
-        function deleteUnit() {
+        async function deleteUnit() {
             if (confirm(`Remove asset ${activeManageState.unitCode} from logging registry channels?`)) {
                 const row = state[activeManageState.index];
                 if (row) {
                     row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
-                    localStorage.setItem('gem_motorpool_state_v2', JSON.stringify(state));
                     renderDashboard();
                     closeModal('manageUnitModal');
+                    await saveToSheet();
                 }
             }
         }
@@ -667,11 +694,14 @@
         function downloadCSV() {
             let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Long Down,Running Repair,Total Down,Ongoing Details,Waiting Details,Released Details\n";
             state.forEach(row => {
-                const totalDown = row.ongoing.length + row.waiting.length;
-                const ongoing = row.ongoing.map(u => `${u.id}(${u.completion}%)`).join('; ') || 'None';
-                const waiting = row.waiting.map(u => `${u.id}(${u.completion}%)`).join('; ') || 'None';
-                const released = row.released.map(u => u.id).join('; ') || 'None';
-                csvContent += `"${row.category}","${row.type}",${row.longDown},${row.runningRepair},${totalDown},"${ongoing}","${waiting}","${released}"\n`;
+                const ongoingList = row.ongoing || [];
+                const waitingList = row.waiting || [];
+                const releasedList = row.released || [];
+                const totalDown = ongoingList.length + waitingList.length;
+                const ongoing = ongoingList.map(u => `${u.id}(${u.completion}%)`).join('; ') || 'None';
+                const waiting = waitingList.map(u => `${u.id}(${u.completion}%)`).join('; ') || 'None';
+                const released = releasedList.map(u => u.id).join('; ') || 'None';
+                csvContent += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${totalDown},"${ongoing}","${waiting}","${released}"\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
