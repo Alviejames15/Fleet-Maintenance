@@ -1,67 +1,735 @@
-<!-- Modal Form: Manage Existing Lifecycle Asset State -->
-<div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="manageUnitModal">
-    <div class="bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl border border-slate-700 overflow-hidden transform scale-100 transition duration-300">
-        <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
-            <h3 class="font-bold text-white flex items-center gap-2"><i class="w-5 h-5 text-blue-500" data-lucide="edit-3"></i> Lifecycle Management Deck</h3>
-            <button class="text-slate-400 hover:text-white" onclick="closeModal('manageUnitModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Fleet Maintenance Dashboard</title>
+    <!-- Tailwind CSS for high-fidelity responsive layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for clean system iconography -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+
+    <!-- Top Decorative Gradient Header -->
+    <header class="bg-slate-800 border-b border-slate-700/80 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/25">
+                    <i class="w-6 h-6" data-lucide="truck"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-white tracking-tight uppercase">Fleet Maintenance Dashboard</h1>
+                    <p class="text-xs text-slate-400 font-medium">Overdue &amp; Completion Tracking Edition • System Time: July 20, 2026</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2.5 w-full md:w-auto">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-slate-300">Location</label>
+                    <select class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" id="locationFilter">
+                        <option>All Motorpools</option>
+                        <option>GEM Motorpool</option>
+                        <option>SV Repair Units</option>
+                        <option>Los Amigos Motorpool</option>
+                    </select>
+                </div>
+                <button class="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 px-4 rounded-xl border border-slate-600 transition text-sm" onclick="downloadCSV()">
+                    <i class="w-4 h-4" data-lucide="download"></i> Export CSV
+                </button>
+                <button class="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-blue-600/15 transition text-sm" onclick="openAddUnitModal()">
+                    <i class="w-4 h-4" data-lucide="plus"></i> Add/Sidelined Unit
+                </button>
+            </div>
         </div>
-        <div class="p-6 space-y-4">
-            <!-- Asset Information Badge -->
-            <div>
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Target Selected Asset</span>
-                <div class="mt-1 flex items-center gap-3">
-                    <span class="px-3.5 py-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 text-base font-black rounded-xl" id="manageUnitBadge">--</span>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+        
+        <!-- Live KPI Summary Panel -->
+        <section class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/50 shadow-sm relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+                        <i class="w-6 h-6" data-lucide="alert-triangle"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 py-1 px-2 rounded-full uppercase tracking-wider">Total Down</span>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-4">Total Down</h3>
+                <span class="text-3xl font-extrabold text-white mt-1 block" id="kpi-total-down">--</span>
+            </div>
+
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/50 shadow-sm relative overflow-hidden ring-2 ring-rose-500/30">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-rose-500/10 rounded-xl text-rose-400">
+                        <i class="w-6 h-6" data-lucide="clock"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-rose-400 bg-rose-500/10 py-1 px-2 rounded-full uppercase tracking-wider animate-pulse">Overdue</span>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-4">Overdue Repairs</h3>
+                <span class="text-3xl font-extrabold text-rose-400 mt-1 block" id="kpi-overdue">--</span>
+            </div>
+
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/50 shadow-sm relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-amber-500/10 rounded-xl text-amber-400">
+                        <i class="w-6 h-6" data-lucide="wrench"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 py-1 px-2 rounded-full uppercase tracking-wider">Avg Progress</span>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-4">Mean Completion</h3>
+                <span class="text-3xl font-extrabold text-white mt-1 block" id="kpi-avg-progress">--%</span>
+            </div>
+
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/50 shadow-sm relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
+                        <i class="w-6 h-6" data-lucide="hourglass"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 py-1 px-2 rounded-full uppercase tracking-wider">In Queue</span>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-4">Awaiting Parts</h3>
+                <span class="text-3xl font-extrabold text-white mt-1 block" id="kpi-waiting">--</span>
+            </div>
+
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/50 shadow-sm relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+                        <i class="w-6 h-6" data-lucide="check-circle"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 py-1 px-2 rounded-full uppercase tracking-wider">Released</span>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-4">Healthy Fleet</h3>
+                <span class="text-3xl font-extrabold text-white mt-1 block" id="kpi-released">--</span>
+            </div>
+        </section>
+
+        <!-- Search and Reset Control Deck -->
+        <section class="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="w-full md:w-96 relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                    <i class="w-4 h-4" data-lucide="search"></i>
+                </span>
+                <input class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" id="searchInput" oninput="renderDashboard()" placeholder="Search asset types or tracking numbers..." type="text"/>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+                <button class="text-xs text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1.5 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-2 rounded-lg transition border border-rose-500/20" onclick="resetToDefaults()">
+                    <i class="w-3.5 h-3.5" data-lucide="rotate-ccw"></i> Reset Grid to Default State
+                </button>
+            </div>
+        </section>
+
+        <!-- Main Tracking Ledger -->
+        <section class="bg-slate-800 border border-slate-700/80 rounded-2xl shadow-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[1100px]">
+                    <thead>
+                        <tr class="bg-slate-900/60 text-[11px] font-black tracking-wider text-slate-400 border-b border-slate-700 uppercase">
+                            <th class="py-4 px-5 w-64">Equipment Type</th>
+                            <th class="py-4 px-3 text-center border-l border-slate-700 w-24">Long Down</th>
+                            <th class="py-4 px-3 text-center w-24">Running Repair</th>
+                            <th class="py-4 px-3 text-center text-blue-400 bg-blue-500/5 font-extrabold border-r border-slate-700 w-28">Total Down</th>
+                            <th class="py-4 px-4 text-center border-r border-slate-700" colspan="2">On-Going Repair (Progress)</th>
+                            <th class="py-4 px-4 text-center border-r border-slate-700" colspan="2">Waiting for Parts/Manpower</th>
+                            <th class="py-4 px-4 text-center" colspan="2">Released Units (Active)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/60 text-sm" id="motorpool-grid-body">
+                        <!-- Dynamic matrix injection point -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-slate-900/90 font-bold border-t-2 border-slate-600 text-slate-100">
+                            <td class="py-4 px-5 uppercase text-xs font-black tracking-wider">TOTAL</td>
+                            <td class="py-4 px-3 text-center border-l border-slate-700" id="total-long-down">0</td>
+                            <td class="py-4 px-3 text-center" id="total-running-repair">0</td>
+                            <td class="py-4 px-3 text-center text-blue-400 font-extrabold bg-blue-500/10 border-r border-slate-700" id="total-down-units">0</td>
+                            <td class="py-4 px-3 text-center border-r border-slate-700 font-extrabold w-16 bg-amber-500/5" id="total-ongoing-count">0</td>
+                            <td class="py-4 px-4 border-r border-slate-700 text-slate-400 bg-amber-500/5 text-xs font-medium">All Ongoing Assets</td>
+                            <td class="py-4 px-3 text-center border-r border-slate-700 font-extrabold w-16 bg-blue-500/5" id="total-waiting-count">0</td>
+                            <td class="py-4 px-4 border-r border-slate-700 text-slate-400 bg-blue-500/5 text-xs font-medium">All Queued Assets</td>
+                            <td class="py-4 px-3 text-center font-extrabold w-16 bg-emerald-500/5" id="total-released-count">0</td>
+                            <td class="py-4 px-4 text-slate-400 bg-emerald-500/5 text-xs font-medium">All Operational Assets</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Form: Add / Sidelined Unit -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="addUnitModal">
+        <div class="bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl border border-slate-700 overflow-hidden transform scale-100 transition duration-300">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2"><i class="w-5 h-5 text-blue-500" data-lucide="plus-circle"></i> Add Sidelined Unit Log</h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('addUnitModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
+            </div>
+            <form class="p-6 space-y-4" id="addUnitForm" onsubmit="handleAddUnit(event)">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Operational Pool Location</label>
+                    <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100" id="newUnitLocation">
+                        <option>GEM Motorpool</option>
+                        <option>SV Repair Units</option>
+                        <option>Los Amigos Motorpool</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Equipment Classification</label>
+                    <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="newUnitType" required="">
+                        <!-- Hydrated via dynamically context-bound script lists -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Asset Code / Registration Number</label>
+                    <input class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-600 uppercase" id="newUnitCode" placeholder="e.g. BT-19, CT-22" required="" type="text"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Fault Diagnosis / Work Order</label>
+                    <textarea class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-600" id="newUnitDescription" placeholder="Specify required mechanical/electrical repairs..." rows="2"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Current Downtime Status</label>
+                    <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="newUnitState" onchange="adjustFormDefaults()" required="">
+                        <option value="ongoing">On-Going Repair</option>
+                        <option value="waiting">Waiting for Parts/Manpower</option>
+                        <option value="released">Released Unit</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <p class="text-sm font-bold text-slate-200" id="manageUnitCategory">--</p>
-                        <p class="text-xs text-slate-400" id="manageUnitType">--</p>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Completion (%)</label>
+                        <input class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="newUnitProgress" max="100" min="0" type="number" value="0"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Target Finish Date</label>
+                        <input class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="newUnitTargetDate" type="date"/>
                     </div>
                 </div>
-            </div>
-
-            <!-- Overdue Warning -->
-            <div class="hidden p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl flex items-center gap-2" id="overdueAlert">
-                <i class="w-5 h-5 shrink-0" data-lucide="alert-circle"></i>
-                <span class="text-xs font-bold leading-tight">This asset has passed its targeted completion milestone date.</span>
-            </div>
-
-            <!-- Editable Scope of Work / Fault Diagnosis -->
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Scope of Work / Diagnosis</label>
-                <textarea class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-600" id="manageUnitDescription" rows="2" placeholder="Describe mechanical/electrical repair details..."></textarea>
-            </div>
-
-            <!-- Editable Downtime Status Phase Select -->
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Current Downtime Status</label>
-                <select class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="manageUnitStatus" onchange="handleStatusSelectChange(this.value)">
-                    <option value="ongoing">On-Going Repair</option>
-                    <option value="waiting">Waiting for Parts/Manpower</option>
-                    <option value="released">Released Unit</option>
-                </select>
-            </div>
-
-            <!-- Completion Progress Slider -->
-            <div class="space-y-2 bg-slate-900/40 p-3 rounded-xl border border-slate-700/50">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Completion Matrix</span>
-                    <span class="text-sm font-black text-amber-400" id="progressPercentDisplay">--%</span>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Long Down Status Tag</label>
+                        <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="newUnitLongDown">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Running Repair Tag</label>
+                        <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="newUnitRunning">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
                 </div>
-                <input class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" id="manageUnitProgressSlider" max="100" min="0" oninput="updateProgressDisplay(this.value)" type="range"/>
-            </div>
+                <div class="pt-4 flex gap-3 justify-end border-t border-slate-700">
+                    <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-xl text-sm font-semibold transition" onclick="closeModal('addUnitModal')" type="button">Cancel</button>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-500 transition" type="submit">Commit to Ledger</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            <!-- Milestone Date Input -->
-            <div class="space-y-1.5 bg-slate-900/40 p-3 rounded-xl border border-slate-700/50">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Target Completion Milestone</label>
-                <input class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="manageUnitTargetDate" onchange="updateTargetDateState(this.value)" type="date"/>
+    <!-- Modal Form: Manage Existing Lifecycle Asset State -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="manageUnitModal">
+        <div class="bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl border border-slate-700 overflow-hidden transform scale-100 transition duration-300">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2"><i class="w-5 h-5 text-blue-500" data-lucide="edit-3"></i> Lifecycle Management Deck</h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('manageUnitModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
             </div>
+            <div class="p-6 space-y-4">
+                <!-- Asset Information Badge -->
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Target Selected Asset</span>
+                    <div class="mt-1 flex items-center gap-3">
+                        <span class="px-3.5 py-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 text-base font-black rounded-xl" id="manageUnitBadge">--</span>
+                        <div>
+                            <p class="text-sm font-bold text-slate-200" id="manageUnitCategory">--</p>
+                            <p class="text-xs text-slate-400" id="manageUnitType">--</p>
+                        </div>
+                    </div>
+                </div>
 
-            <!-- Footer Modal Controls -->
-            <div class="pt-3 flex gap-3 justify-between border-t border-slate-700">
-                <button class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl text-sm font-semibold border border-rose-500/25 transition flex items-center gap-2" onclick="deleteUnit()">
-                    <i class="w-4 h-4" data-lucide="trash-2"></i> Retract
-                </button>
-                <button class="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-500 transition" onclick="saveAssetDetailedChanges()">Save Diagnostics</button>
+                <!-- Overdue Warning -->
+                <div class="hidden p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl flex items-center gap-2" id="overdueAlert">
+                    <i class="w-5 h-5 shrink-0" data-lucide="alert-circle"></i>
+                    <span class="text-xs font-bold leading-tight">This asset has passed its targeted completion milestone date.</span>
+                </div>
+
+                <!-- Scope of Work / Diagnosis Edit -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Scope of Work / Diagnosis</label>
+                    <textarea class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-600" id="manageUnitDescription" placeholder="Describe mechanical/electrical repair details..." rows="2"></textarea>
+                </div>
+
+                <!-- Downtime Status Phase Select -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Current Downtime Status</label>
+                    <select class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="manageUnitStatus" onchange="handleStatusSelectChange(this.value)">
+                        <option value="ongoing">On-Going Repair</option>
+                        <option value="waiting">Waiting for Parts/Manpower</option>
+                        <option value="released">Released Unit</option>
+                    </select>
+                </div>
+
+                <!-- Precision Repair Slider -->
+                <div class="space-y-2 bg-slate-900/40 p-3 rounded-xl border border-slate-700/50">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Completion Matrix</span>
+                        <span class="text-sm font-black text-amber-400" id="progressPercentDisplay">--%</span>
+                    </div>
+                    <input class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" id="manageUnitProgressSlider" max="100" min="0" oninput="updateProgressDisplay(this.value)" type="range"/>
+                </div>
+
+                <!-- Calendar Input Tracking Target Date Limits -->
+                <div class="space-y-1.5 bg-slate-900/40 p-3 rounded-xl border border-slate-700/50">
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Target Completion Milestone</label>
+                    <input class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="manageUnitTargetDate" onchange="updateTargetDateState(this.value)" type="date"/>
+                </div>
+
+                <!-- Modal Footer Controls -->
+                <div class="pt-3 flex gap-3 justify-between border-t border-slate-700">
+                    <button class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl text-sm font-semibold border border-rose-500/25 transition flex items-center gap-2" onclick="deleteUnit()">
+                        <i class="w-4 h-4" data-lucide="trash-2"></i> Retract Asset Entry
+                    </button>
+                    <button class="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-500 transition" onclick="saveAssetDetailedChanges()">Save Diagnostics</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Core Interactive Tracking JS Engine -->
+    <script>
+        // Integrated Live Google Apps Script Endpoint
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
+        const SYSTEM_TODAY = new Date("2026-07-20");
+
+        // Baseline equipment category schema defaults
+        const RECONSTRUCTED_DEFAULTS = [
+            // GEM Motorpool Items
+            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-15", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-10" },{ id: "BT-32", completion: 100, targetDate: "2026-07-11" },{ id: "BT-40", completion: 100, targetDate: "2026-07-12" },{ id: "BT-48", completion: 100, targetDate: "2026-07-13" },{ id: "BT-50", completion: 100, targetDate: "2026-07-14" }] },
+            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-28" }, { id: "CT-22", completion: 65, targetDate: "2026-07-18" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-24" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-10" }] },
+            { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-12" }, { id: "ST-69", completion: 15, targetDate: "2026-07-19" }, { id: "ST-35", completion: 30, targetDate: "2026-07-26" }], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-25" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-14" }, { id: "PM21", completion: 20, targetDate: "2026-07-29" }], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-17" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-25" },{ id: "DT96", completion: 0, targetDate: "2026-07-16" }], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-15" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "BACKHOE (CRAWLER)", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-22" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-18" }], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "FUEL DELIVERY TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "FDT28", completion: 10, targetDate: "2026-07-27" }], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "PMT", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [] },
+            { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-14" }], waiting: [], released: [] },
+            
+            // SV Repair Units Items
+            { category: "LIGHT EQUIPMENT", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "TOYOTA FORTUNER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "MITSUBISHI STRADA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "ISUZU D-MAX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+
+            // Los Amigos Motorpool Items
+            { category: "LIGHT EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "CRAWLER BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "WHEEL LOADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "ROAD ROLLER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "CRANE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "SHEET PILE DRIVER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] }
+        ];
+
+        let state = [];
+        let activeManageState = { category: "", type: "", index: -1, unitCode: "", stateKey: "", unitObj: null };
+
+        const EQUIPMENT_BY_LOCATION = {
+            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","LOW BED TRUCK","HIGH BED TRUCK","DOLLY"],
+            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX"],
+            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER"]
+        };
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('locationFilter').addEventListener('change', renderDashboard);
+            populateTypeSelect();
+            await fetchSheetData();
+        });
+
+        // Sync State with Google Sheets (GET)
+        async function fetchSheetData() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    state = data;
+                } else {
+                    state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
+                    await saveToSheet();
+                }
+            } catch (e) {
+                console.warn("Unable to fetch from Sheet DB, utilizing fallback state.", e);
+                state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
+            }
+            renderDashboard();
+        }
+
+        // Sync State with Google Sheets (POST)
+        async function saveToSheet() {
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(state)
+                });
+            } catch (e) {
+                console.error("Failed to commit updates to Google Sheets:", e);
+            }
+        }
+
+        function populateTypeSelect() {
+            const selectEl = document.getElementById('newUnitType');
+            const loc = document.getElementById('newUnitLocation');
+            const fill = () => {
+                const list = EQUIPMENT_BY_LOCATION[loc.value] || [];
+                selectEl.innerHTML = '';
+                list.forEach(t => {
+                    const o = document.createElement('option');
+                    o.value = t; o.textContent = t;
+                    selectEl.appendChild(o);
+                });
+            };
+            loc.addEventListener('change', fill);
+            fill();
+        }
+
+        async function resetToDefaults() {
+            if (confirm("Reset current registry view back to original factory matrix fields?")) {
+                state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
+                await saveToSheet();
+                renderDashboard();
+            }
+        }
+
+        function isUnitOverdue(unit) {
+            if (!unit || unit.completion >= 100 || !unit.targetDate) return false;
+            return new Date(unit.targetDate) < SYSTEM_TODAY;
+        }
+
+        function adjustFormDefaults() {
+            const stateKey = document.getElementById('newUnitState').value;
+            const progressInput = document.getElementById('newUnitProgress');
+            if (stateKey === 'released') {
+                progressInput.value = 100; progressInput.disabled = true;
+            } else if (stateKey === 'waiting') {
+                progressInput.value = 0; progressInput.disabled = false;
+            } else {
+                progressInput.value = 25; progressInput.disabled = false;
+            }
+        }
+
+        function renderDashboard() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const locationVal = document.getElementById('locationFilter').value;
+            const gridBody = document.getElementById('motorpool-grid-body');
+            gridBody.innerHTML = '';
+
+            const categories = ["LIGHT EQUIPMENT", "ATTACHMENT/TRAILER"];
+            let overallLongDown = 0, overallRunningRepair = 0, overallTotalDown = 0;
+            let overallOngoing = 0, overallWaiting = 0, overallReleased = 0;
+            let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
+
+            categories.forEach(catName => {
+                let catRows = state.filter(row => row.category === catName);
+                
+                if (locationVal !== "All Motorpools") {
+                    const allowedTypes = EQUIPMENT_BY_LOCATION[locationVal] || [];
+                    catRows = catRows.filter(row => allowedTypes.includes(row.type));
+                }
+
+                if (catRows.length === 0) return;
+
+                const catHeaderRow = document.createElement('tr');
+                catHeaderRow.className = "bg-slate-800/80 font-black text-xs text-blue-400 select-none border-t border-slate-700";
+                catHeaderRow.innerHTML = `<td class="py-3.5 px-5 tracking-wider font-extrabold uppercase" colspan="10">${catName}</td>`;
+                gridBody.appendChild(catHeaderRow);
+
+                catRows.forEach(row => {
+                    const matchesSearch = row.type.toLowerCase().includes(searchVal) ||
+                                          (row.ongoing || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          (row.waiting || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          (row.released || []).some(u => u.id.toLowerCase().includes(searchVal));
+
+                    if (searchVal && !matchesSearch) return;
+
+                    const ongoingList = row.ongoing || [];
+                    const waitingList = row.waiting || [];
+                    const releasedList = row.released || [];
+
+                    const totalDownRow = ongoingList.length + waitingList.length;
+                    overallLongDown += row.longDown || 0; 
+                    overallRunningRepair += row.runningRepair || 0;
+                    overallTotalDown += totalDownRow; 
+                    overallOngoing += ongoingList.length;
+                    overallWaiting += waitingList.length; 
+                    overallReleased += releasedList.length;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/30 transition group border-b border-slate-700/40";
+
+                    let ongoingIDs = ongoingList.map(u => {
+                        const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
+                        activeRepairsSum += u.completion; activeRepairsTotal++;
+                        const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : 'border-amber-500/30 text-amber-400 bg-amber-500/10';
+                        return `
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'ongoing')" class="flex flex-col gap-1 p-2 border ${borderCls} text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 text-rose-400"></i>' : ''}</div>
+                                <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full ${isOverdue ? 'bg-rose-500': 'bg-amber-500'}" style="width: ${u.completion}%"></div></div>
+                                <div class="flex justify-between text-[8px] text-slate-400 font-medium"><span>${u.completion}%</span><span>${isOverdue ? 'LATE' : 'OK'}</span></div>
+                            </div>`;
+                    }).join(' ');
+
+                    let waitingIDs = waitingList.map(u => {
+                        const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
+                        activeRepairsSum += u.completion; activeRepairsTotal++;
+                        const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : 'border-blue-500/30 text-blue-400 bg-blue-500/10';
+                        return `
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'waiting')" class="flex flex-col gap-1 p-2 border ${borderCls} text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 text-rose-400"></i>' : ''}</div>
+                                <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full bg-blue-500" style="width: ${u.completion}%"></div></div>
+                                <div class="flex justify-between text-[8px] text-slate-400 font-medium"><span>${u.completion}%</span><span>QUEUE</span></div>
+                            </div>`;
+                    }).join(' ');
+
+                    let releasedIDs = releasedList.map(u => {
+                        return `
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'released')" class="flex flex-col gap-1 p-2 border border-emerald-500/30 text-emerald-400 bg-emerald-500/5 text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span><i data-lucide="check-circle" class="w-3 h-3 text-emerald-400"></i></div>
+                                <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 100%"></div></div>
+                                <div class="text-[8px] text-emerald-500/70 font-semibold uppercase tracking-wider">Active</div>
+                            </div>`;
+                    }).join(' ');
+
+                    tr.innerHTML = `
+                        <td class="py-3 px-5 font-semibold text-slate-200">${row.type}</td>
+                        <td class="py-3 px-3 text-center border-l border-slate-700 font-medium text-slate-300">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="adjustField('${row.type}', 'longDown', -1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">-</button>
+                                <span class="w-6">${row.longDown || 0}</span>
+                                <button onclick="adjustField('${row.type}', 'longDown', 1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">+</button>
+                            </div>
+                        </td>
+                        <td class="py-3 px-3 text-center font-medium text-slate-300">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="adjustField('${row.type}', 'runningRepair', -1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">-</button>
+                                <span class="w-6">${row.runningRepair || 0}</span>
+                                <button onclick="adjustField('${row.type}', 'runningRepair', 1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">+</button>
+                            </div>
+                        </td>
+                        <td class="py-3 px-3 text-center text-blue-400 font-black bg-blue-500/5 border-r border-slate-700">${totalDownRow}</td>
+                        <td class="py-3 px-3 text-center font-bold border-l border-slate-700/60 text-amber-400 bg-amber-500/5 w-16">${ongoingList.length}</td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-amber-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[280px]">${ongoingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-3 text-center font-bold text-blue-400 bg-blue-500/5 w-16">${waitingList.length}</td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-blue-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[280px]">${waitingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-3 text-center font-bold text-emerald-400 bg-emerald-500/5 w-16">${releasedList.length}</td>
+                        <td class="py-3 px-4 bg-emerald-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[280px]">${releasedIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                    `;
+                    gridBody.appendChild(tr);
+                });
+            });
+
+            document.getElementById('total-long-down').textContent = overallLongDown;
+            document.getElementById('total-running-repair').textContent = overallRunningRepair;
+            document.getElementById('total-down-units').textContent = overallTotalDown;
+            document.getElementById('total-ongoing-count').textContent = overallOngoing;
+            document.getElementById('total-waiting-count').textContent = overallWaiting;
+            document.getElementById('total-released-count').textContent = overallReleased;
+
+            document.getElementById('kpi-total-down').textContent = overallTotalDown;
+            document.getElementById('kpi-overdue').textContent = overdueCount;
+            document.getElementById('kpi-waiting').textContent = overallWaiting;
+            document.getElementById('kpi-released').textContent = overallReleased;
+
+            const avgProgress = activeRepairsTotal > 0 ? Math.round(activeRepairsSum / activeRepairsTotal) : 0;
+            document.getElementById('kpi-avg-progress').textContent = `${avgProgress}%`;
+            lucide.createIcons();
+        }
+
+        async function adjustField(type, fieldName, amount) {
+            const item = state.find(row => row.type === type);
+            if (item) {
+                item[fieldName] = Math.max(0, (item[fieldName] || 0) + amount);
+                renderDashboard();
+                await saveToSheet();
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function openAddUnitModal() {
+            const targetDateInput = document.getElementById('newUnitTargetDate');
+            const defaultDate = new Date(SYSTEM_TODAY);
+            defaultDate.setDate(defaultDate.getDate() + 5);
+            targetDateInput.value = defaultDate.toISOString().slice(0, 10);
+            adjustFormDefaults();
+            openModal('addUnitModal');
+        }
+
+        async function handleAddUnit(e) {
+            e.preventDefault();
+            const type = document.getElementById('newUnitType').value;
+            const code = document.getElementById('newUnitCode').value.toUpperCase().trim();
+            const stateKey = document.getElementById('newUnitState').value;
+            const progress = parseInt(document.getElementById('newUnitProgress').value) || 0;
+            const targetDate = document.getElementById('newUnitTargetDate').value;
+            const description = document.getElementById('newUnitDescription').value.trim();
+            const location = document.getElementById('newUnitLocation').value;
+            const longDownVal = parseInt(document.getElementById('newUnitLongDown').value) || 0;
+            const runningVal = parseInt(document.getElementById('newUnitRunning').value) || 0;
+
+            if (!code) return;
+
+            let exists = false;
+            state.forEach(row => {
+                const combined = [...(row.ongoing||[]), ...(row.waiting||[]), ...(row.released||[])];
+                if (combined.some(u => u.id === code)) exists = true;
+            });
+
+            if (exists) {
+                alert(`Asset Code "${code}" is already actively logged on this tracking board.`);
+                return;
+            }
+
+            const row = state.find(item => item.type === type);
+            if (row) {
+                row[stateKey].push({ id: code, completion: progress, targetDate: targetDate || null, description, location });
+                if (longDownVal > 0) row.longDown = (row.longDown || 0) + 1;
+                if (runningVal > 0) row.runningRepair = (row.runningRepair || 0) + 1;
+                renderDashboard();
+                closeModal('addUnitModal');
+                document.getElementById('addUnitForm').reset();
+                await saveToSheet();
+            }
+        }
+
+        function openManageModal(category, type, unitCode, stateKey) {
+            const index = state.findIndex(item => item.type === type); if (index === -1) return;
+            const row = state[index];
+            const unit = row[stateKey].find(u => u.id === unitCode); if (!unit) return;
+
+            activeManageState = { category, type, index, unitCode, stateKey, unitObj: unit };
+            document.getElementById('manageUnitBadge').textContent = unitCode;
+            document.getElementById('manageUnitCategory').textContent = category;
+            document.getElementById('manageUnitType').textContent = type;
+
+            document.getElementById('manageUnitDescription').value = unit.description || '';
+            document.getElementById('manageUnitStatus').value = stateKey;
+
+            updateProgressDisplay(unit.completion);
+            document.getElementById('manageUnitProgressSlider').value = unit.completion;
+            document.getElementById('manageUnitTargetDate').value = unit.targetDate || "";
+
+            const overdueAlert = document.getElementById('overdueAlert');
+            if (isUnitOverdue(unit)) overdueAlert.classList.remove('hidden');
+            else overdueAlert.classList.add('hidden');
+
+            openModal('manageUnitModal');
+        }
+
+        function handleStatusSelectChange(newStatusKey) {
+            const slider = document.getElementById('manageUnitProgressSlider');
+            if (newStatusKey === 'released') {
+                updateProgressDisplay(100);
+                slider.value = 100;
+            } else if (newStatusKey === 'waiting' && activeManageState.unitObj.completion === 100) {
+                updateProgressDisplay(0);
+                slider.value = 0;
+            }
+        }
+
+        function updateProgressDisplay(val) {
+            document.getElementById('progressPercentDisplay').textContent = `${val}%`;
+            if (activeManageState.unitObj) activeManageState.unitObj.completion = parseInt(val);
+        }
+
+        function updateTargetDateState(val) {
+            if (activeManageState.unitObj) {
+                activeManageState.unitObj.targetDate = val || null;
+                const overdueAlert = document.getElementById('overdueAlert');
+                if (isUnitOverdue(activeManageState.unitObj)) overdueAlert.classList.remove('hidden');
+                else overdueAlert.classList.add('hidden');
+            }
+        }
+
+        async function saveAssetDetailedChanges() {
+            if (!activeManageState.unitObj) return;
+
+            const row = state[activeManageState.index];
+            const newStatusKey = document.getElementById('manageUnitStatus').value;
+            const newDescription = document.getElementById('manageUnitDescription').value.trim();
+
+            activeManageState.unitObj.description = newDescription;
+
+            if (newStatusKey !== activeManageState.stateKey) {
+                row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
+                row[newStatusKey].push(activeManageState.unitObj);
+            }
+
+            renderDashboard();
+            closeModal('manageUnitModal');
+            await saveToSheet();
+        }
+
+        async function deleteUnit() {
+            if (confirm(`Remove asset ${activeManageState.unitCode} from logging registry channels?`)) {
+                const row = state[activeManageState.index];
+                if (row) {
+                    row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
+                    renderDashboard();
+                    closeModal('manageUnitModal');
+                    await saveToSheet();
+                }
+            }
+        }
+
+        function downloadCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Long Down,Running Repair,Total Down,Ongoing Details,Waiting Details,Released Details\n";
+            state.forEach(row => {
+                const ongoingList = row.ongoing || [];
+                const waitingList = row.waiting || [];
+                const releasedList = row.released || [];
+                const totalDown = ongoingList.length + waitingList.length;
+                const ongoing = ongoingList.map(u => `${u.id}(${u.completion}%)`).join('; ') || 'None';
+                const waiting = waitingList.map(u => `${u.id}(${u.completion}%)`).join('; ') || 'None';
+                const released = releasedList.map(u => u.id).join('; ') || 'None';
+                csvContent += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${totalDown},"${ongoing}","${waiting}","${released}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `fleet_downtime_manifest.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
