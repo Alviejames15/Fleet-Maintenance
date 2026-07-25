@@ -340,6 +340,7 @@
             { category: "LIGHT EQUIPMENT", type: "PMT", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
             { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
             { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
+            { category: "LIGHT EQUIPMENT", type: "GENSET REPAIRS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
             { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [] },
             { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [] },
             { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-14" }], waiting: [], released: [] },
@@ -365,9 +366,9 @@
         let activeManageState = { category: "", type: "", index: -1, unitCode: "", stateKey: "", unitObj: null };
 
         const EQUIPMENT_BY_LOCATION = {
-            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","LOW BED TRUCK","HIGH BED TRUCK","DOLLY"],
+            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","GENSET REPAIRS","LOW BED TRUCK","HIGH BED TRUCK","DOLLY"],
             "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX"],
-            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER"]
+            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","GENSET REPAIRS","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER"]
         };
 
         window.addEventListener('DOMContentLoaded', async () => {
