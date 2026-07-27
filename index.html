@@ -186,11 +186,14 @@
                 </div>
 
                 <!-- Monthly Performance Card -->
-                <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5">
+                <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5 cursor-pointer hover:border-purple-500/50 transition group" onclick="openMonthlyHistoryModal()">
                     <div class="flex justify-between items-center border-b border-slate-700/60 pb-4">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full">Monthly Overview</span>
-                            <h3 class="text-base font-bold text-white mt-1">Monthly Operational Health</h3>
+                            <h3 class="text-base font-bold text-white mt-1 group-hover:text-purple-400 transition flex items-center gap-2">
+                                Monthly Operational Health
+                                <i class="w-4 h-4 text-slate-400 group-hover:text-purple-400" data-lucide="external-link"></i>
+                            </h3>
                         </div>
                         <div class="p-2.5 bg-purple-500/10 rounded-xl text-purple-400">
                             <i class="w-5 h-5" data-lucide="bar-chart-3"></i>
@@ -339,6 +342,85 @@
                 <div class="space-y-2">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Associated Week Asset Manifest</span>
                     <div class="max-h-40 overflow-y-auto space-y-2 pr-1" id="historyUnitList">
+                        <!-- Loaded Dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form: Monthly Performance History Inspector -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="monthlyHistoryModal">
+        <div class="bg-slate-800 rounded-2xl max-w-xl w-full shadow-2xl border border-slate-700 overflow-hidden transform scale-100 transition duration-300">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="w-5 h-5 text-purple-500" data-lucide="calendar"></i> Monthly Performance History
+                </h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('monthlyHistoryModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Selection Header Controls -->
+                <div class="grid grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Target Year</label>
+                        <select class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-purple-500" id="monthlyYearSelect" onchange="renderMonthlyHistoryData()">
+                            <option value="2026" selected>2026</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Month</label>
+                        <select class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-purple-500" id="monthlyMonthSelect" onchange="renderMonthlyHistoryData()">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Info Banner -->
+                <div class="flex items-center justify-between bg-purple-500/10 border border-purple-500/20 px-4 py-2.5 rounded-xl text-xs text-purple-300 font-medium">
+                    <span id="monthlySpanText">Month Range: --</span>
+                    <span class="text-[10px] bg-purple-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold" id="monthlyBadge">--</span>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase">Monthly Released</span>
+                        <p class="text-3xl font-black text-emerald-400 mt-1" id="monthly-history-released-count">0</p>
+                        <span class="text-[10px] text-slate-500">Completed in selected month</span>
+                    </div>
+                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase">Scheduled / Due</span>
+                        <p class="text-3xl font-black text-amber-400 mt-1" id="monthly-history-due-count">0</p>
+                        <span class="text-[10px] text-slate-500">Work orders due in month</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 bg-slate-900/40 p-4 rounded-xl border border-slate-700/50">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-300">Monthly Completion Rate</span>
+                        <span class="text-purple-400 font-bold" id="monthly-history-progress-pct">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-700/60">
+                        <div class="h-full bg-purple-500 transition-all duration-500 rounded-full" id="monthly-history-progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Unit Manifest -->
+                <div class="space-y-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Associated Month Asset Manifest</span>
+                    <div class="max-h-40 overflow-y-auto space-y-2 pr-1" id="monthlyUnitList">
                         <!-- Loaded Dynamically -->
                     </div>
                 </div>
@@ -515,6 +597,7 @@
             { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
+            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [] },
 
             // ATTACHMENT/TRAILER Category Items
             { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [] },
@@ -548,16 +631,17 @@
         let activeManageState = { category: "", type: "", index: -1, unitCode: "", stateKey: "", unitObj: null };
 
         const EQUIPMENT_BY_LOCATION = {
-            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","PMS UNITS","LOW BED TRUCK","HIGH BED TRUCK","DOLLY","GENSET 50KVA","GENSET 100KVA","GENSET 150KVA","GENSET 250KVA"],
-            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","PMS UNITS","GENSET 50KVA","GENSET 100KVA"],
-            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","PMS UNITS","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER","GENSET 150KVA","GENSET 250KVA"],
-            "PMS / GENSET": ["PMS UNITS", "GENSET 50KVA", "GENSET 100KVA", "GENSET 150KVA", "GENSET 250KVA"]
+            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","PMS UNITS","GENSET","LOW BED TRUCK","HIGH BED TRUCK","DOLLY","GENSET 50KVA","GENSET 100KVA","GENSET 150KVA","GENSET 250KVA"],
+            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","PMS UNITS","GENSET","GENSET 50KVA","GENSET 100KVA"],
+            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","PMS UNITS","GENSET","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER","GENSET 150KVA","GENSET 250KVA"],
+            "PMS / GENSET": ["PMS UNITS", "GENSET", "GENSET 50KVA", "GENSET 100KVA", "GENSET 150KVA", "GENSET 250KVA"]
         };
 
         window.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('locationFilter').addEventListener('change', renderDashboard);
             populateTypeSelect();
             populateWeekSelectOptions();
+            document.getElementById('monthlyMonthSelect').value = SYSTEM_TODAY.getMonth();
             await fetchSheetData();
         });
 
@@ -911,6 +995,71 @@
                 manifestContainer.innerHTML = `<div class="p-3 text-xs text-slate-500 italic text-center bg-slate-900/30 rounded-xl">No scheduled unit work orders registered for Week ${week}.</div>`;
             } else {
                 weekUnits.forEach(u => {
+                    const el = document.createElement('div');
+                    el.className = 'flex items-center justify-between p-2.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-xs';
+                    el.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-white">${u.id}</span>
+                            <span class="text-slate-400">(${u.type})</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-400 font-mono text-[10px]">${u.targetDate}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isReleased ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">
+                                ${u.isReleased ? 'RELEASED' : `${u.completion}%`}
+                            </span>
+                        </div>
+                    `;
+                    manifestContainer.appendChild(el);
+                });
+            }
+        }
+
+        // Monthly History Logic
+        function openMonthlyHistoryModal() {
+            openModal('monthlyHistoryModal');
+            renderMonthlyHistoryData();
+        }
+
+        function renderMonthlyHistoryData() {
+            const year = parseInt(document.getElementById('monthlyYearSelect').value);
+            const month = parseInt(document.getElementById('monthlyMonthSelect').value);
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            document.getElementById('monthlySpanText').textContent = `Month Range: ${monthNames[month]} ${year}`;
+            document.getElementById('monthlyBadge').textContent = `${monthNames[month].toUpperCase()} ${year}`;
+
+            let releasedCount = 0;
+            let dueCount = 0;
+            const monthUnits = [];
+
+            state.forEach(row => {
+                const allUnits = [...(row.ongoing || []), ...(row.pms || []), ...(row.jobout || []), ...(row.waiting || []), ...(row.released || [])];
+                allUnits.forEach(u => {
+                    if (u.targetDate) {
+                        const targetD = new Date(u.targetDate);
+                        if (targetD.getMonth() === month && targetD.getFullYear() === year) {
+                            dueCount++;
+                            const isReleased = u.completion === 100;
+                            if (isReleased) releasedCount++;
+                            monthUnits.push({ ...u, type: row.type, isReleased });
+                        }
+                    }
+                });
+            });
+
+            document.getElementById('monthly-history-released-count').textContent = releasedCount;
+            document.getElementById('monthly-history-due-count').textContent = dueCount;
+            const monthlyPct = dueCount > 0 ? Math.min(100, Math.round((releasedCount / dueCount) * 100)) : 100;
+            document.getElementById('monthly-history-progress-pct').textContent = `${monthlyPct}%`;
+            document.getElementById('monthly-history-progress-bar').style.width = `${monthlyPct}%`;
+
+            const manifestContainer = document.getElementById('monthlyUnitList');
+            manifestContainer.innerHTML = '';
+            if (monthUnits.length === 0) {
+                manifestContainer.innerHTML = `<div class="p-3 text-xs text-slate-500 italic text-center bg-slate-900/30 rounded-xl">No scheduled unit work orders registered for ${monthNames[month]} ${year}.</div>`;
+            } else {
+                monthUnits.forEach(u => {
                     const el = document.createElement('div');
                     el.className = 'flex items-center justify-between p-2.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-xs';
                     el.innerHTML = `
