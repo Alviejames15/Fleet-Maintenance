@@ -446,6 +446,8 @@
             { category: "LIGHT EQUIPMENT", type: "GENSET REPAIRS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
+            { category: "LIGHT EQUIPMENT", type: "GenSet", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
+            { category: "GenSet", type: "GenSet", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [] },
             { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-14" }], waiting: [], released: [], jobout: [] },
@@ -471,10 +473,10 @@
         let activeManageState = { category: "", type: "", index: -1, unitCode: "", stateKey: "", unitObj: null };
 
         const EQUIPMENT_BY_LOCATION = {
-            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","GENSET REPAIRS","PMS UNITS","GENSET","LOW BED TRUCK","HIGH BED TRUCK","DOLLY"],
-            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","PMS UNITS","GENSET"],
-            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","GENSET REPAIRS","PMS UNITS","GENSET","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER"],
-            "PMS / GENSET": ["PMS UNITS", "GENSET", "GENSET REPAIRS"]
+            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","GENSET REPAIRS","PMS UNITS","GENSET","GenSet","LOW BED TRUCK","HIGH BED TRUCK","DOLLY"],
+            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","PMS UNITS","GENSET","GenSet"],
+            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","GENSET REPAIRS","PMS UNITS","GENSET","GenSet","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER"],
+            "PMS / GENSET": ["PMS UNITS", "GENSET", "GenSet", "GENSET REPAIRS"]
         };
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -566,7 +568,7 @@
             const gridBody = document.getElementById('motorpool-grid-body');
             gridBody.innerHTML = '';
 
-            const categories = ["LIGHT EQUIPMENT", "ATTACHMENT/TRAILER"];
+            const categories = ["LIGHT EQUIPMENT", "GenSet", "ATTACHMENT/TRAILER"];
             let overallLongDown = 0, overallRunningRepair = 0, overallTotalDown = 0;
             let overallOngoing = 0, overallJobOut = 0, overallWaiting = 0, overallReleased = 0;
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
