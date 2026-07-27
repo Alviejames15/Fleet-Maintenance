@@ -147,11 +147,14 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Weekly Performance Card -->
-                <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5">
+                <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5 cursor-pointer hover:border-blue-500/50 transition group" onclick="openWeeklyHistoryModal()">
                     <div class="flex justify-between items-center border-b border-slate-700/60 pb-4">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full">Weekly Window</span>
-                            <h3 class="text-base font-bold text-white mt-1">Current Week Performance</h3>
+                            <h3 class="text-base font-bold text-white mt-1 group-hover:text-blue-400 transition flex items-center gap-2">
+                                Current Week Performance
+                                <i class="w-4 h-4 text-slate-400 group-hover:text-blue-400" data-lucide="external-link"></i>
+                            </h3>
                         </div>
                         <div class="p-2.5 bg-blue-500/10 rounded-xl text-blue-400">
                             <i class="w-5 h-5" data-lucide="calendar"></i>
@@ -274,6 +277,74 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal Form: Weekly Performance History Inspector -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="weeklyHistoryModal">
+        <div class="bg-slate-800 rounded-2xl max-w-xl w-full shadow-2xl border border-slate-700 overflow-hidden transform scale-100 transition duration-300">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="w-5 h-5 text-blue-500" data-lucide="history"></i> Weekly Performance History
+                </h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('weeklyHistoryModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Selection Header Controls -->
+                <div class="grid grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Target Year</label>
+                        <select class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-blue-500" id="historyYearSelect" onchange="renderWeeklyHistoryData()">
+                            <option value="2026" selected>2026</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Week Number</label>
+                        <select class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-blue-500" id="historyWeekSelect" onchange="renderWeeklyHistoryData()">
+                            <!-- Generated Dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date Range Info Banner -->
+                <div class="flex items-center justify-between bg-blue-500/10 border border-blue-500/20 px-4 py-2.5 rounded-xl text-xs text-blue-300 font-medium">
+                    <span id="historyWeekSpanText">Week Date Range: --</span>
+                    <span class="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold" id="historyWeekBadge">Week --</span>
+                </div>
+
+                <!-- Specific Historical Week Metrics -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase">Historical Released</span>
+                        <p class="text-3xl font-black text-emerald-400 mt-1" id="history-released-count">0</p>
+                        <span class="text-[10px] text-slate-500">Completed in selected week</span>
+                    </div>
+                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase">Scheduled / Due</span>
+                        <p class="text-3xl font-black text-amber-400 mt-1" id="history-due-count">0</p>
+                        <span class="text-[10px] text-slate-500">Work orders due in week</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 bg-slate-900/40 p-4 rounded-xl border border-slate-700/50">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-300">Historical Completion Efficiency Rate</span>
+                        <span class="text-blue-400 font-bold" id="history-progress-pct">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-700/60">
+                        <div class="h-full bg-blue-500 transition-all duration-500 rounded-full" id="history-progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Unit Manifest for Week -->
+                <div class="space-y-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Associated Week Asset Manifest</span>
+                    <div class="max-h-40 overflow-y-auto space-y-2 pr-1" id="historyUnitList">
+                        <!-- Loaded Dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Form: Add / Sidelined Unit -->
     <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="addUnitModal">
@@ -443,14 +514,18 @@
             { category: "LIGHT EQUIPMENT", type: "PMT", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "GENSET REPAIRS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "GenSet", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "GenSet", type: "GenSet", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
+
+            // ATTACHMENT/TRAILER Category Items
             { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [] },
             { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
             { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-14" }], waiting: [], released: [], jobout: [] },
+
+            // GENSET Category Row
+            { category: "GENSET", type: "GENSET 50KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
+            { category: "GENSET", type: "GENSET 100KVA", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [], jobout: [] },
+            { category: "GENSET", type: "GENSET 150KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
+            { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [] },
             
             // SV Repair Units Items
             { category: "LIGHT EQUIPMENT", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
@@ -473,15 +548,16 @@
         let activeManageState = { category: "", type: "", index: -1, unitCode: "", stateKey: "", unitObj: null };
 
         const EQUIPMENT_BY_LOCATION = {
-            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","GENSET REPAIRS","PMS UNITS","GENSET","GenSet","LOW BED TRUCK","HIGH BED TRUCK","DOLLY"],
-            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","PMS UNITS","GENSET","GenSet"],
-            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","GENSET REPAIRS","PMS UNITS","GENSET","GenSet","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER"],
-            "PMS / GENSET": ["PMS UNITS", "GENSET", "GenSet", "GENSET REPAIRS"]
+            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","PMS UNITS","LOW BED TRUCK","HIGH BED TRUCK","DOLLY","GENSET 50KVA","GENSET 100KVA","GENSET 150KVA","GENSET 250KVA"],
+            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","PMS UNITS","GENSET 50KVA","GENSET 100KVA"],
+            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","PMS UNITS","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER","GENSET 150KVA","GENSET 250KVA"],
+            "PMS / GENSET": ["PMS UNITS", "GENSET 50KVA", "GENSET 100KVA", "GENSET 150KVA", "GENSET 250KVA"]
         };
 
         window.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('locationFilter').addEventListener('change', renderDashboard);
             populateTypeSelect();
+            populateWeekSelectOptions();
             await fetchSheetData();
         });
 
@@ -568,7 +644,7 @@
             const gridBody = document.getElementById('motorpool-grid-body');
             gridBody.innerHTML = '';
 
-            const categories = ["LIGHT EQUIPMENT", "GenSet", "ATTACHMENT/TRAILER"];
+            const categories = ["LIGHT EQUIPMENT", "ATTACHMENT/TRAILER", "GENSET"];
             let overallLongDown = 0, overallRunningRepair = 0, overallTotalDown = 0;
             let overallOngoing = 0, overallJobOut = 0, overallWaiting = 0, overallReleased = 0;
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
@@ -752,6 +828,106 @@
             document.getElementById('monthly-efficiency-bar').style.width = `${efficiencyPct}%`;
 
             lucide.createIcons();
+        }
+
+        // ISO Week Helper Logic
+        function getISOWeekNumber(d) {
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            const dayNum = date.getUTCDay() || 7;
+            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+            return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+        }
+
+        function getDateOfISOWeek(w, y) {
+            const simple = new Date(y, 0, 1 + (w - 1) * 7);
+            const dow = simple.getDay();
+            const ISOweekStart = simple;
+            if (dow <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+            else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+            return ISOweekStart;
+        }
+
+        function populateWeekSelectOptions() {
+            const select = document.getElementById('historyWeekSelect');
+            select.innerHTML = '';
+            const currentISOWeek = getISOWeekNumber(SYSTEM_TODAY);
+            for (let i = 1; i <= 52; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `Week ${i}${i === currentISOWeek ? ' (Current)' : ''}`;
+                if (i === currentISOWeek) opt.selected = true;
+                select.appendChild(opt);
+            }
+        }
+
+        function openWeeklyHistoryModal() {
+            openModal('weeklyHistoryModal');
+            renderWeeklyHistoryData();
+        }
+
+        function renderWeeklyHistoryData() {
+            const year = parseInt(document.getElementById('historyYearSelect').value);
+            const week = parseInt(document.getElementById('historyWeekSelect').value);
+
+            const startOfWeek = getDateOfISOWeek(week, year);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+            const options = { month: 'short', day: 'numeric' };
+            const dateSpanText = `${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}, ${year}`;
+            
+            document.getElementById('historyWeekSpanText').textContent = `Week Date Range: ${dateSpanText}`;
+            document.getElementById('historyWeekBadge').textContent = `Week ${week}`;
+
+            let releasedCount = 0;
+            let dueCount = 0;
+            const weekUnits = [];
+
+            state.forEach(row => {
+                const allUnits = [...(row.ongoing || []), ...(row.pms || []), ...(row.jobout || []), ...(row.waiting || []), ...(row.released || [])];
+                allUnits.forEach(u => {
+                    if (u.targetDate) {
+                        const targetD = new Date(u.targetDate);
+                        if (targetD >= startOfWeek && targetD <= endOfWeek) {
+                            dueCount++;
+                            const isReleased = u.completion === 100;
+                            if (isReleased) releasedCount++;
+                            weekUnits.push({ ...u, type: row.type, isReleased });
+                        }
+                    }
+                });
+            });
+
+            document.getElementById('history-released-count').textContent = releasedCount;
+            document.getElementById('history-due-count').textContent = dueCount;
+            const historyPct = dueCount > 0 ? Math.min(100, Math.round((releasedCount / dueCount) * 100)) : 100;
+            document.getElementById('history-progress-pct').textContent = `${historyPct}%`;
+            document.getElementById('history-progress-bar').style.width = `${historyPct}%`;
+
+            const manifestContainer = document.getElementById('historyUnitList');
+            manifestContainer.innerHTML = '';
+            if (weekUnits.length === 0) {
+                manifestContainer.innerHTML = `<div class="p-3 text-xs text-slate-500 italic text-center bg-slate-900/30 rounded-xl">No scheduled unit work orders registered for Week ${week}.</div>`;
+            } else {
+                weekUnits.forEach(u => {
+                    const el = document.createElement('div');
+                    el.className = 'flex items-center justify-between p-2.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-xs';
+                    el.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-white">${u.id}</span>
+                            <span class="text-slate-400">(${u.type})</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-400 font-mono text-[10px]">${u.targetDate}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isReleased ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">
+                                ${u.isReleased ? 'RELEASED' : `${u.completion}%`}
+                            </span>
+                        </div>
+                    `;
+                    manifestContainer.appendChild(el);
+                });
+            }
         }
 
         async function adjustField(type, fieldName, amount) {
