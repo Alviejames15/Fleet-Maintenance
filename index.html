@@ -135,6 +135,91 @@
             </div>
         </section>
 
+        <!-- Weekly & Monthly Performance Analytics Section -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="w-5 h-5 text-blue-400" data-lucide="trending-up"></i>
+                    Performance Analytics &amp; Operational Trends
+                </h2>
+                <span class="text-xs text-slate-400 font-medium bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Calculated from dynamic active ledger</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Weekly Performance Card -->
+                <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5">
+                    <div class="flex justify-between items-center border-b border-slate-700/60 pb-4">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full">Weekly Window</span>
+                            <h3 class="text-base font-bold text-white mt-1">Current Week Performance</h3>
+                        </div>
+                        <div class="p-2.5 bg-blue-500/10 rounded-xl text-blue-400">
+                            <i class="w-5 h-5" data-lucide="calendar"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Weekly Releases</span>
+                            <p class="text-2xl font-black text-emerald-400 mt-1" id="weekly-released-count">0</p>
+                            <span class="text-[10px] text-slate-500">Units cleared this week</span>
+                        </div>
+                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Due This Week</span>
+                            <p class="text-2xl font-black text-amber-400 mt-1" id="weekly-due-count">0</p>
+                            <span class="text-[10px] text-slate-500">Scheduled completions</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-400">Weekly Target Progress</span>
+                            <span class="text-blue-400" id="weekly-progress-pct">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-700/60">
+                            <div class="h-full bg-blue-500 transition-all duration-500 rounded-full" id="weekly-progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Performance Card -->
+                <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5">
+                    <div class="flex justify-between items-center border-b border-slate-700/60 pb-4">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full">Monthly Overview</span>
+                            <h3 class="text-base font-bold text-white mt-1">Monthly Operational Health</h3>
+                        </div>
+                        <div class="p-2.5 bg-purple-500/10 rounded-xl text-purple-400">
+                            <i class="w-5 h-5" data-lucide="bar-chart-3"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Monthly Released</span>
+                            <p class="text-2xl font-black text-emerald-400 mt-1" id="monthly-released-count">0</p>
+                            <span class="text-[10px] text-slate-500">Units operational this month</span>
+                        </div>
+                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Fleet Availability Rate</span>
+                            <p class="text-2xl font-black text-purple-400 mt-1" id="monthly-availability-rate">0%</p>
+                            <span class="text-[10px] text-slate-500">Operational vs total assets</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-400">Monthly Maintenance Efficiency Rate</span>
+                            <span class="text-purple-400" id="monthly-efficiency-pct">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-700/60">
+                            <div class="h-full bg-purple-500 transition-all duration-500 rounded-full" id="monthly-efficiency-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Search and Reset Control Deck -->
         <section class="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div class="w-full md:w-96 relative">
@@ -486,6 +571,16 @@
             let overallOngoing = 0, overallJobOut = 0, overallWaiting = 0, overallReleased = 0;
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
 
+            // Date Calculation Thresholds for Performance Metrics
+            const currentYear = SYSTEM_TODAY.getFullYear();
+            const currentMonth = SYSTEM_TODAY.getMonth();
+            const startOfWeek = new Date(SYSTEM_TODAY);
+            startOfWeek.setDate(SYSTEM_TODAY.getDate() - SYSTEM_TODAY.getDay());
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+            let weeklyReleased = 0, weeklyDue = 0, monthlyReleased = 0;
+
             categories.forEach(catName => {
                 let catRows = state.filter(row => row.category === catName);
                 
@@ -515,6 +610,21 @@
                     const joboutList = row.jobout || [];
                     const waitingList = row.waiting || [];
                     const releasedList = row.released || [];
+
+                    // Performance calculations
+                    const allUnits = [...ongoingList, ...joboutList, ...waitingList, ...releasedList];
+                    allUnits.forEach(u => {
+                        if (u.targetDate) {
+                            const d = new Date(u.targetDate);
+                            if (d >= startOfWeek && d <= endOfWeek) {
+                                weeklyDue++;
+                            }
+                            if (u.completion === 100) {
+                                if (d >= startOfWeek && d <= endOfWeek) weeklyReleased++;
+                                if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) monthlyReleased++;
+                            }
+                        }
+                    });
 
                     const totalDownRow = ongoingList.length + joboutList.length + waitingList.length;
                     overallLongDown += row.longDown || 0; 
@@ -621,6 +731,24 @@
 
             const avgProgress = activeRepairsTotal > 0 ? Math.round(activeRepairsSum / activeRepairsTotal) : 0;
             document.getElementById('kpi-avg-progress').textContent = `${avgProgress}%`;
+
+            // Performance Card Updates
+            document.getElementById('weekly-released-count').textContent = weeklyReleased;
+            document.getElementById('weekly-due-count').textContent = weeklyDue;
+            const weeklyPct = weeklyDue > 0 ? Math.min(100, Math.round((weeklyReleased / weeklyDue) * 100)) : 100;
+            document.getElementById('weekly-progress-pct').textContent = `${weeklyPct}%`;
+            document.getElementById('weekly-progress-bar').style.width = `${weeklyPct}%`;
+
+            document.getElementById('monthly-released-count').textContent = monthlyReleased;
+            const totalFleetAssets = overallTotalDown + overallReleased;
+            const availabilityRate = totalFleetAssets > 0 ? Math.round((overallReleased / totalFleetAssets) * 100) : 0;
+            document.getElementById('monthly-availability-rate').textContent = `${availabilityRate}%`;
+            
+            const totalManaged = overallTotalDown + overallReleased;
+            const efficiencyPct = totalManaged > 0 ? Math.round((overallReleased / totalManaged) * 100) : 0;
+            document.getElementById('monthly-efficiency-pct').textContent = `${efficiencyPct}%`;
+            document.getElementById('monthly-efficiency-bar').style.width = `${efficiencyPct}%`;
+
             lucide.createIcons();
         }
 
