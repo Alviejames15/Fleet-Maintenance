@@ -639,12 +639,15 @@
                 <!-- Asset Information Badge -->
                 <div>
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Target Selected Asset</span>
-                    <div class="mt-1 flex items-center gap-3">
-                        <span class="px-3.5 py-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 text-base font-black rounded-xl" id="manageUnitBadge">--</span>
-                        <div>
-                            <p class="text-sm font-bold text-slate-200" id="manageUnitCategory">--</p>
-                            <p class="text-xs text-slate-400" id="manageUnitType">--</p>
+                    <div class="mt-1 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="px-3.5 py-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 text-base font-black rounded-xl" id="manageUnitBadge">--</span>
+                            <div>
+                                <p class="text-sm font-bold text-slate-200" id="manageUnitCategory">--</p>
+                                <p class="text-xs text-slate-400" id="manageUnitType">--</p>
+                            </div>
                         </div>
+                        <span class="px-2.5 py-1 text-xs font-extrabold rounded-lg border uppercase tracking-wider" id="manageUnitDowntimeTypeBadge">--</span>
                     </div>
                 </div>
 
@@ -904,6 +907,18 @@
         function isUnitOverdue(unit) {
             if (!unit || unit.completion >= 100 || !unit.targetDate) return false;
             return new Date(unit.targetDate) < SYSTEM_TODAY;
+        }
+
+        function getUnitDowntimeType(unitCode, row) {
+            let isLongDown = false;
+            let isRunningRepair = false;
+
+            if (row && row.longDown > 0) isLongDown = true;
+            if (row && row.runningRepair > 0) isRunningRepair = true;
+
+            if (isLongDown) return "LONG DOWN";
+            if (isRunningRepair) return "RUNNING REPAIR";
+            return "NORMAL DOWN";
         }
 
         function adjustFormDefaults() {
@@ -1515,6 +1530,21 @@
             document.getElementById('manageUnitCategory').textContent = category;
             document.getElementById('manageUnitType').textContent = type;
 
+            // Dynamically render Down Status Tag (LONG DOWN / RUNNING REPAIR / NORMAL DOWN)
+            const downtimeTypeBadge = document.getElementById('manageUnitDowntimeTypeBadge');
+            const downtimeType = getUnitDowntimeType(unitCode, row);
+            
+            if (downtimeType === "LONG DOWN") {
+                downtimeTypeBadge.textContent = "LONG DOWN";
+                downtimeTypeBadge.className = "px-2.5 py-1 text-xs font-extrabold rounded-lg border bg-rose-500/15 text-rose-400 border-rose-500/30 uppercase tracking-wider";
+            } else if (downtimeType === "RUNNING REPAIR") {
+                downtimeTypeBadge.textContent = "RUNNING REPAIR";
+                downtimeTypeBadge.className = "px-2.5 py-1 text-xs font-extrabold rounded-lg border bg-amber-500/15 text-amber-400 border-amber-500/30 uppercase tracking-wider";
+            } else {
+                downtimeTypeBadge.textContent = "NORMAL DOWN";
+                downtimeTypeBadge.className = "px-2.5 py-1 text-xs font-extrabold rounded-lg border bg-slate-700 text-slate-300 border-slate-600 uppercase tracking-wider";
+            }
+
             document.getElementById('manageUnitDescription').value = unit.description || '';
             document.getElementById('manageUnitStatus').value = stateKey;
 
@@ -1599,7 +1629,7 @@
 
         async function deleteUnit() {
             if (!activeManageState.unitObj) return;
-            if (confirm(`Retract asset ${activeManageState.unitCode} from active tracking ledger?`)) {
+            if (confirm(`Retract asset ${activeManageState.unitCode} from registry?`)) {
                 const row = state[activeManageState.index];
                 if (row && row[activeManageState.stateKey]) {
                     row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
@@ -1608,6 +1638,21 @@
                 closeModal('manageUnitModal');
                 await saveToSheet();
             }
+        }
+
+        function downloadCSV() {
+            let csv = "Category,Equipment Type,Long Down,Running Repair,Active Total Down,Ongoing Count,Job Out Count,Waiting Count,Released Count\n";
+            state.forEach(row => {
+                const ongoingCount = (row.ongoing?.length || 0) + (row.pms?.length || 0);
+                const activeTotal = (row.longDown || 0) + (row.runningRepair || 0);
+                csv += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${activeTotal},${ongoingCount},${row.jobout?.length || 0},${row.waiting?.length || 0},${row.released?.length || 0}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `Fleet_Maintenance_Report_W30.csv`);
+            a.click();
         }
     </script>
 </body>
