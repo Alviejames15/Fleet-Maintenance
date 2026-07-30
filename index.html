@@ -43,10 +43,10 @@
                     <p class="text-xs text-slate-400 font-medium">Overdue &amp; Operational Phase Status Tracking • System Time: July 20, 2026</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2.5 w-full md:w-auto">
+            <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
                 <div class="flex items-center gap-2">
                     <label class="text-sm text-slate-300">Location</label>
-                    <select class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" id="locationFilter">
+                    <select class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" id="locationFilter">
                         <option>All Motorpools</option>
                         <option>GEM Motorpool</option>
                         <option>SV Repair Units</option>
@@ -262,14 +262,36 @@
             </div>
         </section>
 
-        <!-- Search and Reset Control Deck -->
+        <!-- Search, View Modes and Reset Control Deck -->
         <section class="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div class="w-full md:w-96 relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                    <i class="w-4 h-4" data-lucide="search"></i>
-                </span>
-                <input class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" id="searchInput" oninput="renderDashboard()" placeholder="Search asset types or tracking numbers..." type="text"/>
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <!-- Dashboard View Filter Selector -->
+                <div class="w-full sm:w-auto flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700">
+                    <i class="w-4 h-4 text-blue-400 ml-2" data-lucide="filter"></i>
+                    <select class="bg-transparent text-xs font-bold text-slate-200 focus:outline-none pr-3 py-1 cursor-pointer" id="dashboardViewMode" onchange="toggleViewMode(this.value)">
+                        <option value="current" class="bg-slate-800 text-white" selected>View Mode: Current Week</option>
+                        <option value="specific" class="bg-slate-800 text-white">View Mode: Specific Historical Week</option>
+                        <option value="all" class="bg-slate-800 text-white">View Mode: All History Ledger</option>
+                    </select>
+                </div>
+
+                <!-- Dynamic Historical Week Selection Dropdown -->
+                <div class="hidden flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700" id="specificWeekContainer">
+                    <span class="text-xs text-slate-400 font-semibold pl-2">Select Week:</span>
+                    <select class="bg-transparent text-xs font-bold text-blue-400 focus:outline-none pr-3 py-1 cursor-pointer" id="dashboardWeekSelect" onchange="renderDashboard()">
+                        <!-- Hydrated Dynamically -->
+                    </select>
+                </div>
+
+                <!-- Asset Search Bar -->
+                <div class="w-full sm:w-64 relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                        <i class="w-4 h-4" data-lucide="search"></i>
+                    </span>
+                    <input class="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition" id="searchInput" oninput="renderDashboard()" placeholder="Search assets or IDs..." type="text"/>
+                </div>
             </div>
+
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
                 <button class="text-xs text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1.5 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-2 rounded-lg transition border border-rose-500/20" onclick="resetToDefaults()">
                     <i class="w-3.5 h-3.5" data-lucide="rotate-ccw"></i> Reset Grid to Default State
@@ -697,8 +719,8 @@
         // Baseline equipment category schema defaults
         const RECONSTRUCTED_DEFAULTS = [
             // GEM Motorpool Items
-            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-15", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-10" },{ id: "BT-32", completion: 100, targetDate: "2026-07-11" },{ id: "BT-40", completion: 100, targetDate: "2026-07-12" },{ id: "BT-48", completion: 100, targetDate: "2026-07-13" },{ id: "BT-50", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-28" }, { id: "CT-22", completion: 65, targetDate: "2026-07-18" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-24" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-10" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-15", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-20" },{ id: "BT-32", completion: 100, targetDate: "2026-07-21" },{ id: "BT-40", completion: 100, targetDate: "2026-07-22" },{ id: "BT-48", completion: 100, targetDate: "2026-07-23" },{ id: "BT-50", completion: 100, targetDate: "2026-07-24" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-28" }, { id: "CT-22", completion: 65, targetDate: "2026-07-18" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-24" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-22" }], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-12" }, { id: "ST-69", completion: 15, targetDate: "2026-07-19" }, { id: "ST-35", completion: 30, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-25" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-14" }, { id: "PM21", completion: 20, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-17" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-25" },{ id: "DT96", completion: 0, targetDate: "2026-07-16" }], released: [], jobout: [], pms: [] },
@@ -709,7 +731,7 @@
             { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-21" }], jobout: [], pms: [] },
 
             // HEAVY EQUIPMENT Category Items
             { category: "HEAVY EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-15" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
@@ -731,7 +753,7 @@
             { category: "GENSET", type: "GENSET 50KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 100KVA", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 150KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
+            { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-21" }], jobout: [], pms: [] },
             
             // SERVICE VEHICLE Category Items (SV Repair Units)
             { category: "SERVICE VEHICLE", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -762,6 +784,7 @@
             document.getElementById('locationFilter').addEventListener('change', renderDashboard);
             populateTypeSelect();
             populateWeekSelectOptions();
+            populateDashboardWeekDropdown();
             document.getElementById('monthlyMonthSelect').value = SYSTEM_TODAY.getMonth();
             await fetchSheetData();
         });
@@ -787,7 +810,6 @@
 
         function ensureStateIntegrity() {
             state.forEach(row => {
-                // Ensure Heavy Equipment & Service Vehicles get assigned correctly even if old sheet state exists
                 if (TYPE_CATEGORY_MAP[row.type]) {
                     row.category = TYPE_CATEGORY_MAP[row.type];
                 }
@@ -831,6 +853,31 @@
             fill();
         }
 
+        function populateDashboardWeekDropdown() {
+            const select = document.getElementById('dashboardWeekSelect');
+            if (!select) return;
+            select.innerHTML = '';
+            const currentWeek = getISOWeekNumber(SYSTEM_TODAY);
+            for (let i = 1; i <= 52; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `Week ${i}${i === currentWeek ? ' (Current)' : ''}`;
+                if (i === currentWeek) opt.selected = true;
+                opt.className = "bg-slate-800 text-white";
+                select.appendChild(opt);
+            }
+        }
+
+        function toggleViewMode(mode) {
+            const weekContainer = document.getElementById('specificWeekContainer');
+            if (mode === 'specific') {
+                weekContainer.classList.remove('hidden');
+            } else {
+                weekContainer.classList.add('hidden');
+            }
+            renderDashboard();
+        }
+
         async function resetToDefaults() {
             if (confirm("Reset current registry view back to original factory matrix fields?")) {
                 state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
@@ -865,6 +912,9 @@
             ensureStateIntegrity();
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
             const locationVal = document.getElementById('locationFilter').value;
+            const viewMode = document.getElementById('dashboardViewMode')?.value || "current";
+            const targetWeekNum = parseInt(document.getElementById('dashboardWeekSelect')?.value || getISOWeekNumber(SYSTEM_TODAY));
+
             const gridBody = document.getElementById('motorpool-grid-body');
             gridBody.innerHTML = '';
 
@@ -876,22 +926,19 @@
             // Date Calculation Thresholds for Performance Metrics
             const currentYear = SYSTEM_TODAY.getFullYear();
             const currentMonth = SYSTEM_TODAY.getMonth();
-            const startOfWeek = new Date(SYSTEM_TODAY);
-            startOfWeek.setDate(SYSTEM_TODAY.getDate() - SYSTEM_TODAY.getDay());
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            const currentWeekNum = getISOWeekNumber(SYSTEM_TODAY);
 
-            let weeklyReleased = 0, weeklyDue = 0, monthlyReleased = 0;
+            const currentWeekStart = getDateOfISOWeek(currentWeekNum, currentYear);
+            const currentWeekEnd = new Date(currentWeekStart);
+            currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
 
-            // Selected filters for recurring breakdown tracking
-            const selectedWeek = parseInt(document.getElementById('recurringWeekSelect')?.value || getISOWeekNumber(SYSTEM_TODAY));
-            const selectedMonth = document.getElementById('recurringMonthSelect')?.value || "all";
-
-            const selectedWeekStart = getDateOfISOWeek(selectedWeek, currentYear);
+            const selectedWeekStart = getDateOfISOWeek(targetWeekNum, currentYear);
             const selectedWeekEnd = new Date(selectedWeekStart);
             selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
 
-            // Recurring breakdowns tracking map
+            let weeklyReleased = 0, weeklyDue = 0, monthlyReleased = 0;
+
+            // Breakdown tracker for Modal
             const breakdownTracker = {};
 
             categories.forEach(catName => {
@@ -910,35 +957,46 @@
                 gridBody.appendChild(catHeaderRow);
 
                 catRows.forEach(row => {
-                    const matchesSearch = row.type.toLowerCase().includes(searchVal) ||
-                                          (row.ongoing || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
-                                          (row.pms || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
-                                          (row.jobout || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
-                                          (row.waiting || []).some(u => u.id.toLowerCase().includes(searchVal)) ||
-                                          (row.released || []).some(u => u.id.toLowerCase().includes(searchVal));
-
-                    if (searchVal && !matchesSearch) return;
-
                     const ongoingList = [...(row.ongoing || []), ...(row.pms || [])];
                     const joboutList = row.jobout || [];
                     const waitingList = row.waiting || [];
-                    const releasedList = row.released || [];
+                    let releasedList = row.released || [];
 
-                    // Register for Recurring Breakdown Analytics with Week & Month Filtering
+                    // Filter Released units based on View Mode selection
+                    if (viewMode === "current") {
+                        // Automatically hide/remove released units from previous weeks
+                        releasedList = releasedList.filter(u => {
+                            if (!u.targetDate) return true;
+                            const d = new Date(u.targetDate);
+                            return (d >= currentWeekStart && d <= currentWeekEnd);
+                        });
+                    } else if (viewMode === "specific") {
+                        // Show only released units belonging to selected historical week
+                        releasedList = releasedList.filter(u => {
+                            if (!u.targetDate) return false;
+                            const d = new Date(u.targetDate);
+                            return (d >= selectedWeekStart && d <= selectedWeekEnd);
+                        });
+                    }
+
+                    const matchesSearch = row.type.toLowerCase().includes(searchVal) ||
+                                          ongoingList.some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          joboutList.some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          waitingList.some(u => u.id.toLowerCase().includes(searchVal)) ||
+                                          releasedList.some(u => u.id.toLowerCase().includes(searchVal));
+
+                    if (searchVal && !matchesSearch) return;
+
+                    // Breakdown tracking loop
                     const allUnreleased = [...ongoingList, ...joboutList, ...waitingList];
                     allUnreleased.forEach(u => {
                         let matchesWeekFilter = true;
-                        let matchesMonthFilter = true;
-
                         if (u.targetDate) {
                             const uDate = new Date(u.targetDate);
                             matchesWeekFilter = (uDate >= selectedWeekStart && uDate <= selectedWeekEnd);
-                            if (selectedMonth !== "all") {
-                                matchesMonthFilter = (uDate.getMonth() === parseInt(selectedMonth));
-                            }
                         }
 
-                        if (matchesWeekFilter && matchesMonthFilter) {
+                        if (matchesWeekFilter) {
                             if (!breakdownTracker[u.id]) {
                                 breakdownTracker[u.id] = { id: u.id, type: row.type, category: row.category, occurrences: 1, states: [u.description || 'Active Maintenance Log'], locations: [u.location || 'Motorpool'] };
                             } else {
@@ -948,26 +1006,16 @@
                         }
                     });
 
-                    // Long Down flag check
-                    if (row.longDown > 0) {
-                        allUnreleased.forEach(u => {
-                            if (breakdownTracker[u.id] && !breakdownTracker[u.id].hasLongDown) {
-                                breakdownTracker[u.id].hasLongDown = true;
-                                breakdownTracker[u.id].occurrences += 1;
-                            }
-                        });
-                    }
-
-                    // Performance calculations
-                    const allUnits = [...ongoingList, ...joboutList, ...waitingList, ...releasedList];
-                    allUnits.forEach(u => {
+                    // Performance Calculations across overall dataset
+                    const allUnitsInRow = [...ongoingList, ...joboutList, ...waitingList, ...(row.released || [])];
+                    allUnitsInRow.forEach(u => {
                         if (u.targetDate) {
                             const d = new Date(u.targetDate);
-                            if (d >= startOfWeek && d <= endOfWeek) {
+                            if (d >= currentWeekStart && d <= currentWeekEnd) {
                                 weeklyDue++;
                             }
                             if (u.completion === 100) {
-                                if (d >= startOfWeek && d <= endOfWeek) weeklyReleased++;
+                                if (d >= currentWeekStart && d <= currentWeekEnd) weeklyReleased++;
                                 if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) monthlyReleased++;
                             }
                         }
@@ -1374,7 +1422,6 @@
                 return;
             }
 
-            // Find existing category row or dynamically initialize if unlisted
             let row = state.find(item => item.type === type);
             if (!row) {
                 const category = TYPE_CATEGORY_MAP[type] || "HEAVY EQUIPMENT";
@@ -1392,7 +1439,6 @@
                 state.push(row);
             }
 
-            // Ensure array initialization for target state key
             if (!row[stateKey]) {
                 row[stateKey] = [];
             }
@@ -1479,7 +1525,6 @@
 
             activeManageState.unitObj.description = newDescription;
 
-            // Operational Phase Status Re-assignment logic
             if (newStatusKey !== activeManageState.stateKey) {
                 if (row[activeManageState.stateKey]) {
                     row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
