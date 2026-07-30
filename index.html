@@ -1435,15 +1435,23 @@
 
             if (!code) return;
 
-            let exists = false;
+            // CHECK ACTIVE STATUSES ONLY (Excluding Released to allow re-occurring logging)
+            let existsActive = false;
+            let existsInReleased = false;
+
             state.forEach(row => {
-                const combined = [...(row.ongoing||[]), ...(row.pms||[]), ...(row.jobout||[]), ...(row.waiting||[]), ...(row.released||[])];
-                if (combined.some(u => u.id === code)) exists = true;
+                const activeUnits = [...(row.ongoing||[]), ...(row.pms||[]), ...(row.jobout||[]), ...(row.waiting||[])];
+                if (activeUnits.some(u => u.id === code)) existsActive = true;
+                if ((row.released||[]).some(u => u.id === code)) existsInReleased = true;
             });
 
-            if (exists) {
-                alert(`Asset Code "${code}" is already actively logged on this tracking board.`);
+            if (existsActive) {
+                alert(`Asset Code "${code}" is already currently active in the repair ledger. Re-occurring entries require the asset to be tagged as Released first.`);
                 return;
+            }
+
+            if (existsInReleased) {
+                alert(`NOTIFICATION: Asset Code "${code}" was previously RELEASED. Logging it again will flag it under RE-OCCURRING BREAKDOWNS.`);
             }
 
             let row = state.find(item => item.type === type);
@@ -1553,20 +1561,18 @@
                 if (unitObj.isRunningRepair && row.runningRepair > 0) row.runningRepair--;
                 unitObj.isLongDown = 0;
                 unitObj.isRunningRepair = 0;
-            } else if (newStatusKey !== 'released') {
-                // Adjust active tags if modified within down states
-                if (unitObj.isLongDown !== newLongDown) {
-                    row.longDown = Math.max(0, (row.longDown || 0) + (newLongDown - (unitObj.isLongDown || 0)));
-                    unitObj.isLongDown = newLongDown;
-                }
-                if (unitObj.isRunningRepair !== newRunning) {
-                    row.runningRepair = Math.max(0, (row.runningRepair || 0) + (newRunning - (unitObj.isRunningRepair || 0)));
-                    unitObj.isRunningRepair = newRunning;
-                }
+            } else {
+                if (!unitObj.isLongDown && newLongDown) row.longDown = (row.longDown || 0) + 1;
+                if (unitObj.isLongDown && !newLongDown && row.longDown > 0) row.longDown--;
+                if (!unitObj.isRunningRepair && newRunning) row.runningRepair = (row.runningRepair || 0) + 1;
+                if (unitObj.isRunningRepair && !newRunning && row.runningRepair > 0) row.runningRepair--;
+                
+                unitObj.isLongDown = newLongDown;
+                unitObj.isRunningRepair = newRunning;
             }
 
             unitObj.description = newDescription;
-            unitObj.targetDate = newTargetDate || unitObj.targetDate;
+            unitObj.targetDate = newTargetDate;
             unitObj.completion = (newStatusKey === 'released') ? 100 : newProgress;
 
             if (!row[newStatusKey]) row[newStatusKey] = [];
@@ -1579,43 +1585,42 @@
 
         async function deleteUnit() {
             const { index, unitCode, stateKey, unitObj } = activeManageState;
-            if (index === -1 || !confirm(`Confirm retraction of asset ${unitCode} from active tracking?`)) return;
+            if (index === -1 || !unitObj) return;
 
-            const row = state[index];
-            row[stateKey] = (row[stateKey] || []).filter(u => u.id !== unitCode);
+            if (confirm(`Are you sure you want to retract asset "${unitCode}" from the active tracking board?`)) {
+                const row = state[index];
+                row[stateKey] = (row[stateKey] || []).filter(u => u.id !== unitCode);
 
-            if (stateKey !== 'released') {
                 if (unitObj.isLongDown && row.longDown > 0) row.longDown--;
                 if (unitObj.isRunningRepair && row.runningRepair > 0) row.runningRepair--;
-            }
 
-            renderDashboard();
-            closeModal('manageUnitModal');
-            await saveToSheet();
+                renderDashboard();
+                closeModal('manageUnitModal');
+                await saveToSheet();
+            }
         }
 
         function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Long Down Count,Running Repair Count,Total Active Down,Status,Unit ID,Progress (%),Target Date,Description\n";
-            
+            let csvContent = "data:text/csv;charset=utf-8,Category,Type,Asset ID,Status,Completion,Downtime Date,Target Date,Description,Location\n";
             state.forEach(row => {
-                const totalDown = (row.longDown || 0) + (row.runningRepair || 0);
-                const parseList = (list, statusName) => {
+                const allLists = [
+                    { list: row.ongoing || [], status: "On-Going" },
+                    { list: row.pms || [], status: "PMS" },
+                    { list: row.jobout || [], status: "Job Out" },
+                    { list: row.waiting || [], status: "Waiting for Parts" },
+                    { list: row.released || [], status: "Released" }
+                ];
+                allLists.forEach(({ list, status }) => {
                     list.forEach(u => {
-                        csvContent += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${totalDown},"${statusName}","${u.id}",${u.completion}%,"${u.targetDate || ''}","${(u.description || '').replace(/"/g, '""')}"\n`;
+                        const desc = (u.description || "").replace(/,/g, " ");
+                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}",${u.completion}%,"${u.downtimeDate || ''}","${u.targetDate || ''}","${desc}","${u.location || ''}"\n`;
                     });
-                };
-
-                parseList(row.ongoing || [], "On-Going");
-                parseList(row.pms || [], "PMS");
-                parseList(row.jobout || [], "Job Out");
-                parseList(row.waiting || [], "Waiting");
-                parseList(row.released || [], "Released");
+                });
             });
-
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Fleet_Maintenance_Ledger_Week30_${SYSTEM_TODAY.toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `fleet_maintenance_report_${SYSTEM_TODAY.toISOString().slice(0, 10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
