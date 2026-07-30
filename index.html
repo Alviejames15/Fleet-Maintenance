@@ -31,7 +31,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
 
-    <!-- Top Decorative Gradient Header -->
+    <!-- Top Decorative Header -->
     <header class="bg-slate-800 border-b border-slate-700/80 sticky top-0 z-40 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3.5">
@@ -267,10 +267,9 @@
             </div>
         </section>
 
-        <!-- Search, View Modes and Reset Control Deck -->
+        <!-- Control Deck -->
         <section class="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <!-- Dashboard View Filter Selector -->
                 <div class="w-full sm:w-auto flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700">
                     <i class="w-4 h-4 text-blue-400 ml-2" data-lucide="filter"></i>
                     <select class="bg-transparent text-xs font-bold text-slate-200 focus:outline-none pr-3 py-1 cursor-pointer" id="dashboardViewMode" onchange="toggleViewMode(this.value)">
@@ -280,7 +279,6 @@
                     </select>
                 </div>
 
-                <!-- Dynamic Historical Week Selection Dropdown -->
                 <div class="hidden flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700" id="specificWeekContainer">
                     <span class="text-xs text-slate-400 font-semibold pl-2">Select Week:</span>
                     <select class="bg-transparent text-xs font-bold text-blue-400 focus:outline-none pr-3 py-1 cursor-pointer" id="dashboardWeekSelect" onchange="renderDashboard()">
@@ -288,7 +286,6 @@
                     </select>
                 </div>
 
-                <!-- Asset Search Bar -->
                 <div class="w-full sm:w-64 relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                         <i class="w-4 h-4" data-lucide="search"></i>
@@ -354,7 +351,6 @@
                 <button class="text-slate-400 hover:text-white" onclick="closeModal('recurringBreakdownsModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
             </div>
             <div class="p-6 space-y-6">
-                <!-- Filter Controls for Breakdown View -->
                 <div class="grid grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Specific Week</label>
@@ -407,7 +403,6 @@
                 <button class="text-slate-400 hover:text-white" onclick="closeModal('weeklyHistoryModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
             </div>
             <div class="p-6 space-y-6">
-                <!-- Selection Header Controls -->
                 <div class="grid grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Target Year</label>
@@ -424,13 +419,11 @@
                     </div>
                 </div>
 
-                <!-- Date Range Info Banner -->
                 <div class="flex items-center justify-between bg-blue-500/10 border border-blue-500/20 px-4 py-2.5 rounded-xl text-xs text-blue-300 font-medium">
                     <span id="historyWeekSpanText">Week Date Range: --</span>
                     <span class="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold" id="historyWeekBadge">Week --</span>
                 </div>
 
-                <!-- Specific Historical Week Metrics -->
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
                         <span class="text-[10px] font-semibold text-slate-400 uppercase">Historical Released</span>
@@ -459,7 +452,6 @@
                     </div>
                 </div>
 
-                <!-- Unit Manifest for Week -->
                 <div class="space-y-2">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Associated Week Asset Manifest</span>
                     <div class="max-h-40 overflow-y-auto space-y-2 pr-1" id="historyUnitList">
@@ -480,7 +472,6 @@
                 <button class="text-slate-400 hover:text-white" onclick="closeModal('monthlyHistoryModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
             </div>
             <div class="p-6 space-y-6">
-                <!-- Selection Header Controls -->
                 <div class="grid grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Target Year</label>
@@ -508,13 +499,11 @@
                     </div>
                 </div>
 
-                <!-- Info Banner -->
                 <div class="flex items-center justify-between bg-purple-500/10 border border-purple-500/20 px-4 py-2.5 rounded-xl text-xs text-purple-300 font-medium">
                     <span id="monthlySpanText">Month Range: --</span>
                     <span class="text-[10px] bg-purple-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold" id="monthlyBadge">--</span>
                 </div>
 
-                <!-- Metrics -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
                         <span class="text-[11px] font-semibold text-slate-400 uppercase">Monthly Released</span>
@@ -538,7 +527,6 @@
                     </div>
                 </div>
 
-                <!-- Unit Manifest -->
                 <div class="space-y-2">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Associated Month Asset Manifest</span>
                     <div class="max-h-40 overflow-y-auto space-y-2 pr-1" id="monthlyUnitList">
@@ -636,7 +624,6 @@
                 <button class="text-slate-400 hover:text-white" onclick="closeModal('manageUnitModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
             </div>
             <div class="p-6 space-y-4">
-                <!-- Asset Information Badge -->
                 <div>
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Target Selected Asset</span>
                     <div class="mt-1 flex items-center gap-3">
@@ -648,19 +635,16 @@
                     </div>
                 </div>
 
-                <!-- Overdue Warning -->
                 <div class="hidden p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl flex items-center gap-2" id="overdueAlert">
                     <i class="w-5 h-5 shrink-0" data-lucide="alert-circle"></i>
                     <span class="text-xs font-bold leading-tight">This asset has passed its targeted completion milestone date.</span>
                 </div>
 
-                <!-- Scope of Work / Diagnosis Edit -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Scope of Work / Diagnosis</label>
                     <textarea class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-600" id="manageUnitDescription" placeholder="Describe mechanical/electrical repair details..." rows="2"></textarea>
                 </div>
 
-                <!-- Re-assign Operational Phase Status -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="w-4 h-4" data-lucide="refresh-cw"></i> Re-assign Operational Phase Status
@@ -674,7 +658,6 @@
                     </select>
                 </div>
 
-                <!-- Long Down & Running Repair Tag Management -->
                 <div class="grid grid-cols-2 gap-3 bg-slate-900/40 p-3 rounded-xl border border-slate-700/50">
                     <div>
                         <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Long Down Tag</label>
@@ -692,7 +675,6 @@
                     </div>
                 </div>
 
-                <!-- Precision Repair Slider -->
                 <div class="space-y-2 bg-slate-900/40 p-3 rounded-xl border border-slate-700/50">
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Completion Matrix</span>
@@ -701,13 +683,11 @@
                     <input class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" id="manageUnitProgressSlider" max="100" min="0" oninput="updateProgressDisplay(this.value)" type="range"/>
                 </div>
 
-                <!-- Calendar Input Tracking Target Date Limits -->
                 <div class="space-y-1.5 bg-slate-900/40 p-3 rounded-xl border border-slate-700/50">
                     <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Target Completion Milestone</label>
                     <input class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100" id="manageUnitTargetDate" onchange="updateTargetDateState(this.value)" type="date"/>
                 </div>
 
-                <!-- Modal Footer Controls -->
                 <div class="pt-3 flex gap-3 justify-between border-t border-slate-700">
                     <button class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl text-sm font-semibold border border-rose-500/25 transition flex items-center gap-2" onclick="deleteUnit()">
                         <i class="w-4 h-4" data-lucide="trash-2"></i> Retract Asset Entry
@@ -718,13 +698,11 @@
         </div>
     </div>
 
-    <!-- Core Interactive Tracking JS Engine -->
+    <!-- Interactive Script Engine -->
     <script>
-        // Integrated Live Google Apps Script Endpoint
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
-        const SYSTEM_TODAY = new Date("2026-07-25"); // System Base Date set to WEEK 30 Start Date (July 25, 2026)
+        const SYSTEM_TODAY = new Date("2026-07-25");
 
-        // Category mapping lookup
         const TYPE_CATEGORY_MAP = {
             "BOOM TRUCK": "LIGHT EQUIPMENT", "CARGO TRUCK": "LIGHT EQUIPMENT", "STAKE TRUCK": "LIGHT EQUIPMENT",
             "PRIME MOVER": "LIGHT EQUIPMENT", "DUMP TRUCK": "LIGHT EQUIPMENT",
@@ -732,13 +710,11 @@
             "PMT": "LIGHT EQUIPMENT", "SAND PUMP FOR SAMAL": "LIGHT EQUIPMENT", "BULK CEMENT TRUCK": "LIGHT EQUIPMENT",
             "PMS UNITS": "LIGHT EQUIPMENT", "GENSET": "LIGHT EQUIPMENT", 
             
-            // HEAVY EQUIPMENT Category Mappings
             "BULLDOZER": "HEAVY EQUIPMENT", "BULLDOZE": "HEAVY EQUIPMENT", "ROAD GRADER": "HEAVY EQUIPMENT", 
             "WHEEL TYPE BACKHOE": "HEAVY EQUIPMENT", "CRAWLER BACKHOE": "HEAVY EQUIPMENT", "WHEEL LOADER": "HEAVY EQUIPMENT", 
             "ROAD ROLLER": "HEAVY EQUIPMENT", "CRANE": "HEAVY EQUIPMENT", "SHEET PILE DRIVER": "HEAVY EQUIPMENT", 
             "20T HYDRAULIC BREAKER": "HEAVY EQUIPMENT",
 
-            // SERVICE VEHICLE Category Mappings
             "TOYOTA HILUX": "SERVICE VEHICLE", "TOYOTA FORTUNER": "SERVICE VEHICLE", "MITSUBISHI STRADA": "SERVICE VEHICLE",
             "ISUZU D-MAX": "SERVICE VEHICLE", "NISSAN X-TRAIL": "SERVICE VEHICLE", "NISSAN NAVARA": "SERVICE VEHICLE",
             "MITSUBISHI PAJERO": "SERVICE VEHICLE", "KIA K2500": "SERVICE VEHICLE", "KIA K2700": "SERVICE VEHICLE",
@@ -748,9 +724,7 @@
             "GENSET 50KVA": "GENSET", "GENSET 100KVA": "GENSET", "GENSET 150KVA": "GENSET", "GENSET 250KVA": "GENSET"
         };
 
-        // Baseline equipment category schema defaults aligned for Week 30 (July 25 to July 31, 2026)
         const RECONSTRUCTED_DEFAULTS = [
-            // GEM Motorpool Items
             { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-28", description: "Engine overhaul and hydraulics", isLongDown: 1, isRunningRepair: 0 }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-25" },{ id: "BT-32", completion: 100, targetDate: "2026-07-26" },{ id: "BT-40", completion: 100, targetDate: "2026-07-27" },{ id: "BT-48", completion: 100, targetDate: "2026-07-28" },{ id: "BT-50", completion: 100, targetDate: "2026-07-29" }], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-29", isLongDown: 1 }, { id: "CT-22", completion: 65, targetDate: "2026-07-27", isLongDown: 1 }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-28" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-26" }], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-26", isLongDown: 1 }, { id: "ST-69", completion: 15, targetDate: "2026-07-27", isLongDown: 1 }, { id: "ST-35", completion: 30, targetDate: "2026-07-30", isLongDown: 1 }], released: [], jobout: [], pms: [] },
@@ -765,7 +739,6 @@
             { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-27", description: "Alternator winding repair", isLongDown: 1 }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-26" }], jobout: [], pms: [] },
 
-            // HEAVY EQUIPMENT Category Items
             { category: "HEAVY EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-27", isLongDown: 1 },{ id: "BD28", completion: 25, targetDate: "2026-07-25", isLongDown: 1 }, { id: "BD26", completion: 0, targetDate: "2026-07-31", isLongDown: 1 }], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -776,18 +749,15 @@
             { category: "HEAVY EQUIPMENT", type: "SHEET PILE DRIVER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
 
-            // ATTACHMENT/TRAILER Category Items
             { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-26", isRunningRepair: 1 }, { id: "LBT-17", completion: 70, targetDate: "2026-07-28", isLongDown: 1 }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-31", isLongDown: 1 },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-26", isLongDown: 1 }], waiting: [], released: [], jobout: [], pms: [] },
 
-            // GENSET Category Rows
             { category: "GENSET", type: "GENSET 50KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 100KVA", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-27", description: "Alternator winding repair", isLongDown: 1 }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 150KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
             
-            // SERVICE VEHICLE Category Items (SV Repair Units)
             { category: "SERVICE VEHICLE", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "SERVICE VEHICLE", type: "TOYOTA FORTUNER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "SERVICE VEHICLE", type: "MITSUBISHI STRADA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -821,7 +791,6 @@
             await fetchSheetData();
         });
 
-        // Sync State with Google Sheets (GET)
         async function fetchSheetData() {
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
@@ -855,7 +824,6 @@
             });
         }
 
-        // Sync State with Google Sheets (POST)
         async function saveToSheet() {
             try {
                 await fetch(GOOGLE_SCRIPT_URL, {
@@ -940,6 +908,19 @@
             }
         }
 
+        function updateProgressDisplay(val) {
+            document.getElementById('progressPercentDisplay').textContent = `${val}%`;
+        }
+
+        function updateTargetDateState(val) {
+            const alertBox = document.getElementById('overdueAlert');
+            if (val && new Date(val) < SYSTEM_TODAY && parseInt(document.getElementById('manageUnitProgressSlider').value) < 100) {
+                alertBox.classList.remove('hidden');
+            } else {
+                alertBox.classList.add('hidden');
+            }
+        }
+
         function renderDashboard() {
             ensureStateIntegrity();
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -955,10 +936,9 @@
             let overallOngoing = 0, overallJobOut = 0, overallWaiting = 0, overallReleased = 0;
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
 
-            // Date Calculation Thresholds for Performance Metrics
             const currentYear = SYSTEM_TODAY.getFullYear();
             const currentMonth = SYSTEM_TODAY.getMonth();
-            const currentWeekNum = getISOWeekNumber(SYSTEM_TODAY); // Week 30
+            const currentWeekNum = getISOWeekNumber(SYSTEM_TODAY);
 
             const currentWeekStart = getDateOfISOWeek(currentWeekNum, currentYear);
             const currentWeekEnd = new Date(currentWeekStart);
@@ -969,8 +949,6 @@
             selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
 
             let weeklyReleased = 0, weeklyLongDown = 0, weeklyRunningRepair = 0, monthlyReleased = 0;
-
-            // Breakdown tracker for Modal
             const breakdownTracker = {};
 
             categories.forEach(catName => {
@@ -994,7 +972,6 @@
                     const waitingList = row.waiting || [];
                     let releasedList = row.released || [];
 
-                    // Filter Released units based on View Mode selection
                     if (viewMode === "current") {
                         releasedList = releasedList.filter(u => {
                             if (!u.targetDate) return true;
@@ -1017,7 +994,6 @@
 
                     if (searchVal && !matchesSearch) return;
 
-                    // Re-occurring breakdown tracking logic:
                     const allCurrentBreakdowns = [...ongoingList, ...joboutList, ...waitingList];
                     allCurrentBreakdowns.forEach(u => {
                         const wasReleasedPreviously = (row.released || []).some(relUnit => {
@@ -1037,7 +1013,6 @@
                         }
                     });
 
-                    // Weekly Performance Calculations
                     let rowWeeklyReleasedCount = 0;
                     const allUnitsInRow = [...ongoingList, ...joboutList, ...waitingList, ...(row.released || [])];
                     allUnitsInRow.forEach(u => {
@@ -1056,13 +1031,12 @@
                     weeklyLongDown += (row.longDown || 0);
                     weeklyRunningRepair += (row.runningRepair || 0);
 
-                    // AUTOMATIC ACTIVE TOTAL DOWN CALCULATION
-                    // Excludes released units; purely sums active Long Down and Running Repair tags
+                    // Calculation of Total Active Down (Excludes Released Units)
                     const activeTotalDownRow = (row.longDown || 0) + (row.runningRepair || 0);
                     
                     overallLongDown += row.longDown || 0; 
                     overallRunningRepair += row.runningRepair || 0;
-                    overallTotalDown += activeTotalDownRow; // Sum of active down units (EXCLUDES RELEASED)
+                    overallTotalDown += activeTotalDownRow; 
                     overallOngoing += ongoingList.length;
                     overallJobOut += joboutList.length;
                     overallWaiting += waitingList.length; 
@@ -1071,7 +1045,6 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-700/30 transition group border-b border-slate-700/40";
 
-                    // DISPLAY UNITS IN CELL WITH HORIZONTAL SCROLL BAR FOR EXCESS
                     let ongoingIDs = ongoingList.map(u => {
                         const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
                         const isPmsUnit = (row.pms || []).some(p => p.id === u.id);
@@ -1166,7 +1139,6 @@
             const avgProgress = activeRepairsTotal > 0 ? Math.round(activeRepairsSum / activeRepairsTotal) : 0;
             document.getElementById('kpi-avg-progress').textContent = `${avgProgress}%`;
 
-            // Performance Card Updates
             document.getElementById('weekly-released-count').textContent = weeklyReleased;
             document.getElementById('weekly-longdown-count').textContent = weeklyLongDown;
             document.getElementById('weekly-running-count').textContent = weeklyRunningRepair;
@@ -1186,13 +1158,10 @@
             document.getElementById('monthly-efficiency-pct').textContent = `${efficiencyPct}%`;
             document.getElementById('monthly-efficiency-bar').style.width = `${efficiencyPct}%`;
 
-            // Update Re-Occurring Equipment Breakdown Analytics
             renderRecurringBreakdownsSummary(breakdownTracker);
-
             lucide.createIcons();
         }
 
-        // Re-Occurring Equipment Breakdown Calculation & Renderer
         function renderRecurringBreakdownsSummary(tracker) {
             const list = Object.values(tracker).sort((a,b) => b.occurrences - a.occurrences);
             const recurringUnits = list.filter(item => item.occurrences >= 2);
@@ -1216,7 +1185,6 @@
                 });
             }
 
-            // Populate Modal
             const modalList = document.getElementById('recurringBreakdownsList');
             modalList.innerHTML = '';
             if (recurringUnits.length === 0) {
@@ -1248,7 +1216,6 @@
             openModal('recurringBreakdownsModal');
         }
 
-        // Custom Saturday to Friday Week Helper Logic
         function getISOWeekNumber(d) {
             const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
             const dayNum = (date.getDay() + 1) % 7; 
@@ -1363,7 +1330,6 @@
             }
         }
 
-        // Monthly History Logic
         function openMonthlyHistoryModal() {
             openModal('monthlyHistoryModal');
             renderMonthlyHistoryData();
@@ -1501,7 +1467,6 @@
                 row[stateKey] = [];
             }
 
-            // If unit is added directly as Released, do not count it towards active total down
             const isReleasedUnit = (stateKey === 'released');
 
             row[stateKey].push({
@@ -1540,7 +1505,6 @@
             document.getElementById('manageUnitDescription').value = unit.description || '';
             document.getElementById('manageUnitStatus').value = stateKey;
 
-            // Sync Long Down / Running Repair options with the selected asset's tags
             document.getElementById('manageUnitLongDownTag').value = unit.isLongDown ? "1" : "0";
             document.getElementById('manageUnitRunningTag').value = unit.isRunningRepair ? "1" : "0";
 
@@ -1563,91 +1527,50 @@
                 document.getElementById('manageUnitLongDownTag').value = "0";
                 document.getElementById('manageUnitRunningTag').value = "0";
             } else if (newStatusKey === 'waiting') {
-                updateProgressDisplay(0);
-                slider.value = 0;
-            } else if (newStatusKey === 'pms') {
-                updateProgressDisplay(50);
-                slider.value = 50;
-            } else if (newStatusKey === 'jobout') {
-                updateProgressDisplay(10);
-                slider.value = 10;
-            } else {
-                updateProgressDisplay(25);
-                slider.value = 25;
-            }
-        }
-
-        function updateProgressDisplay(val) {
-            document.getElementById('progressPercentDisplay').textContent = `${val}%`;
-        }
-
-        function updateTargetDateState(val) {
-            if (!val) return;
-            const overdueAlert = document.getElementById('overdueAlert');
-            if (new Date(val) < SYSTEM_TODAY && parseInt(document.getElementById('manageUnitProgressSlider').value) < 100) {
-                overdueAlert.classList.remove('hidden');
-            } else {
-                overdueAlert.classList.add('hidden');
+                if (slider.value == 100) slider.value = 0;
+                updateProgressDisplay(slider.value);
             }
         }
 
         async function saveAssetDetailedChanges() {
-            const { category, type, index, unitCode, stateKey, unitObj } = activeManageState;
+            const { type, index, unitCode, stateKey, unitObj } = activeManageState;
             if (index === -1 || !unitObj) return;
 
             const row = state[index];
             const newStatusKey = document.getElementById('manageUnitStatus').value;
             const newDescription = document.getElementById('manageUnitDescription').value.trim();
-            const newProgress = parseInt(document.getElementById('manageUnitProgressSlider').value) || 0;
             const newTargetDate = document.getElementById('manageUnitTargetDate').value;
-            const newLongDownTag = parseInt(document.getElementById('manageUnitLongDownTag').value) || 0;
-            const newRunningTag = parseInt(document.getElementById('manageUnitRunningTag').value) || 0;
+            const newProgress = parseInt(document.getElementById('manageUnitProgressSlider').value) || 0;
+            const newLongDown = parseInt(document.getElementById('manageUnitLongDownTag').value) || 0;
+            const newRunning = parseInt(document.getElementById('manageUnitRunningTag').value) || 0;
 
-            const prevLongDown = unitObj.isLongDown || 0;
-            const prevRunning = unitObj.isRunningRepair || 0;
+            // Remove from previous list array
+            row[stateKey] = (row[stateKey] || []).filter(u => u.id !== unitCode);
 
-            unitObj.description = newDescription;
-            unitObj.targetDate = newTargetDate;
-
-            // RELEASE LOGIC: Minus from Long Down & Running Repair counters if Released
-            if (newStatusKey === 'released') {
-                unitObj.completion = 100;
-                if (stateKey !== 'released') {
-                    if (prevLongDown > 0) row.longDown = Math.max(0, (row.longDown || 0) - 1);
-                    if (prevRunning > 0) row.runningRepair = Math.max(0, (row.runningRepair || 0) - 1);
-                } else {
-                    if (prevLongDown > 0 && newLongDownTag === 0) row.longDown = Math.max(0, (row.longDown || 0) - 1);
-                    if (prevRunning > 0 && newRunningTag === 0) row.runningRepair = Math.max(0, (row.runningRepair || 0) - 1);
-                }
+            // AUTO-DEDUCT REPAIR TAGS ON UNIT RELEASE
+            if (stateKey !== 'released' && newStatusKey === 'released') {
+                if (unitObj.isLongDown && row.longDown > 0) row.longDown--;
+                if (unitObj.isRunningRepair && row.runningRepair > 0) row.runningRepair--;
                 unitObj.isLongDown = 0;
                 unitObj.isRunningRepair = 0;
-            } else {
-                unitObj.completion = newProgress;
-                
-                // Active status transition rules
-                if (stateKey === 'released') {
-                    if (newLongDownTag > 0) row.longDown = (row.longDown || 0) + 1;
-                    if (newRunningTag > 0) row.runningRepair = (row.runningRepair || 0) + 1;
-                } else {
-                    if (prevLongDown === 0 && newLongDownTag === 1) row.longDown = (row.longDown || 0) + 1;
-                    if (prevLongDown === 1 && newLongDownTag === 0) row.longDown = Math.max(0, (row.longDown || 0) - 1);
-
-                    if (prevRunning === 0 && newRunningTag === 1) row.runningRepair = (row.runningRepair || 0) + 1;
-                    if (prevRunning === 1 && newRunningTag === 0) row.runningRepair = Math.max(0, (row.runningRepair || 0) - 1);
+            } else if (newStatusKey !== 'released') {
+                // Adjust active tags if modified within down states
+                if (unitObj.isLongDown !== newLongDown) {
+                    row.longDown = Math.max(0, (row.longDown || 0) + (newLongDown - (unitObj.isLongDown || 0)));
+                    unitObj.isLongDown = newLongDown;
                 }
-
-                unitObj.isLongDown = newLongDownTag;
-                unitObj.isRunningRepair = newRunningTag;
+                if (unitObj.isRunningRepair !== newRunning) {
+                    row.runningRepair = Math.max(0, (row.runningRepair || 0) + (newRunning - (unitObj.isRunningRepair || 0)));
+                    unitObj.isRunningRepair = newRunning;
+                }
             }
 
-            // Move unit across lifecycle status arrays if status changed
-            if (stateKey !== newStatusKey) {
-                if (row[stateKey]) {
-                    row[stateKey] = row[stateKey].filter(u => u.id !== unitCode);
-                }
-                if (!row[newStatusKey]) row[newStatusKey] = [];
-                row[newStatusKey].push(unitObj);
-            }
+            unitObj.description = newDescription;
+            unitObj.targetDate = newTargetDate || unitObj.targetDate;
+            unitObj.completion = (newStatusKey === 'released') ? 100 : newProgress;
+
+            if (!row[newStatusKey]) row[newStatusKey] = [];
+            row[newStatusKey].push(unitObj);
 
             renderDashboard();
             closeModal('manageUnitModal');
@@ -1656,34 +1579,43 @@
 
         async function deleteUnit() {
             const { index, unitCode, stateKey, unitObj } = activeManageState;
-            if (index === -1 || !unitObj) return;
+            if (index === -1 || !confirm(`Confirm retraction of asset ${unitCode} from active tracking?`)) return;
 
-            if (confirm(`Are you sure you want to retract/delete asset entry ${unitCode}?`)) {
-                const row = state[index];
-                if (unitObj.isLongDown) row.longDown = Math.max(0, (row.longDown || 0) - 1);
-                if (unitObj.isRunningRepair) row.runningRepair = Math.max(0, (row.runningRepair || 0) - 1);
+            const row = state[index];
+            row[stateKey] = (row[stateKey] || []).filter(u => u.id !== unitCode);
 
-                row[stateKey] = row[stateKey].filter(u => u.id !== unitCode);
-                renderDashboard();
-                closeModal('manageUnitModal');
-                await saveToSheet();
+            if (stateKey !== 'released') {
+                if (unitObj.isLongDown && row.longDown > 0) row.longDown--;
+                if (unitObj.isRunningRepair && row.runningRepair > 0) row.runningRepair--;
             }
+
+            renderDashboard();
+            closeModal('manageUnitModal');
+            await saveToSheet();
         }
 
         function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Long Down,Running Repair,Active Total Down,Ongoing Count,Job Out Count,Waiting Count,Released Count\n";
+            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Long Down Count,Running Repair Count,Total Active Down,Status,Unit ID,Progress (%),Target Date,Description\n";
+            
             state.forEach(row => {
-                const activeDown = (row.longDown || 0) + (row.runningRepair || 0);
-                const ongoing = (row.ongoing?.length || 0) + (row.pms?.length || 0);
-                const jobout = row.jobout?.length || 0;
-                const waiting = row.waiting?.length || 0;
-                const released = row.released?.length || 0;
-                csvContent += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${activeDown},${ongoing},${jobout},${waiting},${released}\n`;
+                const totalDown = (row.longDown || 0) + (row.runningRepair || 0);
+                const parseList = (list, statusName) => {
+                    list.forEach(u => {
+                        csvContent += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${totalDown},"${statusName}","${u.id}",${u.completion}%,"${u.targetDate || ''}","${(u.description || '').replace(/"/g, '""')}"\n`;
+                    });
+                };
+
+                parseList(row.ongoing || [], "On-Going");
+                parseList(row.pms || [], "PMS");
+                parseList(row.jobout || [], "Job Out");
+                parseList(row.waiting || [], "Waiting");
+                parseList(row.released || [], "Released");
             });
+
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `fleet_maintenance_report_${SYSTEM_TODAY.toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `Fleet_Maintenance_Ledger_Week30_${SYSTEM_TODAY.toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
