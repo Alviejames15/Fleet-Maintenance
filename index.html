@@ -313,7 +313,7 @@
                             <th class="py-4 px-5 w-64">Equipment Type</th>
                             <th class="py-4 px-3 text-center border-l border-slate-700 w-24">Long Down</th>
                             <th class="py-4 px-3 text-center w-24">Running Repair</th>
-                            <th class="py-4 px-3 text-center text-blue-400 bg-blue-500/5 font-extrabold border-r border-slate-700 w-28">Total Down</th>
+                            <th class="py-4 px-3 text-center text-blue-400 bg-blue-500/5 font-extrabold border-r border-slate-700 w-28">Active Total Down</th>
                             <th class="py-4 px-4 text-center border-r border-slate-700" colspan="2">On-Going Repair (Progress)</th>
                             <th class="py-4 px-4 text-center border-r border-slate-700" colspan="2">JOB OUT (External)</th>
                             <th class="py-4 px-4 text-center border-r border-slate-700" colspan="2">Waiting for Parts/Manpower</th>
@@ -1041,12 +1041,13 @@
                     weeklyLongDown += (row.longDown || 0);
                     weeklyRunningRepair += (row.runningRepair || 0);
 
-                    // Strictly count ONLY existing total down (DO NOT include released units)
-                    const totalDownRow = ongoingList.length + joboutList.length + waitingList.length;
+                    // AUTOMATIC ACTIVE TOTAL DOWN CALCULATION
+                    // Strictly calculates from the sum of active Long Down and Running Repair tags
+                    const activeTotalDownRow = (row.longDown || 0) + (row.runningRepair || 0);
                     
                     overallLongDown += row.longDown || 0; 
                     overallRunningRepair += row.runningRepair || 0;
-                    overallTotalDown += totalDownRow; // ONLY existing active down units
+                    overallTotalDown += activeTotalDownRow; // Sum of active down units
                     overallOngoing += ongoingList.length;
                     overallJobOut += joboutList.length;
                     overallWaiting += waitingList.length; 
@@ -1055,7 +1056,7 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-700/30 transition group border-b border-slate-700/40";
 
-                    // MINIMIZED UNIT DISPLAY BLOCKS ACROSS ALL COLUMNS
+                    // DISPLAY MAX 4 UNITS IN CELL AND HORIZONTAL SCROLL BAR FOR EXCESS
                     let ongoingIDs = ongoingList.map(u => {
                         const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
                         const isPmsUnit = (row.pms || []).some(p => p.id === u.id);
@@ -1119,15 +1120,15 @@
                                 <button onclick="adjustField('${row.type}', 'runningRepair', 1)" class="opacity-0 group-hover:opacity-100 w-5 h-5 bg-slate-700 rounded flex items-center justify-center transition text-xs font-bold">+</button>
                             </div>
                         </td>
-                        <td class="py-3 px-3 text-center text-blue-400 font-black bg-blue-500/5 border-r border-slate-700">${totalDownRow}</td>
+                        <td class="py-3 px-3 text-center text-blue-400 font-black bg-blue-500/5 border-r border-slate-700">${activeTotalDownRow}</td>
                         <td class="py-3 px-3 text-center font-bold border-l border-slate-700/60 text-amber-400 bg-amber-500/5 w-16">${ongoingList.length}</td>
-                        <td class="py-3 px-4 border-r border-slate-700 bg-amber-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${ongoingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-amber-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[340px]">${ongoingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                         <td class="py-3 px-3 text-center font-bold border-l border-slate-700/60 text-purple-400 bg-purple-500/5 w-16">${joboutList.length}</td>
-                        <td class="py-3 px-4 border-r border-slate-700 bg-purple-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${joboutIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-purple-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[340px]">${joboutIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                         <td class="py-3 px-3 text-center font-bold text-blue-400 bg-blue-500/5 w-16">${waitingList.length}</td>
-                        <td class="py-3 px-4 border-r border-slate-700 bg-blue-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${waitingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-blue-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[340px]">${waitingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                         <td class="py-3 px-3 text-center font-bold text-emerald-400 bg-emerald-500/5 w-16">${releasedList.length}</td>
-                        <td class="py-3 px-4 bg-emerald-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${releasedIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 bg-emerald-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[340px]">${releasedIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                     `;
                     gridBody.appendChild(tr);
                 });
