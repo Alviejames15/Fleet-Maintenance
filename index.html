@@ -673,20 +673,23 @@
         // Category mapping lookup
         const TYPE_CATEGORY_MAP = {
             "BOOM TRUCK": "LIGHT EQUIPMENT", "CARGO TRUCK": "LIGHT EQUIPMENT", "STAKE TRUCK": "LIGHT EQUIPMENT",
-            "PRIME MOVER": "LIGHT EQUIPMENT", "DUMP TRUCK": "LIGHT EQUIPMENT", "BULLDOZER": "LIGHT EQUIPMENT",
+            "PRIME MOVER": "LIGHT EQUIPMENT", "DUMP TRUCK": "LIGHT EQUIPMENT",
             "BACKHOE (CRAWLER)": "LIGHT EQUIPMENT", "MINI DUMP TRUCK": "LIGHT EQUIPMENT", "FUEL DELIVERY TRUCK": "LIGHT EQUIPMENT",
             "PMT": "LIGHT EQUIPMENT", "SAND PUMP FOR SAMAL": "LIGHT EQUIPMENT", "BULK CEMENT TRUCK": "LIGHT EQUIPMENT",
             "PMS UNITS": "LIGHT EQUIPMENT", "GENSET": "LIGHT EQUIPMENT", 
             
+            // HEAVY EQUIPMENT Category Mappings
+            "BULLDOZER": "HEAVY EQUIPMENT", "BULLDOZE": "HEAVY EQUIPMENT", "ROAD GRADER": "HEAVY EQUIPMENT", 
+            "WHEEL TYPE BACKHOE": "HEAVY EQUIPMENT", "CRAWLER BACKHOE": "HEAVY EQUIPMENT", "WHEEL LOADER": "HEAVY EQUIPMENT", 
+            "ROAD ROLLER": "HEAVY EQUIPMENT", "CRANE": "HEAVY EQUIPMENT", "SHEET PILE DRIVER": "HEAVY EQUIPMENT", 
+            "20T HYDRAULIC BREAKER": "HEAVY EQUIPMENT",
+
             // SERVICE VEHICLE Category Mappings
             "TOYOTA HILUX": "SERVICE VEHICLE", "TOYOTA FORTUNER": "SERVICE VEHICLE", "MITSUBISHI STRADA": "SERVICE VEHICLE",
             "ISUZU D-MAX": "SERVICE VEHICLE", "NISSAN X-TRAIL": "SERVICE VEHICLE", "NISSAN NAVARA": "SERVICE VEHICLE",
             "MITSUBISHI PAJERO": "SERVICE VEHICLE", "KIA K2500": "SERVICE VEHICLE", "KIA K2700": "SERVICE VEHICLE",
             "JMC": "SERVICE VEHICLE", "FORD RANGER": "SERVICE VEHICLE", "KIA SORENTO": "SERVICE VEHICLE",
 
-            "ROAD GRADER": "LIGHT EQUIPMENT", "WHEEL TYPE BACKHOE": "LIGHT EQUIPMENT", "CRAWLER BACKHOE": "LIGHT EQUIPMENT",
-            "WHEEL LOADER": "LIGHT EQUIPMENT", "ROAD ROLLER": "LIGHT EQUIPMENT", "CRANE": "LIGHT EQUIPMENT",
-            "SHEET PILE DRIVER": "LIGHT EQUIPMENT", "20T HYDRAULIC BREAKER": "LIGHT EQUIPMENT",
             "LOW BED TRUCK": "ATTACHMENT/TRAILER", "HIGH BED TRUCK": "ATTACHMENT/TRAILER", "DOLLY": "ATTACHMENT/TRAILER",
             "GENSET 50KVA": "GENSET", "GENSET 100KVA": "GENSET", "GENSET 150KVA": "GENSET", "GENSET 250KVA": "GENSET"
         };
@@ -699,7 +702,6 @@
             { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-12" }, { id: "ST-69", completion: 15, targetDate: "2026-07-19" }, { id: "ST-35", completion: 30, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-25" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-14" }, { id: "PM21", completion: 20, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-17" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-25" },{ id: "DT96", completion: 0, targetDate: "2026-07-16" }], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-15" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "BACKHOE (CRAWLER)", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-22" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-18" }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "FUEL DELIVERY TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "FDT28", completion: 10, targetDate: "2026-07-27" }], released: [], jobout: [], pms: [] },
@@ -708,6 +710,17 @@
             { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
+
+            // HEAVY EQUIPMENT Category Items
+            { category: "HEAVY EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-15" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "CRAWLER BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "WHEEL LOADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "ROAD ROLLER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "CRANE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "SHEET PILE DRIVER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
 
             // ATTACHMENT/TRAILER Category Items
             { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [], pms: [] },
@@ -732,26 +745,16 @@
             { category: "SERVICE VEHICLE", type: "KIA K2700", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "SERVICE VEHICLE", type: "JMC", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "SERVICE VEHICLE", type: "FORD RANGER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "SERVICE VEHICLE", type: "KIA SORENTO", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-
-            // Los Amigos Motorpool Items
-            { category: "LIGHT EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "CRAWLER BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "WHEEL LOADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "ROAD ROLLER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "CRANE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "SHEET PILE DRIVER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] }
+            { category: "SERVICE VEHICLE", type: "KIA SORENTO", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] }
         ];
 
         let state = [];
         let activeManageState = { category: "", type: "", index: -1, unitCode: "", stateKey: "", unitObj: null };
 
         const EQUIPMENT_BY_LOCATION = {
-            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","PMS UNITS","GENSET","LOW BED TRUCK","HIGH BED TRUCK","DOLLY","GENSET 50KVA","GENSET 100KVA","GENSET 150KVA","GENSET 250KVA"],
+            "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","PMS UNITS","GENSET","LOW BED TRUCK","HIGH BED TRUCK","DOLLY","GENSET 50KVA","GENSET 100KVA","GENSET 150KVA","GENSET 250KVA"],
             "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","NISSAN X-TRAIL","NISSAN NAVARA","MITSUBISHI PAJERO","KIA K2500","KIA K2700","JMC","FORD RANGER","KIA SORENTO","PMS UNITS","GENSET","GENSET 50KVA","GENSET 100KVA"],
-            "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","PMS UNITS","GENSET","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER","GENSET 150KVA","GENSET 250KVA"],
+            "Los Amigos Motorpool": ["BULLDOZER","ROAD GRADER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER","BULK CEMENT TRUCK","PMS UNITS","GENSET","GENSET 150KVA","GENSET 250KVA"],
             "PMS / GENSET": ["PMS UNITS", "GENSET", "GENSET 50KVA", "GENSET 100KVA", "GENSET 150KVA", "GENSET 250KVA"]
         };
 
@@ -784,7 +787,7 @@
 
         function ensureStateIntegrity() {
             state.forEach(row => {
-                // Ensure Service Vehicles get assigned correctly even if old sheet state exists
+                // Ensure Heavy Equipment & Service Vehicles get assigned correctly even if old sheet state exists
                 if (TYPE_CATEGORY_MAP[row.type]) {
                     row.category = TYPE_CATEGORY_MAP[row.type];
                 }
@@ -865,7 +868,7 @@
             const gridBody = document.getElementById('motorpool-grid-body');
             gridBody.innerHTML = '';
 
-            const categories = ["LIGHT EQUIPMENT", "SERVICE VEHICLE", "ATTACHMENT/TRAILER", "GENSET"];
+            const categories = ["LIGHT EQUIPMENT", "HEAVY EQUIPMENT", "SERVICE VEHICLE", "ATTACHMENT/TRAILER", "GENSET"];
             let overallLongDown = 0, overallRunningRepair = 0, overallTotalDown = 0;
             let overallOngoing = 0, overallJobOut = 0, overallWaiting = 0, overallReleased = 0;
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
@@ -1374,7 +1377,7 @@
             // Find existing category row or dynamically initialize if unlisted
             let row = state.find(item => item.type === type);
             if (!row) {
-                const category = TYPE_CATEGORY_MAP[type] || "SERVICE VEHICLE";
+                const category = TYPE_CATEGORY_MAP[type] || "HEAVY EQUIPMENT";
                 row = {
                     category: category,
                     type: type,
