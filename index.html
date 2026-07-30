@@ -379,7 +379,7 @@
 
                 <div class="bg-rose-500/10 border border-rose-500/20 px-4 py-3 rounded-xl text-xs text-rose-300">
                     <p class="font-semibold flex items-center gap-1.5"><i class="w-4 h-4" data-lucide="alert-triangle"></i> Breakdown Recurrence Trend Analysis</p>
-                    <p class="mt-1 text-slate-300">This module counts total breakdowns per equipment unit within the designated week and month to highlight repeat mechanical failures requiring root-cause investigation.</p>
+                    <p class="mt-1 text-slate-300">This module identifies assets released in previous weeks that have re-occurred or suffered breakdowns into the current period.</p>
                 </div>
 
                 <div class="space-y-3">
@@ -971,7 +971,7 @@
                             return (d >= currentWeekStart && d <= currentWeekEnd);
                         });
                     } else if (viewMode === "specific") {
-                        // Show only released units belonging to selected historical week
+                        // Show ONLY released units belonging to the selected historical week
                         releasedList = releasedList.filter(u => {
                             if (!u.targetDate) return false;
                             const d = new Date(u.targetDate);
@@ -987,21 +987,23 @@
 
                     if (searchVal && !matchesSearch) return;
 
-                    // Breakdown tracking loop
-                    const allUnreleased = [...ongoingList, ...joboutList, ...waitingList];
-                    allUnreleased.forEach(u => {
-                        let matchesWeekFilter = true;
-                        if (u.targetDate) {
-                            const uDate = new Date(u.targetDate);
-                            matchesWeekFilter = (uDate >= selectedWeekStart && uDate <= selectedWeekEnd);
-                        }
+                    // Re-occurring breakdown tracking logic:
+                    // Track assets that were released in previous weeks and are occurring/active in present breakdown lists
+                    const allCurrentBreakdowns = [...ongoingList, ...joboutList, ...waitingList];
+                    allCurrentBreakdowns.forEach(u => {
+                        const wasReleasedPreviously = (row.released || []).some(relUnit => {
+                            if (relUnit.id !== u.id) return false;
+                            if (!relUnit.targetDate) return true;
+                            const relDate = new Date(relUnit.targetDate);
+                            return relDate < currentWeekStart;
+                        });
 
-                        if (matchesWeekFilter) {
+                        if (wasReleasedPreviously) {
                             if (!breakdownTracker[u.id]) {
-                                breakdownTracker[u.id] = { id: u.id, type: row.type, category: row.category, occurrences: 1, states: [u.description || 'Active Maintenance Log'], locations: [u.location || 'Motorpool'] };
+                                breakdownTracker[u.id] = { id: u.id, type: row.type, category: row.category, occurrences: 2, states: [u.description || 'Re-occurring Breakdown'], locations: [u.location || 'Motorpool'] };
                             } else {
                                 breakdownTracker[u.id].occurrences += 1;
-                                breakdownTracker[u.id].states.push(u.description || 'Maintenance Log');
+                                breakdownTracker[u.id].states.push(u.description || 'Re-occurring Maintenance Log');
                             }
                         }
                     });
@@ -1153,7 +1155,7 @@
         // Re-Occurring Equipment Breakdown Calculation & Renderer
         function renderRecurringBreakdownsSummary(tracker) {
             const list = Object.values(tracker).sort((a,b) => b.occurrences - a.occurrences);
-            const recurringUnits = list.filter(item => item.occurrences >= 1);
+            const recurringUnits = list.filter(item => item.occurrences >= 2);
 
             document.getElementById('recurring-units-count').textContent = recurringUnits.length;
             const maxRepeat = list.length > 0 ? list[0].occurrences : 0;
@@ -1163,7 +1165,7 @@
             topTypesContainer.innerHTML = '';
 
             if (recurringUnits.length === 0) {
-                topTypesContainer.innerHTML = `<span class="text-xs text-slate-500 italic">No recurring equipment breakdowns detected.</span>`;
+                topTypesContainer.innerHTML = `<span class="text-xs text-slate-500 italic">No re-occurring equipment breakdowns detected.</span>`;
             } else {
                 const topTypes = [...new Set(recurringUnits.map(i => i.type))].slice(0, 3);
                 topTypes.forEach(t => {
@@ -1178,7 +1180,7 @@
             const modalList = document.getElementById('recurringBreakdownsList');
             modalList.innerHTML = '';
             if (recurringUnits.length === 0) {
-                modalList.innerHTML = `<div class="p-4 text-xs text-slate-500 italic text-center bg-slate-900/40 rounded-xl">No re-occurring breakdown logs identified across selected timeframe.</div>`;
+                modalList.innerHTML = `<div class="p-4 text-xs text-slate-500 italic text-center bg-slate-900/40 rounded-xl">No re-occurring breakdown logs identified between previous releases and current week.</div>`;
             } else {
                 recurringUnits.forEach(item => {
                     const el = document.createElement('div');
@@ -1188,13 +1190,13 @@
                             <div class="flex items-center gap-2">
                                 <span class="font-black text-white text-sm">${item.id}</span>
                                 <span class="text-slate-400 font-semibold">(${item.type})</span>
-                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">${item.occurrences} Breakdown Record(s)</span>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">${item.occurrences}x Breakdown Recurrence</span>
                             </div>
                             <p class="text-[11px] text-slate-400">Diagnosis: ${item.states.join(' • ')}</p>
                         </div>
                         <div class="text-right shrink-0">
                             <span class="text-[10px] text-slate-500 font-medium uppercase block">${item.category}</span>
-                            <span class="text-xs font-bold text-blue-400">${item.hasLongDown ? 'Long Down Flagged' : 'Active Breakdown'}</span>
+                            <span class="text-xs font-bold text-rose-400">Re-Occurring Incident</span>
                         </div>
                     `;
                     modalList.appendChild(el);
