@@ -40,7 +40,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-black text-white tracking-tight uppercase">Fleet Maintenance Dashboard</h1>
-                    <p class="text-xs text-slate-400 font-medium">Overdue &amp; Operational Phase Status Tracking • System Time: July 20, 2026</p>
+                    <p class="text-xs text-slate-400 font-medium">Overdue &amp; Operational Phase Status Tracking • System Time: July 20, 2026 (WEEK 30)</p>
                 </div>
             </div>
             <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
@@ -152,7 +152,7 @@
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full">Weekly Window</span>
                             <h3 class="text-base font-bold text-white mt-1 group-hover:text-blue-400 transition flex items-center gap-2">
-                                Current Week Performance
+                                WEEK 30 Performance
                                 <i class="w-4 h-4 text-slate-400 group-hover:text-blue-400" data-lucide="external-link"></i>
                             </h3>
                         </div>
@@ -269,7 +269,7 @@
                 <div class="w-full sm:w-auto flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700">
                     <i class="w-4 h-4 text-blue-400 ml-2" data-lucide="filter"></i>
                     <select class="bg-transparent text-xs font-bold text-slate-200 focus:outline-none pr-3 py-1 cursor-pointer" id="dashboardViewMode" onchange="toggleViewMode(this.value)">
-                        <option value="current" class="bg-slate-800 text-white" selected>View Mode: Current Week</option>
+                        <option value="current" class="bg-slate-800 text-white" selected>View Mode: Current Week (WEEK 30)</option>
                         <option value="specific" class="bg-slate-800 text-white">View Mode: Specific Historical Week</option>
                         <option value="all" class="bg-slate-800 text-white">View Mode: All History Ledger</option>
                     </select>
@@ -488,7 +488,7 @@
                             <option value="3">April</option>
                             <option value="4">May</option>
                             <option value="5">June</option>
-                            <option value="6">July</option>
+                            <option value="6" selected>July</option>
                             <option value="7">August</option>
                             <option value="8">September</option>
                             <option value="9">October</option>
@@ -690,7 +690,7 @@
     <script>
         // Integrated Live Google Apps Script Endpoint
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
-        const SYSTEM_TODAY = new Date("2026-07-20");
+        const SYSTEM_TODAY = new Date("2026-07-20"); // System Base Date set to WEEK 30 Start Date
 
         // Category mapping lookup
         const TYPE_CATEGORY_MAP = {
@@ -716,16 +716,16 @@
             "GENSET 50KVA": "GENSET", "GENSET 100KVA": "GENSET", "GENSET 150KVA": "GENSET", "GENSET 250KVA": "GENSET"
         };
 
-        // Baseline equipment category schema defaults
+        // Baseline equipment category schema defaults aligned for Week 30
         const RECONSTRUCTED_DEFAULTS = [
             // GEM Motorpool Items
-            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-15", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-20" },{ id: "BT-32", completion: 100, targetDate: "2026-07-21" },{ id: "BT-40", completion: 100, targetDate: "2026-07-22" },{ id: "BT-48", completion: 100, targetDate: "2026-07-23" },{ id: "BT-50", completion: 100, targetDate: "2026-07-24" }], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-28" }, { id: "CT-22", completion: 65, targetDate: "2026-07-18" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-24" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-22" }], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-12" }, { id: "ST-69", completion: 15, targetDate: "2026-07-19" }, { id: "ST-35", completion: 30, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-25" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-14" }, { id: "PM21", completion: 20, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-17" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-25" },{ id: "DT96", completion: 0, targetDate: "2026-07-16" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-25", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-20" },{ id: "BT-32", completion: 100, targetDate: "2026-07-21" },{ id: "BT-40", completion: 100, targetDate: "2026-07-22" },{ id: "BT-48", completion: 100, targetDate: "2026-07-23" },{ id: "BT-50", completion: 100, targetDate: "2026-07-24" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-28" }, { id: "CT-22", completion: 65, targetDate: "2026-07-23" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-24" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-22" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-21" }, { id: "ST-69", completion: 15, targetDate: "2026-07-22" }, { id: "ST-35", completion: 30, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-25" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-21" }, { id: "PM21", completion: 20, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-22" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-25" },{ id: "DT96", completion: 0, targetDate: "2026-07-21" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "BACKHOE (CRAWLER)", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-22" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-18" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-22" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "FUEL DELIVERY TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "FDT28", completion: 10, targetDate: "2026-07-27" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "PMT", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -734,7 +734,7 @@
             { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-21" }], jobout: [], pms: [] },
 
             // HEAVY EQUIPMENT Category Items
-            { category: "HEAVY EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-15" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-20" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "CRAWLER BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -745,9 +745,9 @@
             { category: "HEAVY EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
 
             // ATTACHMENT/TRAILER Category Items
-            { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-21" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-14" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-21" }], waiting: [], released: [], jobout: [], pms: [] },
 
             // GENSET Category Rows
             { category: "GENSET", type: "GENSET 50KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -861,7 +861,7 @@
             for (let i = 1; i <= 52; i++) {
                 const opt = document.createElement('option');
                 opt.value = i;
-                opt.textContent = `Week ${i}${i === currentWeek ? ' (Current)' : ''}`;
+                opt.textContent = `Week ${i}${i === currentWeek ? ' (Current - Week 30)' : ''}`;
                 if (i === currentWeek) opt.selected = true;
                 opt.className = "bg-slate-800 text-white";
                 select.appendChild(opt);
@@ -926,7 +926,7 @@
             // Date Calculation Thresholds for Performance Metrics
             const currentYear = SYSTEM_TODAY.getFullYear();
             const currentMonth = SYSTEM_TODAY.getMonth();
-            const currentWeekNum = getISOWeekNumber(SYSTEM_TODAY);
+            const currentWeekNum = getISOWeekNumber(SYSTEM_TODAY); // Week 30
 
             const currentWeekStart = getDateOfISOWeek(currentWeekNum, currentYear);
             const currentWeekEnd = new Date(currentWeekStart);
@@ -988,7 +988,6 @@
                     if (searchVal && !matchesSearch) return;
 
                     // Re-occurring breakdown tracking logic:
-                    // Track assets that were released in previous weeks and are occurring/active in present breakdown lists
                     const allCurrentBreakdowns = [...ongoingList, ...joboutList, ...waitingList];
                     allCurrentBreakdowns.forEach(u => {
                         const wasReleasedPreviously = (row.released || []).some(relUnit => {
@@ -1211,9 +1210,7 @@
         // Custom Saturday to Friday Week Helper Logic
         function getISOWeekNumber(d) {
             const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-            // Shift day so Saturday = 0, Sunday = 1, ..., Friday = 6
             const dayNum = (date.getDay() + 1) % 7; 
-            // Move target to nearest Thursday equivalent to calculate week number relative to Jan 1st Saturday start
             date.setDate(date.getDate() + 3 - dayNum);
             const yearStart = new Date(date.getFullYear(), 0, 1);
             const jan1DayNum = (yearStart.getDay() + 1) % 7;
@@ -1223,14 +1220,11 @@
         }
 
         function getDateOfISOWeek(w, y) {
-            // Find Jan 1st of the specified year
             const jan1 = new Date(y, 0, 1);
-            // Get Saturday-based offset (Saturday = 0)
             const jan1DayNum = (jan1.getDay() + 1) % 7;
             const dayOffset = (jan1DayNum <= 3) ? (jan1DayNum) : (jan1DayNum - 7);
             const firstSaturday = new Date(y, 0, 1 - dayOffset);
             
-            // Calculate start date (Saturday) of week w
             const startOfRequestedWeek = new Date(firstSaturday);
             startOfRequestedWeek.setDate(firstSaturday.getDate() + (w - 1) * 7);
             return startOfRequestedWeek;
@@ -1246,7 +1240,7 @@
                 for (let i = 1; i <= 52; i++) {
                     const opt = document.createElement('option');
                     opt.value = i;
-                    opt.textContent = `Week ${i}${i === currentISOWeek ? ' (Current)' : ''}`;
+                    opt.textContent = `Week ${i}${i === currentISOWeek ? ' (Current - Week 30)' : ''}`;
                     if (i === currentISOWeek) opt.selected = true;
                     select.appendChild(opt);
                 }
