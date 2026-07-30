@@ -676,8 +676,14 @@
             "PRIME MOVER": "LIGHT EQUIPMENT", "DUMP TRUCK": "LIGHT EQUIPMENT", "BULLDOZER": "LIGHT EQUIPMENT",
             "BACKHOE (CRAWLER)": "LIGHT EQUIPMENT", "MINI DUMP TRUCK": "LIGHT EQUIPMENT", "FUEL DELIVERY TRUCK": "LIGHT EQUIPMENT",
             "PMT": "LIGHT EQUIPMENT", "SAND PUMP FOR SAMAL": "LIGHT EQUIPMENT", "BULK CEMENT TRUCK": "LIGHT EQUIPMENT",
-            "PMS UNITS": "LIGHT EQUIPMENT", "GENSET": "LIGHT EQUIPMENT", "TOYOTA HILUX": "LIGHT EQUIPMENT",
-            "TOYOTA FORTUNER": "LIGHT EQUIPMENT", "MITSUBISHI STRADA": "LIGHT EQUIPMENT", "ISUZU D-MAX": "LIGHT EQUIPMENT",
+            "PMS UNITS": "LIGHT EQUIPMENT", "GENSET": "LIGHT EQUIPMENT", 
+            
+            // SERVICE VEHICLE Category Mappings
+            "TOYOTA HILUX": "SERVICE VEHICLE", "TOYOTA FORTUNER": "SERVICE VEHICLE", "MITSUBISHI STRADA": "SERVICE VEHICLE",
+            "ISUZU D-MAX": "SERVICE VEHICLE", "NISSAN X-TRAIL": "SERVICE VEHICLE", "NISSAN NAVARA": "SERVICE VEHICLE",
+            "MITSUBISHI PAJERO": "SERVICE VEHICLE", "KIA K2500": "SERVICE VEHICLE", "KIA K2700": "SERVICE VEHICLE",
+            "JMC": "SERVICE VEHICLE", "FORD RANGER": "SERVICE VEHICLE", "KIA SORENTO": "SERVICE VEHICLE",
+
             "ROAD GRADER": "LIGHT EQUIPMENT", "WHEEL TYPE BACKHOE": "LIGHT EQUIPMENT", "CRAWLER BACKHOE": "LIGHT EQUIPMENT",
             "WHEEL LOADER": "LIGHT EQUIPMENT", "ROAD ROLLER": "LIGHT EQUIPMENT", "CRANE": "LIGHT EQUIPMENT",
             "SHEET PILE DRIVER": "LIGHT EQUIPMENT", "20T HYDRAULIC BREAKER": "LIGHT EQUIPMENT",
@@ -714,11 +720,19 @@
             { category: "GENSET", type: "GENSET 150KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
             
-            // SV Repair Units Items
-            { category: "LIGHT EQUIPMENT", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "TOYOTA FORTUNER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "MITSUBISHI STRADA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "ISUZU D-MAX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            // SERVICE VEHICLE Category Items (SV Repair Units)
+            { category: "SERVICE VEHICLE", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "TOYOTA FORTUNER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "MITSUBISHI STRADA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "ISUZU D-MAX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "NISSAN X-TRAIL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "NISSAN NAVARA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "MITSUBISHI PAJERO", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "KIA K2500", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "KIA K2700", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "JMC", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "FORD RANGER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "SERVICE VEHICLE", type: "KIA SORENTO", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
 
             // Los Amigos Motorpool Items
             { category: "LIGHT EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -736,7 +750,7 @@
 
         const EQUIPMENT_BY_LOCATION = {
             "GEM Motorpool": ["BOOM TRUCK","CARGO TRUCK","STAKE TRUCK","PRIME MOVER","DUMP TRUCK","BULLDOZER","BACKHOE (CRAWLER)","MINI DUMP TRUCK","FUEL DELIVERY TRUCK","PMT","SAND PUMP FOR SAMAL","BULK CEMENT TRUCK","PMS UNITS","GENSET","LOW BED TRUCK","HIGH BED TRUCK","DOLLY","GENSET 50KVA","GENSET 100KVA","GENSET 150KVA","GENSET 250KVA"],
-            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","PMS UNITS","GENSET","GENSET 50KVA","GENSET 100KVA"],
+            "SV Repair Units": ["TOYOTA HILUX","TOYOTA FORTUNER","MITSUBISHI STRADA","ISUZU D-MAX","NISSAN X-TRAIL","NISSAN NAVARA","MITSUBISHI PAJERO","KIA K2500","KIA K2700","JMC","FORD RANGER","KIA SORENTO","PMS UNITS","GENSET","GENSET 50KVA","GENSET 100KVA"],
             "Los Amigos Motorpool": ["ROAD GRADER","BULLDOZER","WHEEL TYPE BACKHOE","CRAWLER BACKHOE","WHEEL LOADER","BULK CEMENT TRUCK","PMS UNITS","GENSET","ROAD ROLLER","CRANE","SHEET PILE DRIVER","20T HYDRAULIC BREAKER","GENSET 150KVA","GENSET 250KVA"],
             "PMS / GENSET": ["PMS UNITS", "GENSET", "GENSET 50KVA", "GENSET 100KVA", "GENSET 150KVA", "GENSET 250KVA"]
         };
@@ -770,6 +784,10 @@
 
         function ensureStateIntegrity() {
             state.forEach(row => {
+                // Ensure Service Vehicles get assigned correctly even if old sheet state exists
+                if (TYPE_CATEGORY_MAP[row.type]) {
+                    row.category = TYPE_CATEGORY_MAP[row.type];
+                }
                 if (!row.ongoing) row.ongoing = [];
                 if (!row.jobout) row.jobout = [];
                 if (!row.waiting) row.waiting = [];
@@ -847,7 +865,7 @@
             const gridBody = document.getElementById('motorpool-grid-body');
             gridBody.innerHTML = '';
 
-            const categories = ["LIGHT EQUIPMENT", "ATTACHMENT/TRAILER", "GENSET"];
+            const categories = ["LIGHT EQUIPMENT", "SERVICE VEHICLE", "ATTACHMENT/TRAILER", "GENSET"];
             let overallLongDown = 0, overallRunningRepair = 0, overallTotalDown = 0;
             let overallOngoing = 0, overallJobOut = 0, overallWaiting = 0, overallReleased = 0;
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
@@ -1356,7 +1374,7 @@
             // Find existing category row or dynamically initialize if unlisted
             let row = state.find(item => item.type === type);
             if (!row) {
-                const category = TYPE_CATEGORY_MAP[type] || "LIGHT EQUIPMENT";
+                const category = TYPE_CATEGORY_MAP[type] || "SERVICE VEHICLE";
                 row = {
                     category: category,
                     type: type,
