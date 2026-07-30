@@ -1208,22 +1208,32 @@
             openModal('recurringBreakdownsModal');
         }
 
-        // ISO Week Helper Logic
+        // Custom Saturday to Friday Week Helper Logic
         function getISOWeekNumber(d) {
-            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            const dayNum = date.getUTCDay() || 7;
-            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-            const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
-            return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+            const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            // Shift day so Saturday = 0, Sunday = 1, ..., Friday = 6
+            const dayNum = (date.getDay() + 1) % 7; 
+            // Move target to nearest Thursday equivalent to calculate week number relative to Jan 1st Saturday start
+            date.setDate(date.getDate() + 3 - dayNum);
+            const yearStart = new Date(date.getFullYear(), 0, 1);
+            const jan1DayNum = (yearStart.getDay() + 1) % 7;
+            const dayOffset = (jan1DayNum <= 3) ? (jan1DayNum) : (jan1DayNum - 7);
+            const firstSaturday = new Date(date.getFullYear(), 0, 1 - dayOffset);
+            return Math.max(1, Math.ceil((((date - firstSaturday) / 86400000) + 1) / 7));
         }
 
         function getDateOfISOWeek(w, y) {
-            const simple = new Date(y, 0, 1 + (w - 1) * 7);
-            const dow = simple.getDay();
-            const ISOweekStart = simple;
-            if (dow <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
-            else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
-            return ISOweekStart;
+            // Find Jan 1st of the specified year
+            const jan1 = new Date(y, 0, 1);
+            // Get Saturday-based offset (Saturday = 0)
+            const jan1DayNum = (jan1.getDay() + 1) % 7;
+            const dayOffset = (jan1DayNum <= 3) ? (jan1DayNum) : (jan1DayNum - 7);
+            const firstSaturday = new Date(y, 0, 1 - dayOffset);
+            
+            // Calculate start date (Saturday) of week w
+            const startOfRequestedWeek = new Date(firstSaturday);
+            startOfRequestedWeek.setDate(firstSaturday.getDate() + (w - 1) * 7);
+            return startOfRequestedWeek;
         }
 
         function populateWeekSelectOptions() {
@@ -1259,7 +1269,7 @@
             const options = { month: 'short', day: 'numeric' };
             const dateSpanText = `${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}, ${year}`;
             
-            document.getElementById('historyWeekSpanText').textContent = `Week Date Range: ${dateSpanText}`;
+            document.getElementById('historyWeekSpanText').textContent = `Week Date Range (Sat - Fri): ${dateSpanText}`;
             document.getElementById('historyWeekBadge').textContent = `Week ${week}`;
 
             let releasedCount = 0;
