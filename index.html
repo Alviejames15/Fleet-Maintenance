@@ -1055,6 +1055,7 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-700/30 transition group border-b border-slate-700/40";
 
+                    // MINIMIZED UNIT DISPLAY BLOCKS ACROSS ALL COLUMNS
                     let ongoingIDs = ongoingList.map(u => {
                         const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
                         const isPmsUnit = (row.pms || []).some(p => p.id === u.id);
@@ -1062,10 +1063,10 @@
                         activeRepairsSum += u.completion; activeRepairsTotal++;
                         const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : (isPmsUnit ? 'border-purple-500/30 text-purple-400 bg-purple-500/10' : 'border-amber-500/30 text-amber-400 bg-amber-500/10');
                         return `
-                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', '${stateKey}')" class="flex flex-col gap-1 p-2 border ${borderCls} text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
-                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 text-rose-400"></i>' : (isPmsUnit ? '<span class="text-[9px] bg-purple-500/20 px-1 rounded text-purple-300">PMS</span>' : '')}</div>
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', '${stateKey}')" class="flex flex-col gap-0.5 p-1 border ${borderCls} text-[11px] font-bold rounded-lg cursor-pointer transition w-20 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-2.5 h-2.5 text-rose-400"></i>' : (isPmsUnit ? '<span class="text-[7px] bg-purple-500/20 px-0.5 rounded text-purple-300">PMS</span>' : '')}</div>
                                 <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full ${isOverdue ? 'bg-rose-500': (isPmsUnit ? 'bg-purple-500' : 'bg-amber-500')}" style="width: ${u.completion}%"></div></div>
-                                <div class="flex justify-between text-[8px] text-slate-400 font-medium"><span>${u.completion}%</span><span>${isOverdue ? 'LATE' : (isPmsUnit ? 'PMS' : 'OK')}</span></div>
+                                <div class="flex justify-between text-[7px] text-slate-400 font-medium"><span>${u.completion}%</span><span>${isOverdue ? 'LATE' : (isPmsUnit ? 'PMS' : 'OK')}</span></div>
                             </div>`;
                     }).join(' ');
 
@@ -1074,10 +1075,10 @@
                         activeRepairsSum += u.completion; activeRepairsTotal++;
                         const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : 'border-purple-500/30 text-purple-400 bg-purple-500/10';
                         return `
-                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'jobout')" class="flex flex-col gap-1 p-2 border ${borderCls} text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
-                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 text-rose-400"></i>' : '<span class="text-[9px] bg-purple-500/20 px-1 rounded text-purple-300">EXT</span>'}</div>
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'jobout')" class="flex flex-col gap-0.5 p-1 border ${borderCls} text-[11px] font-bold rounded-lg cursor-pointer transition w-20 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-2.5 h-2.5 text-rose-400"></i>' : '<span class="text-[7px] bg-purple-500/20 px-0.5 rounded text-purple-300">EXT</span>'}</div>
                                 <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full bg-purple-500" style="width: ${u.completion}%"></div></div>
-                                <div class="flex justify-between text-[8px] text-slate-400 font-medium"><span>${u.completion}%</span><span>JOB OUT</span></div>
+                                <div class="flex justify-between text-[7px] text-slate-400 font-medium"><span>${u.completion}%</span><span>EXT</span></div>
                             </div>`;
                     }).join(' ');
 
@@ -1086,19 +1087,19 @@
                         activeRepairsSum += u.completion; activeRepairsTotal++;
                         const borderCls = isOverdue ? 'border-rose-500 text-rose-400 bg-rose-500/10 animate-pulse' : 'border-blue-500/30 text-blue-400 bg-blue-500/10';
                         return `
-                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'waiting')" class="flex flex-col gap-1 p-2 border ${borderCls} text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
-                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 text-rose-400"></i>' : ''}</div>
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'waiting')" class="flex flex-col gap-0.5 p-1 border ${borderCls} text-[11px] font-bold rounded-lg cursor-pointer transition w-20 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span>${isOverdue ? '<i data-lucide="clock" class="w-2.5 h-2.5 text-rose-400"></i>' : ''}</div>
                                 <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full bg-blue-500" style="width: ${u.completion}%"></div></div>
-                                <div class="flex justify-between text-[8px] text-slate-400 font-medium"><span>${u.completion}%</span><span>QUEUE</span></div>
+                                <div class="flex justify-between text-[7px] text-slate-400 font-medium"><span>${u.completion}%</span><span>WAIT</span></div>
                             </div>`;
                     }).join(' ');
 
                     let releasedIDs = releasedList.map(u => {
                         return `
-                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'released')" class="flex flex-col gap-1 p-2 border border-emerald-500/30 text-emerald-400 bg-emerald-500/5 text-xs font-bold rounded-xl cursor-pointer transition w-28 shrink-0 hover:scale-[1.03]">
-                                <div class="flex items-center justify-between"><span>${u.id}</span><i data-lucide="check-circle" class="w-3 h-3 text-emerald-400"></i></div>
+                            <div onclick="openManageModal('${row.category}', '${row.type}', '${u.id}', 'released')" class="flex flex-col gap-0.5 p-1 border border-emerald-500/30 text-emerald-400 bg-emerald-500/5 text-[11px] font-bold rounded-lg cursor-pointer transition w-20 shrink-0 hover:scale-[1.03]">
+                                <div class="flex items-center justify-between"><span>${u.id}</span><i data-lucide="check-circle" class="w-2.5 h-2.5 text-emerald-400"></i></div>
                                 <div class="w-full bg-slate-700/60 h-1 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 100%"></div></div>
-                                <div class="text-[8px] text-emerald-500/70 font-semibold uppercase tracking-wider">Active</div>
+                                <div class="text-[7px] text-emerald-500/70 font-semibold uppercase tracking-wider">DONE</div>
                             </div>`;
                     }).join(' ');
 
@@ -1120,13 +1121,13 @@
                         </td>
                         <td class="py-3 px-3 text-center text-blue-400 font-black bg-blue-500/5 border-r border-slate-700">${totalDownRow}</td>
                         <td class="py-3 px-3 text-center font-bold border-l border-slate-700/60 text-amber-400 bg-amber-500/5 w-16">${ongoingList.length}</td>
-                        <td class="py-3 px-4 border-r border-slate-700 bg-amber-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[220px]">${ongoingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-amber-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${ongoingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                         <td class="py-3 px-3 text-center font-bold border-l border-slate-700/60 text-purple-400 bg-purple-500/5 w-16">${joboutList.length}</td>
-                        <td class="py-3 px-4 border-r border-slate-700 bg-purple-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[220px]">${joboutIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-purple-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${joboutIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                         <td class="py-3 px-3 text-center font-bold text-blue-400 bg-blue-500/5 w-16">${waitingList.length}</td>
-                        <td class="py-3 px-4 border-r border-slate-700 bg-blue-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[220px]">${waitingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 border-r border-slate-700 bg-blue-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${waitingIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                         <td class="py-3 px-3 text-center font-bold text-emerald-400 bg-emerald-500/5 w-16">${releasedList.length}</td>
-                        <td class="py-3 px-4 bg-emerald-500/5"><div class="flex flex-row overflow-x-auto gap-2 py-1 max-w-[220px]">${releasedIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
+                        <td class="py-3 px-4 bg-emerald-500/5"><div class="flex flex-row overflow-x-auto gap-1.5 py-1 max-w-[150px]">${releasedIDs || '<span class="text-xs text-slate-600 italic">None</span>'}</div></td>
                     `;
                     gridBody.appendChild(tr);
                 });
@@ -1606,26 +1607,6 @@
                 closeModal('manageUnitModal');
                 await saveToSheet();
             }
-        }
-
-        function downloadCSV() {
-            let csv = "Category,Equipment Type,Long Down,Running Repair,Total Down,Ongoing Units,Job Out Units,Waiting Units,Released Units\n";
-            state.forEach(row => {
-                const ongoing = (row.ongoing || []).map(u => `${u.id}(${u.completion}%)`).join('; ');
-                const jobout = (row.jobout || []).map(u => `${u.id}(${u.completion}%)`).join('; ');
-                const waiting = (row.waiting || []).map(u => `${u.id}(${u.completion}%)`).join('; ');
-                const released = (row.released || []).map(u => `${u.id}(100%)`).join('; ');
-                const totalDown = (row.ongoing?.length || 0) + (row.jobout?.length || 0) + (row.waiting?.length || 0);
-
-                csv += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${totalDown},"${ongoing}","${jobout}","${waiting}","${released}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `fleet_maintenance_week30_${new Date().toISOString().slice(0, 10)}.csv`);
-            a.click();
         }
     </script>
 </body>
