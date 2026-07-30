@@ -327,9 +327,37 @@
                 <button class="text-slate-400 hover:text-white" onclick="closeModal('recurringBreakdownsModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
             </div>
             <div class="p-6 space-y-6">
+                <!-- Filter Controls for Breakdown View -->
+                <div class="grid grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Specific Week</label>
+                        <select class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-rose-500" id="recurringWeekSelect" onchange="renderDashboard()">
+                            <!-- Generated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Select Specific Month</label>
+                        <select class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-rose-500" id="recurringMonthSelect" onchange="renderDashboard()">
+                            <option value="all">All Months</option>
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="bg-rose-500/10 border border-rose-500/20 px-4 py-3 rounded-xl text-xs text-rose-300">
                     <p class="font-semibold flex items-center gap-1.5"><i class="w-4 h-4" data-lucide="alert-triangle"></i> Breakdown Recurrence Trend Analysis</p>
-                    <p class="mt-1 text-slate-300">This module identifies equipment units registered multiple times across status lists (or logged as recurring long-down failures) to highlight high-maintenance assets needing root-cause inspection.</p>
+                    <p class="mt-1 text-slate-300">This module counts total breakdowns per equipment unit within the designated week and month to highlight repeat mechanical failures requiring root-cause investigation.</p>
                 </div>
 
                 <div class="space-y-3">
@@ -834,6 +862,14 @@
 
             let weeklyReleased = 0, weeklyDue = 0, monthlyReleased = 0;
 
+            // Selected filters for recurring breakdown tracking
+            const selectedWeek = parseInt(document.getElementById('recurringWeekSelect')?.value || getISOWeekNumber(SYSTEM_TODAY));
+            const selectedMonth = document.getElementById('recurringMonthSelect')?.value || "all";
+
+            const selectedWeekStart = getDateOfISOWeek(selectedWeek, currentYear);
+            const selectedWeekEnd = new Date(selectedWeekStart);
+            selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
+
             // Recurring breakdowns tracking map
             const breakdownTracker = {};
 
@@ -867,14 +903,27 @@
                     const waitingList = row.waiting || [];
                     const releasedList = row.released || [];
 
-                    // Register for Recurring Breakdown Analytics
+                    // Register for Recurring Breakdown Analytics with Week & Month Filtering
                     const allUnreleased = [...ongoingList, ...joboutList, ...waitingList];
                     allUnreleased.forEach(u => {
-                        if (!breakdownTracker[u.id]) {
-                            breakdownTracker[u.id] = { id: u.id, type: row.type, category: row.category, occurrences: 1, states: [u.description || 'Active Maintenance Log'], locations: [u.location || 'Motorpool'] };
-                        } else {
-                            breakdownTracker[u.id].occurrences += 1;
-                            breakdownTracker[u.id].states.push(u.description || 'Maintenance Log');
+                        let matchesWeekFilter = true;
+                        let matchesMonthFilter = true;
+
+                        if (u.targetDate) {
+                            const uDate = new Date(u.targetDate);
+                            matchesWeekFilter = (uDate >= selectedWeekStart && uDate <= selectedWeekEnd);
+                            if (selectedMonth !== "all") {
+                                matchesMonthFilter = (uDate.getMonth() === parseInt(selectedMonth));
+                            }
+                        }
+
+                        if (matchesWeekFilter && matchesMonthFilter) {
+                            if (!breakdownTracker[u.id]) {
+                                breakdownTracker[u.id] = { id: u.id, type: row.type, category: row.category, occurrences: 1, states: [u.description || 'Active Maintenance Log'], locations: [u.location || 'Motorpool'] };
+                            } else {
+                                breakdownTracker[u.id].occurrences += 1;
+                                breakdownTracker[u.id].states.push(u.description || 'Maintenance Log');
+                            }
                         }
                     });
 
@@ -1060,7 +1109,7 @@
             const modalList = document.getElementById('recurringBreakdownsList');
             modalList.innerHTML = '';
             if (recurringUnits.length === 0) {
-                modalList.innerHTML = `<div class="p-4 text-xs text-slate-500 italic text-center bg-slate-900/40 rounded-xl">No re-occurring breakdown logs identified across operational pools.</div>`;
+                modalList.innerHTML = `<div class="p-4 text-xs text-slate-500 italic text-center bg-slate-900/40 rounded-xl">No re-occurring breakdown logs identified across selected timeframe.</div>`;
             } else {
                 recurringUnits.forEach(item => {
                     const el = document.createElement('div');
@@ -1107,16 +1156,20 @@
         }
 
         function populateWeekSelectOptions() {
-            const select = document.getElementById('historyWeekSelect');
-            select.innerHTML = '';
+            const selects = [document.getElementById('historyWeekSelect'), document.getElementById('recurringWeekSelect')];
             const currentISOWeek = getISOWeekNumber(SYSTEM_TODAY);
-            for (let i = 1; i <= 52; i++) {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.textContent = `Week ${i}${i === currentISOWeek ? ' (Current)' : ''}`;
-                if (i === currentISOWeek) opt.selected = true;
-                select.appendChild(opt);
-            }
+            
+            selects.forEach(select => {
+                if (!select) return;
+                select.innerHTML = '';
+                for (let i = 1; i <= 52; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.textContent = `Week ${i}${i === currentISOWeek ? ' (Current)' : ''}`;
+                    if (i === currentISOWeek) opt.selected = true;
+                    select.appendChild(opt);
+                }
+            });
         }
 
         function openWeeklyHistoryModal() {
