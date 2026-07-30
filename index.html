@@ -161,16 +161,21 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
-                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Weekly Releases</span>
-                            <p class="text-2xl font-black text-emerald-400 mt-1" id="weekly-released-count">0</p>
-                            <span class="text-[10px] text-slate-500">Units cleared this week</span>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase">Weekly Released</span>
+                            <p class="text-xl font-black text-emerald-400 mt-1" id="weekly-released-count">0</p>
+                            <span class="text-[9px] text-slate-500">Cleared this week</span>
                         </div>
-                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
-                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Due This Week</span>
-                            <p class="text-2xl font-black text-amber-400 mt-1" id="weekly-due-count">0</p>
-                            <span class="text-[10px] text-slate-500">Scheduled completions</span>
+                        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase">Long Down (Inc. Rel.)</span>
+                            <p class="text-xl font-black text-rose-400 mt-1" id="weekly-longdown-count">0</p>
+                            <span class="text-[9px] text-slate-500">Weekly long down count</span>
+                        </div>
+                        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase">Running Repair (Inc. Rel.)</span>
+                            <p class="text-xl font-black text-amber-400 mt-1" id="weekly-running-count">0</p>
+                            <span class="text-[9px] text-slate-500">Weekly running repair count</span>
                         </div>
                     </div>
 
@@ -426,16 +431,21 @@
                 </div>
 
                 <!-- Specific Historical Week Metrics -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
-                        <span class="text-[11px] font-semibold text-slate-400 uppercase">Historical Released</span>
-                        <p class="text-3xl font-black text-emerald-400 mt-1" id="history-released-count">0</p>
-                        <span class="text-[10px] text-slate-500">Completed in selected week</span>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Historical Released</span>
+                        <p class="text-2xl font-black text-emerald-400 mt-1" id="history-released-count">0</p>
+                        <span class="text-[9px] text-slate-500">Completed in selected week</span>
                     </div>
-                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
-                        <span class="text-[11px] font-semibold text-slate-400 uppercase">Scheduled / Due</span>
-                        <p class="text-3xl font-black text-amber-400 mt-1" id="history-due-count">0</p>
-                        <span class="text-[10px] text-slate-500">Work orders due in week</span>
+                    <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Long Down (Inc. Rel.)</span>
+                        <p class="text-2xl font-black text-rose-400 mt-1" id="history-longdown-count">0</p>
+                        <span class="text-[9px] text-slate-500">Active + Released</span>
+                    </div>
+                    <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Running Repair (Inc. Rel.)</span>
+                        <p class="text-2xl font-black text-amber-400 mt-1" id="history-running-count">0</p>
+                        <span class="text-[9px] text-slate-500">Active + Released</span>
                     </div>
                 </div>
 
@@ -940,7 +950,7 @@
             const selectedWeekEnd = new Date(selectedWeekStart);
             selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
 
-            let weeklyReleased = 0, weeklyDue = 0, monthlyReleased = 0;
+            let weeklyReleased = 0, weeklyLongDown = 0, weeklyRunningRepair = 0, monthlyReleased = 0;
 
             // Breakdown tracker for Modal
             const breakdownTracker = {};
@@ -1011,25 +1021,32 @@
                         }
                     });
 
-                    // Performance Calculations across overall dataset
+                    // Weekly Performance Calculations including Released Units for Long Down & Running Repair
+                    let rowWeeklyReleasedCount = 0;
                     const allUnitsInRow = [...ongoingList, ...joboutList, ...waitingList, ...(row.released || [])];
                     allUnitsInRow.forEach(u => {
                         if (u.targetDate) {
                             const d = new Date(u.targetDate);
-                            if (d >= currentWeekStart && d <= currentWeekEnd) {
-                                weeklyDue++;
-                            }
                             if (u.completion === 100) {
-                                if (d >= currentWeekStart && d <= currentWeekEnd) weeklyReleased++;
+                                if (d >= currentWeekStart && d <= currentWeekEnd) {
+                                    weeklyReleased++;
+                                    rowWeeklyReleasedCount++;
+                                }
                                 if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) monthlyReleased++;
                             }
                         }
                     });
 
+                    // Long Down & Running Repair for Weekly Performance INCLUDE Released Units
+                    weeklyLongDown += (row.longDown || 0);
+                    weeklyRunningRepair += (row.runningRepair || 0);
+
+                    // Strictly count ONLY existing total down (DO NOT include released units)
                     const totalDownRow = ongoingList.length + joboutList.length + waitingList.length;
+                    
                     overallLongDown += row.longDown || 0; 
                     overallRunningRepair += row.runningRepair || 0;
-                    overallTotalDown += totalDownRow; 
+                    overallTotalDown += totalDownRow; // ONLY existing active down units
                     overallOngoing += ongoingList.length;
                     overallJobOut += joboutList.length;
                     overallWaiting += waitingList.length; 
@@ -1132,10 +1149,13 @@
             const avgProgress = activeRepairsTotal > 0 ? Math.round(activeRepairsSum / activeRepairsTotal) : 0;
             document.getElementById('kpi-avg-progress').textContent = `${avgProgress}%`;
 
-            // Performance Card Updates
+            // Performance Card Updates: Including Released units for Weekly Long Down & Running Repair count
             document.getElementById('weekly-released-count').textContent = weeklyReleased;
-            document.getElementById('weekly-due-count').textContent = weeklyDue;
-            const weeklyPct = weeklyDue > 0 ? Math.min(100, Math.round((weeklyReleased / weeklyDue) * 100)) : 100;
+            document.getElementById('weekly-longdown-count').textContent = weeklyLongDown;
+            document.getElementById('weekly-running-count').textContent = weeklyRunningRepair;
+
+            const weeklyTotalWork = weeklyReleased + overallTotalDown;
+            const weeklyPct = weeklyTotalWork > 0 ? Math.min(100, Math.round((weeklyReleased / weeklyTotalWork) * 100)) : 100;
             document.getElementById('weekly-progress-pct').textContent = `${weeklyPct}%`;
             document.getElementById('weekly-progress-bar').style.width = `${weeklyPct}%`;
 
@@ -1271,16 +1291,19 @@
             document.getElementById('historyWeekBadge').textContent = `Week ${week}`;
 
             let releasedCount = 0;
-            let dueCount = 0;
+            let totalLongDown = 0;
+            let totalRunningRepair = 0;
             const weekUnits = [];
 
             state.forEach(row => {
+                totalLongDown += (row.longDown || 0);
+                totalRunningRepair += (row.runningRepair || 0);
+
                 const allUnits = [...(row.ongoing || []), ...(row.pms || []), ...(row.jobout || []), ...(row.waiting || []), ...(row.released || [])];
                 allUnits.forEach(u => {
                     if (u.targetDate) {
                         const targetD = new Date(u.targetDate);
                         if (targetD >= startOfWeek && targetD <= endOfWeek) {
-                            dueCount++;
                             const isReleased = u.completion === 100;
                             if (isReleased) releasedCount++;
                             weekUnits.push({ ...u, type: row.type, isReleased });
@@ -1290,8 +1313,11 @@
             });
 
             document.getElementById('history-released-count').textContent = releasedCount;
-            document.getElementById('history-due-count').textContent = dueCount;
-            const historyPct = dueCount > 0 ? Math.min(100, Math.round((releasedCount / dueCount) * 100)) : 100;
+            document.getElementById('history-longdown-count').textContent = totalLongDown;
+            document.getElementById('history-running-count').textContent = totalRunningRepair;
+
+            const totalManagedWeek = releasedCount + (state.reduce((acc, r) => acc + (r.ongoing?.length || 0) + (r.jobout?.length || 0) + (r.waiting?.length || 0), 0));
+            const historyPct = totalManagedWeek > 0 ? Math.min(100, Math.round((releasedCount / totalManagedWeek) * 100)) : 100;
             document.getElementById('history-progress-pct').textContent = `${historyPct}%`;
             document.getElementById('history-progress-bar').style.width = `${historyPct}%`;
 
