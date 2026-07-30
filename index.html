@@ -639,15 +639,12 @@
                 <!-- Asset Information Badge -->
                 <div>
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Target Selected Asset</span>
-                    <div class="mt-1 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="px-3.5 py-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 text-base font-black rounded-xl" id="manageUnitBadge">--</span>
-                            <div>
-                                <p class="text-sm font-bold text-slate-200" id="manageUnitCategory">--</p>
-                                <p class="text-xs text-slate-400" id="manageUnitType">--</p>
-                            </div>
+                    <div class="mt-1 flex items-center gap-3">
+                        <span class="px-3.5 py-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 text-base font-black rounded-xl" id="manageUnitBadge">--</span>
+                        <div>
+                            <p class="text-sm font-bold text-slate-200" id="manageUnitCategory">--</p>
+                            <p class="text-xs text-slate-400" id="manageUnitType">--</p>
                         </div>
-                        <span class="px-2.5 py-1 text-xs font-extrabold rounded-lg border uppercase tracking-wider" id="manageUnitDowntimeTypeBadge">--</span>
                     </div>
                 </div>
 
@@ -661,18 +658,6 @@
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Scope of Work / Diagnosis</label>
                     <textarea class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-100 placeholder-slate-600" id="manageUnitDescription" placeholder="Describe mechanical/electrical repair details..." rows="2"></textarea>
-                </div>
-
-                <!-- Edit Down Tag Status (Long Down / Running Repair) -->
-                <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="w-4 h-4" data-lucide="alert-triangle"></i> Downtime Tag Classification
-                    </label>
-                    <select class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold focus:outline-none focus:border-amber-500 text-slate-100" id="manageUnitDownType" onchange="handleDownTypeChange(this.value)">
-                        <option value="none">Normal Down (Standard)</option>
-                        <option value="longDown">Long Down</option>
-                        <option value="runningRepair">Running Repair</option>
-                    </select>
                 </div>
 
                 <!-- Re-assign Operational Phase Status -->
@@ -748,22 +733,22 @@
         // Baseline equipment category schema defaults aligned for Week 30 (July 25 to July 31, 2026)
         const RECONSTRUCTED_DEFAULTS = [
             // GEM Motorpool Items
-            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-28", description: "Engine overhaul and hydraulics", downtimeTag: "longDown" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-25" },{ id: "BT-32", completion: 100, targetDate: "2026-07-26" },{ id: "BT-40", completion: 100, targetDate: "2026-07-27" },{ id: "BT-48", completion: 100, targetDate: "2026-07-28" },{ id: "BT-50", completion: 100, targetDate: "2026-07-29" }], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-29", downtimeTag: "longDown" }, { id: "CT-22", completion: 65, targetDate: "2026-07-27", downtimeTag: "longDown" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-28" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-26" }], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-26", downtimeTag: "longDown" }, { id: "ST-69", completion: 15, targetDate: "2026-07-27", downtimeTag: "longDown" }, { id: "ST-35", completion: 30, targetDate: "2026-07-30", downtimeTag: "longDown" }], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-29", downtimeTag: "longDown" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-26", downtimeTag: "longDown" }, { id: "PM21", completion: 20, targetDate: "2026-07-31", downtimeTag: "longDown" }], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-27", downtimeTag: "longDown" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-29", downtimeTag: "longDown" },{ id: "DT96", completion: 0, targetDate: "2026-07-26", downtimeTag: "longDown" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-28", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-25" },{ id: "BT-32", completion: 100, targetDate: "2026-07-26" },{ id: "BT-40", completion: 100, targetDate: "2026-07-27" },{ id: "BT-48", completion: 100, targetDate: "2026-07-28" },{ id: "BT-50", completion: 100, targetDate: "2026-07-29" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-29" }, { id: "CT-22", completion: 65, targetDate: "2026-07-27" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-28" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-26" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-26" }, { id: "ST-69", completion: 15, targetDate: "2026-07-27" }, { id: "ST-35", completion: 30, targetDate: "2026-07-30" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-29" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-26" }, { id: "PM21", completion: 20, targetDate: "2026-07-31" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-27" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-29" },{ id: "DT96", completion: 0, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "BACKHOE (CRAWLER)", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-27", downtimeTag: "longDown" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-28", downtimeTag: "longDown" }], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "FUEL DELIVERY TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "FDT28", completion: 10, targetDate: "2026-07-30", downtimeTag: "longDown" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-27" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-28" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "FUEL DELIVERY TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "FDT28", completion: 10, targetDate: "2026-07-30" }], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "PMT", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-27", description: "Alternator winding repair", downtimeTag: "longDown" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-26" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-27", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-26" }], jobout: [], pms: [] },
 
             // HEAVY EQUIPMENT Category Items
-            { category: "HEAVY EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-27", downtimeTag: "longDown" },{ id: "BD28", completion: 25, targetDate: "2026-07-25", downtimeTag: "longDown" }, { id: "BD26", completion: 0, targetDate: "2026-07-31", downtimeTag: "longDown" }], released: [], jobout: [], pms: [] },
+            { category: "HEAVY EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-27" },{ id: "BD28", completion: 25, targetDate: "2026-07-25" }, { id: "BD26", completion: 0, targetDate: "2026-07-31" }], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "HEAVY EQUIPMENT", type: "CRAWLER BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
@@ -774,13 +759,13 @@
             { category: "HEAVY EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
 
             // ATTACHMENT/TRAILER Category Items
-            { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-26", downtimeTag: "runningRepair" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-28", downtimeTag: "longDown" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-26" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-28" }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-31", downtimeTag: "longDown" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-26", downtimeTag: "longDown" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-31" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-26" }], waiting: [], released: [], jobout: [], pms: [] },
 
             // GENSET Category Rows
             { category: "GENSET", type: "GENSET 50KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
-            { category: "GENSET", type: "GENSET 100KVA", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-27", description: "Alternator winding repair", downtimeTag: "longDown" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "GENSET", type: "GENSET 100KVA", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-27", description: "Alternator winding repair" }], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 150KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
             { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
             
@@ -921,17 +906,6 @@
             return new Date(unit.targetDate) < SYSTEM_TODAY;
         }
 
-        function getUnitDowntimeType(unit, row) {
-            if (unit && unit.downtimeTag) {
-                if (unit.downtimeTag === 'longDown') return "LONG DOWN";
-                if (unit.downtimeTag === 'runningRepair') return "RUNNING REPAIR";
-                if (unit.downtimeTag === 'none') return "NORMAL DOWN";
-            }
-            if (row && row.longDown > 0) return "LONG DOWN";
-            if (row && row.runningRepair > 0) return "RUNNING REPAIR";
-            return "NORMAL DOWN";
-        }
-
         function adjustFormDefaults() {
             const stateKey = document.getElementById('newUnitState').value;
             const progressInput = document.getElementById('newUnitProgress');
@@ -963,6 +937,7 @@
             let overallOngoing = 0, overallJobOut = 0, overallWaiting = 0, overallReleased = 0;
             let overdueCount = 0, activeRepairsSum = 0, activeRepairsTotal = 0;
 
+            // Date Calculation Thresholds for Performance Metrics
             const currentYear = SYSTEM_TODAY.getFullYear();
             const currentMonth = SYSTEM_TODAY.getMonth();
             const currentWeekNum = getISOWeekNumber(SYSTEM_TODAY); // Week 30
@@ -976,6 +951,8 @@
             selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
 
             let weeklyReleased = 0, weeklyLongDown = 0, weeklyRunningRepair = 0, monthlyReleased = 0;
+
+            // Breakdown tracker for Modal
             const breakdownTracker = {};
 
             categories.forEach(catName => {
@@ -999,13 +976,16 @@
                     const waitingList = row.waiting || [];
                     let releasedList = row.released || [];
 
+                    // Filter Released units based on View Mode selection
                     if (viewMode === "current") {
+                        // Automatically hide/remove released units from previous weeks
                         releasedList = releasedList.filter(u => {
                             if (!u.targetDate) return true;
                             const d = new Date(u.targetDate);
                             return (d >= currentWeekStart && d <= currentWeekEnd);
                         });
                     } else if (viewMode === "specific") {
+                        // Show ONLY released units belonging to the selected historical week
                         releasedList = releasedList.filter(u => {
                             if (!u.targetDate) return false;
                             const d = new Date(u.targetDate);
@@ -1021,6 +1001,7 @@
 
                     if (searchVal && !matchesSearch) return;
 
+                    // Re-occurring breakdown tracking logic:
                     const allCurrentBreakdowns = [...ongoingList, ...joboutList, ...waitingList];
                     allCurrentBreakdowns.forEach(u => {
                         const wasReleasedPreviously = (row.released || []).some(relUnit => {
@@ -1040,6 +1021,7 @@
                         }
                     });
 
+                    // Weekly Performance Calculations including Released Units for Long Down & Running Repair
                     let rowWeeklyReleasedCount = 0;
                     const allUnitsInRow = [...ongoingList, ...joboutList, ...waitingList, ...(row.released || [])];
                     allUnitsInRow.forEach(u => {
@@ -1055,14 +1037,17 @@
                         }
                     });
 
+                    // Long Down & Running Repair for Weekly Performance INCLUDE Released Units
                     weeklyLongDown += (row.longDown || 0);
                     weeklyRunningRepair += (row.runningRepair || 0);
 
+                    // AUTOMATIC ACTIVE TOTAL DOWN CALCULATION
+                    // Strictly calculates from the sum of active Long Down and Running Repair tags
                     const activeTotalDownRow = (row.longDown || 0) + (row.runningRepair || 0);
                     
                     overallLongDown += row.longDown || 0; 
                     overallRunningRepair += row.runningRepair || 0;
-                    overallTotalDown += activeTotalDownRow; 
+                    overallTotalDown += activeTotalDownRow; // Sum of active down units
                     overallOngoing += ongoingList.length;
                     overallJobOut += joboutList.length;
                     overallWaiting += waitingList.length; 
@@ -1071,6 +1056,7 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-700/30 transition group border-b border-slate-700/40";
 
+                    // DISPLAY MAX 4 UNITS IN CELL AND HORIZONTAL SCROLL BAR FOR EXCESS
                     let ongoingIDs = ongoingList.map(u => {
                         const isOverdue = isUnitOverdue(u); if (isOverdue) overdueCount++;
                         const isPmsUnit = (row.pms || []).some(p => p.id === u.id);
@@ -1165,6 +1151,7 @@
             const avgProgress = activeRepairsTotal > 0 ? Math.round(activeRepairsSum / activeRepairsTotal) : 0;
             document.getElementById('kpi-avg-progress').textContent = `${avgProgress}%`;
 
+            // Performance Card Updates: Including Released units for Weekly Long Down & Running Repair count
             document.getElementById('weekly-released-count').textContent = weeklyReleased;
             document.getElementById('weekly-longdown-count').textContent = weeklyLongDown;
             document.getElementById('weekly-running-count').textContent = weeklyRunningRepair;
@@ -1184,11 +1171,13 @@
             document.getElementById('monthly-efficiency-pct').textContent = `${efficiencyPct}%`;
             document.getElementById('monthly-efficiency-bar').style.width = `${efficiencyPct}%`;
 
+            // Update Re-Occurring Equipment Breakdown Analytics
             renderRecurringBreakdownsSummary(breakdownTracker);
 
             lucide.createIcons();
         }
 
+        // Re-Occurring Equipment Breakdown Calculation & Renderer
         function renderRecurringBreakdownsSummary(tracker) {
             const list = Object.values(tracker).sort((a,b) => b.occurrences - a.occurrences);
             const recurringUnits = list.filter(item => item.occurrences >= 2);
@@ -1212,6 +1201,7 @@
                 });
             }
 
+            // Populate Modal
             const modalList = document.getElementById('recurringBreakdownsList');
             modalList.innerHTML = '';
             if (recurringUnits.length === 0) {
@@ -1243,6 +1233,7 @@
             openModal('recurringBreakdownsModal');
         }
 
+        // Custom Saturday to Friday Week Helper Logic
         function getISOWeekNumber(d) {
             const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
             const dayNum = (date.getDay() + 1) % 7; 
@@ -1357,6 +1348,7 @@
             }
         }
 
+        // Monthly History Logic
         function openMonthlyHistoryModal() {
             openModal('monthlyHistoryModal');
             renderMonthlyHistoryData();
@@ -1494,18 +1486,13 @@
                 row[stateKey] = [];
             }
 
-            let tag = 'none';
-            if (longDownVal > 0) tag = 'longDown';
-            else if (runningVal > 0) tag = 'runningRepair';
-
             row[stateKey].push({
                 id: code,
                 completion: progress,
                 downtimeDate: downtimeDate || null,
                 targetDate: targetDate || null,
                 description: description,
-                location: location,
-                downtimeTag: tag
+                location: location
             });
 
             if (longDownVal > 0) row.longDown = (row.longDown || 0) + 1;
@@ -1528,13 +1515,6 @@
             document.getElementById('manageUnitCategory').textContent = category;
             document.getElementById('manageUnitType').textContent = type;
 
-            const downtimeTypeBadge = document.getElementById('manageUnitDowntimeTypeBadge');
-            const currentTag = unit.downtimeTag || (row.longDown > 0 ? 'longDown' : (row.runningRepair > 0 ? 'runningRepair' : 'none'));
-            unit.downtimeTag = currentTag;
-
-            document.getElementById('manageUnitDownType').value = currentTag;
-            updateDowntimeTypeBadge(currentTag);
-
             document.getElementById('manageUnitDescription').value = unit.description || '';
             document.getElementById('manageUnitStatus').value = stateKey;
 
@@ -1547,24 +1527,6 @@
             else overdueAlert.classList.add('hidden');
 
             openModal('manageUnitModal');
-        }
-
-        function handleDownTypeChange(newTag) {
-            updateDowntimeTypeBadge(newTag);
-        }
-
-        function updateDowntimeTypeBadge(tag) {
-            const downtimeTypeBadge = document.getElementById('manageUnitDowntimeTypeBadge');
-            if (tag === "longDown") {
-                downtimeTypeBadge.textContent = "LONG DOWN";
-                downtimeTypeBadge.className = "px-2.5 py-1 text-xs font-extrabold rounded-lg border bg-rose-500/15 text-rose-400 border-rose-500/30 uppercase tracking-wider";
-            } else if (tag === "runningRepair") {
-                downtimeTypeBadge.textContent = "RUNNING REPAIR";
-                downtimeTypeBadge.className = "px-2.5 py-1 text-xs font-extrabold rounded-lg border bg-amber-500/15 text-amber-400 border-amber-500/30 uppercase tracking-wider";
-            } else {
-                downtimeTypeBadge.textContent = "NORMAL DOWN";
-                downtimeTypeBadge.className = "px-2.5 py-1 text-xs font-extrabold rounded-lg border bg-slate-700 text-slate-300 border-slate-600 uppercase tracking-wider";
-            }
         }
 
         function handleStatusSelectChange(newStatusKey) {
@@ -1589,54 +1551,45 @@
 
         function updateProgressDisplay(val) {
             document.getElementById('progressPercentDisplay').textContent = `${val}%`;
+            if (activeManageState.unitObj) {
+                activeManageState.unitObj.completion = parseInt(val);
+            }
         }
 
         function updateTargetDateState(val) {
-            if (!val) return;
-            const alert = document.getElementById('overdueAlert');
-            if (new Date(val) < SYSTEM_TODAY && parseInt(document.getElementById('manageUnitProgressSlider').value) < 100) {
-                alert.classList.remove('hidden');
-            } else {
-                alert.classList.add('hidden');
+            if (activeManageState.unitObj) {
+                activeManageState.unitObj.targetDate = val;
+                const overdueAlert = document.getElementById('overdueAlert');
+                if (isUnitOverdue(activeManageState.unitObj)) {
+                    overdueAlert.classList.remove('hidden');
+                } else {
+                    overdueAlert.classList.add('hidden');
+                }
             }
         }
 
         async function saveAssetDetailedChanges() {
-            if (activeManageState.index === -1) return;
-            const row = state[activeManageState.index];
-            const oldKey = activeManageState.stateKey;
-            const newKey = document.getElementById('manageUnitStatus').value;
+            if (!activeManageState.unitObj) return;
+
+            const newStatusKey = document.getElementById('manageUnitStatus').value;
             const newDesc = document.getElementById('manageUnitDescription').value.trim();
-            const newProgress = parseInt(document.getElementById('manageUnitProgressSlider').value) || 0;
             const newTargetDate = document.getElementById('manageUnitTargetDate').value;
-            const newDownType = document.getElementById('manageUnitDownType').value;
+            const newProgress = parseInt(document.getElementById('manageUnitProgressSlider').value) || 0;
 
-            const list = row[oldKey] || [];
-            const unitIndex = list.findIndex(u => u.id === activeManageState.unitCode);
-            if (unitIndex === -1) return;
+            const row = state[activeManageState.index];
+            if (!row) return;
 
-            const unit = list[unitIndex];
-            const oldDownType = unit.downtimeTag || 'none';
+            const oldList = row[activeManageState.stateKey] || [];
+            const unitIdx = oldList.findIndex(u => u.id === activeManageState.unitCode);
+            
+            if (unitIdx !== -1) {
+                const [unit] = oldList.splice(unitIdx, 1);
+                unit.description = newDesc;
+                unit.targetDate = newTargetDate;
+                unit.completion = newProgress;
 
-            unit.description = newDesc;
-            unit.completion = newProgress;
-            unit.targetDate = newTargetDate;
-            unit.downtimeTag = newDownType;
-
-            // Automatically recalculate and adjust row Long Down & Running Repair counters
-            if (oldDownType !== newDownType) {
-                if (oldDownType === 'longDown') row.longDown = Math.max(0, (row.longDown || 0) - 1);
-                if (oldDownType === 'runningRepair') row.runningRepair = Math.max(0, (row.runningRepair || 0) - 1);
-
-                if (newDownType === 'longDown') row.longDown = (row.longDown || 0) + 1;
-                if (newDownType === 'runningRepair') row.runningRepair = (row.runningRepair || 0) + 1;
-            }
-
-            // Handle status/phase transfer if status changed
-            if (oldKey !== newKey) {
-                list.splice(unitIndex, 1);
-                if (!row[newKey]) row[newKey] = [];
-                row[newKey].push(unit);
+                if (!row[newStatusKey]) row[newStatusKey] = [];
+                row[newStatusKey].push(unit);
             }
 
             renderDashboard();
@@ -1645,41 +1598,16 @@
         }
 
         async function deleteUnit() {
-            if (activeManageState.index === -1) return;
-            if (!confirm(`Are you sure you want to retract asset entry "${activeManageState.unitCode}"?`)) return;
-
-            const row = state[activeManageState.index];
-            const key = activeManageState.stateKey;
-            const list = row[key] || [];
-            const unitIndex = list.findIndex(u => u.id === activeManageState.unitCode);
-            if (unitIndex !== -1) {
-                const unit = list[unitIndex];
-                if (unit.downtimeTag === 'longDown') row.longDown = Math.max(0, (row.longDown || 0) - 1);
-                if (unit.downtimeTag === 'runningRepair') row.runningRepair = Math.max(0, (row.runningRepair || 0) - 1);
-                list.splice(unitIndex, 1);
+            if (!activeManageState.unitObj) return;
+            if (confirm(`Retract asset ${activeManageState.unitCode} from active tracking ledger?`)) {
+                const row = state[activeManageState.index];
+                if (row && row[activeManageState.stateKey]) {
+                    row[activeManageState.stateKey] = row[activeManageState.stateKey].filter(u => u.id !== activeManageState.unitCode);
+                }
+                renderDashboard();
+                closeModal('manageUnitModal');
+                await saveToSheet();
             }
-
-            renderDashboard();
-            closeModal('manageUnitModal');
-            await saveToSheet();
-        }
-
-        function downloadCSV() {
-            let csv = "Category,Equipment Type,Long Down,Running Repair,Active Total Down,Ongoing Count,Job Out Count,Waiting Count,Released Count\n";
-            state.forEach(row => {
-                const ongoing = (row.ongoing?.length || 0) + (row.pms?.length || 0);
-                const jobout = row.jobout?.length || 0;
-                const waiting = row.waiting?.length || 0;
-                const released = row.released?.length || 0;
-                const totalDown = (row.longDown || 0) + (row.runningRepair || 0);
-                csv += `"${row.category}","${row.type}",${row.longDown || 0},${row.runningRepair || 0},${totalDown},${ongoing},${jobout},${waiting},${released}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `fleet_maintenance_report_${SYSTEM_TODAY.toISOString().slice(0, 10)}.csv`;
-            a.click();
         }
     </script>
 </body>
