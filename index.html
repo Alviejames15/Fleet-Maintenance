@@ -135,7 +135,7 @@
             </div>
         </section>
 
-        <!-- Weekly & Monthly Performance Analytics Section -->
+        <!-- Performance Analytics & Operational Trends Section -->
         <section class="space-y-4">
             <div class="flex items-center justify-between">
                 <h2 class="text-lg font-bold text-white flex items-center gap-2">
@@ -145,7 +145,7 @@
                 <span class="text-xs text-slate-400 font-medium bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Calculated from dynamic active ledger</span>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Weekly Performance Card -->
                 <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5 cursor-pointer hover:border-blue-500/50 transition group" onclick="openWeeklyHistoryModal()">
                     <div class="flex justify-between items-center border-b border-slate-700/60 pb-4">
@@ -223,6 +223,42 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Re-Occurring Breakdown Analytics Card -->
+                <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5 cursor-pointer hover:border-rose-500/50 transition group" onclick="openRecurringBreakdownsModal()">
+                    <div class="flex justify-between items-center border-b border-slate-700/60 pb-4">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full">Reliability Risk</span>
+                            <h3 class="text-base font-bold text-white mt-1 group-hover:text-rose-400 transition flex items-center gap-2">
+                                Re-Occurring Breakdowns
+                                <i class="w-4 h-4 text-slate-400 group-hover:text-rose-400" data-lucide="external-link"></i>
+                            </h3>
+                        </div>
+                        <div class="p-2.5 bg-rose-500/10 rounded-xl text-rose-400">
+                            <i class="w-5 h-5" data-lucide="refresh-cw"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Repeat Fault Assets</span>
+                            <p class="text-2xl font-black text-rose-400 mt-1" id="recurring-units-count">0</p>
+                            <span class="text-[10px] text-slate-500">Units with repeat breakdowns</span>
+                        </div>
+                        <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase">Highest Recurrence</span>
+                            <p class="text-2xl font-black text-amber-400 mt-1" id="max-repeat-count">0x</p>
+                            <span class="text-[10px] text-slate-500">Max repeated incidents</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase block">Top Flagged Equipment Types</span>
+                        <div class="flex flex-wrap gap-1.5" id="recurring-top-types">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -280,6 +316,31 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal Form: Re-Occurring Equipment Breakdown Analysis -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="recurringBreakdownsModal">
+        <div class="bg-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-700 overflow-hidden transform scale-100 transition duration-300">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="w-5 h-5 text-rose-500" data-lucide="refresh-cw"></i> Re-Occurring Equipment Breakdown Analytics
+                </h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('recurringBreakdownsModal')"><i class="w-5 h-5" data-lucide="x"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="bg-rose-500/10 border border-rose-500/20 px-4 py-3 rounded-xl text-xs text-rose-300">
+                    <p class="font-semibold flex items-center gap-1.5"><i class="w-4 h-4" data-lucide="alert-triangle"></i> Breakdown Recurrence Trend Analysis</p>
+                    <p class="mt-1 text-slate-300">This module identifies equipment units registered multiple times across status lists (or logged as recurring long-down failures) to highlight high-maintenance assets needing root-cause inspection.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Identified Repeat Breakdown Units</h4>
+                    <div class="max-h-64 overflow-y-auto space-y-2.5 pr-1" id="recurringBreakdownsList">
+                        <!-- Dynamic Recurring Breakdown Items -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Form: Weekly Performance History Inspector -->
     <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="weeklyHistoryModal">
@@ -581,50 +642,65 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
         const SYSTEM_TODAY = new Date("2026-07-20");
 
+        // Category mapping lookup
+        const TYPE_CATEGORY_MAP = {
+            "BOOM TRUCK": "LIGHT EQUIPMENT", "CARGO TRUCK": "LIGHT EQUIPMENT", "STAKE TRUCK": "LIGHT EQUIPMENT",
+            "PRIME MOVER": "LIGHT EQUIPMENT", "DUMP TRUCK": "LIGHT EQUIPMENT", "BULLDOZER": "LIGHT EQUIPMENT",
+            "BACKHOE (CRAWLER)": "LIGHT EQUIPMENT", "MINI DUMP TRUCK": "LIGHT EQUIPMENT", "FUEL DELIVERY TRUCK": "LIGHT EQUIPMENT",
+            "PMT": "LIGHT EQUIPMENT", "SAND PUMP FOR SAMAL": "LIGHT EQUIPMENT", "BULK CEMENT TRUCK": "LIGHT EQUIPMENT",
+            "PMS UNITS": "LIGHT EQUIPMENT", "GENSET": "LIGHT EQUIPMENT", "TOYOTA HILUX": "LIGHT EQUIPMENT",
+            "TOYOTA FORTUNER": "LIGHT EQUIPMENT", "MITSUBISHI STRADA": "LIGHT EQUIPMENT", "ISUZU D-MAX": "LIGHT EQUIPMENT",
+            "ROAD GRADER": "LIGHT EQUIPMENT", "WHEEL TYPE BACKHOE": "LIGHT EQUIPMENT", "CRAWLER BACKHOE": "LIGHT EQUIPMENT",
+            "WHEEL LOADER": "LIGHT EQUIPMENT", "ROAD ROLLER": "LIGHT EQUIPMENT", "CRANE": "LIGHT EQUIPMENT",
+            "SHEET PILE DRIVER": "LIGHT EQUIPMENT", "20T HYDRAULIC BREAKER": "LIGHT EQUIPMENT",
+            "LOW BED TRUCK": "ATTACHMENT/TRAILER", "HIGH BED TRUCK": "ATTACHMENT/TRAILER", "DOLLY": "ATTACHMENT/TRAILER",
+            "GENSET 50KVA": "GENSET", "GENSET 100KVA": "GENSET", "GENSET 150KVA": "GENSET", "GENSET 250KVA": "GENSET"
+        };
+
         // Baseline equipment category schema defaults
         const RECONSTRUCTED_DEFAULTS = [
             // GEM Motorpool Items
-            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-15", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-10" },{ id: "BT-32", completion: 100, targetDate: "2026-07-11" },{ id: "BT-40", completion: 100, targetDate: "2026-07-12" },{ id: "BT-48", completion: 100, targetDate: "2026-07-13" },{ id: "BT-50", completion: 100, targetDate: "2026-07-14" }], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-28" }, { id: "CT-22", completion: 65, targetDate: "2026-07-18" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-24" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-10" }], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-12" }, { id: "ST-69", completion: 15, targetDate: "2026-07-19" }, { id: "ST-35", completion: 30, targetDate: "2026-07-26" }], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-25" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-14" }, { id: "PM21", completion: 20, targetDate: "2026-07-29" }], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-17" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-25" },{ id: "DT96", completion: 0, targetDate: "2026-07-16" }], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-15" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "BACKHOE (CRAWLER)", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-22" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-18" }], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "FUEL DELIVERY TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "FDT28", completion: 10, targetDate: "2026-07-27" }], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "PMT", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [] },
+            { category: "LIGHT EQUIPMENT", type: "BOOM TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "BT-19", completion: 20, targetDate: "2026-07-15", description: "Engine overhaul and hydraulics" }], released: [{ id: "BT-38", completion: 100, targetDate: "2026-07-10" },{ id: "BT-32", completion: 100, targetDate: "2026-07-11" },{ id: "BT-40", completion: 100, targetDate: "2026-07-12" },{ id: "BT-48", completion: 100, targetDate: "2026-07-13" },{ id: "BT-50", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "CARGO TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "CT-19", completion: 45, targetDate: "2026-07-28" }, { id: "CT-22", completion: 65, targetDate: "2026-07-18" }], waiting: [{ id: "CT59", completion: 10, targetDate: "2026-07-24" }], released: [{ id: "CT-04", completion: 100, targetDate: "2026-07-10" }], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "STAKE TRUCK", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "ST72", completion: 5, targetDate: "2026-07-12" }, { id: "ST-69", completion: 15, targetDate: "2026-07-19" }, { id: "ST-35", completion: 30, targetDate: "2026-07-26" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "PRIME MOVER", longDown: 3, runningRepair: 0, ongoing: [{ id: "PM19", completion: 40, targetDate: "2026-07-25" }], waiting: [{ id: "PM22", completion: 10, targetDate: "2026-07-14" }, { id: "PM21", completion: 20, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "DUMP TRUCK", longDown: 3, runningRepair: 0, ongoing: [{ id: "DT-117", completion: 55, targetDate: "2026-07-17" }], waiting: [{ id: "DT107", completion: 10, targetDate: "2026-07-25" },{ id: "DT96", completion: 0, targetDate: "2026-07-16" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "BULLDOZER", longDown: 3, runningRepair: 0, ongoing: [], waiting: [{ id: "BD21", completion: 5, targetDate: "2026-07-22" },{ id: "BD28", completion: 25, targetDate: "2026-07-15" }, { id: "BD26", completion: 0, targetDate: "2026-07-29" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "BACKHOE (CRAWLER)", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "MINI DUMP TRUCK", longDown: 2, runningRepair: 0, ongoing: [{ id: "MDT-04", completion: 80, targetDate: "2026-07-22" },{ id: "MDT-12", completion: 50, targetDate: "2026-07-18" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "FUEL DELIVERY TRUCK", longDown: 1, runningRepair: 0, ongoing: [], waiting: [{ id: "FDT28", completion: 10, targetDate: "2026-07-27" }], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "PMT", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "SAND PUMP FOR SAMAL", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "BULK CEMENT TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "PMS UNITS", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "GENSET", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
 
             // ATTACHMENT/TRAILER Category Items
-            { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [] },
-            { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-14" }], waiting: [], released: [], jobout: [] },
+            { category: "ATTACHMENT/TRAILER", type: "LOW BED TRUCK", longDown: 1, runningRepair: 1, ongoing: [{ id: "LBT-01", completion: 90, targetDate: "2026-07-19" }, { id: "LBT-17", completion: 70, targetDate: "2026-07-23" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "ATTACHMENT/TRAILER", type: "HIGH BED TRUCK", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "ATTACHMENT/TRAILER", type: "DOLLY", longDown: 2, runningRepair: 0, ongoing: [{ id: "DOLLY-02", completion: 35, targetDate: "2026-07-26" },{ id: "DOLLY-01", completion: 15, targetDate: "2026-07-14" }], waiting: [], released: [], jobout: [], pms: [] },
 
-            // GENSET Category Row
-            { category: "GENSET", type: "GENSET 50KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "GENSET", type: "GENSET 100KVA", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [], jobout: [] },
-            { category: "GENSET", type: "GENSET 150KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [] },
+            // GENSET Category Rows
+            { category: "GENSET", type: "GENSET 50KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "GENSET", type: "GENSET 100KVA", longDown: 1, runningRepair: 0, ongoing: [{ id: "GEN-01", completion: 60, targetDate: "2026-07-22", description: "Alternator winding repair" }], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "GENSET", type: "GENSET 150KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "GENSET", type: "GENSET 250KVA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [{ id: "GEN-04", completion: 100, targetDate: "2026-07-14" }], jobout: [], pms: [] },
             
             // SV Repair Units Items
-            { category: "LIGHT EQUIPMENT", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "TOYOTA FORTUNER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "MITSUBISHI STRADA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "ISUZU D-MAX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
+            { category: "LIGHT EQUIPMENT", type: "TOYOTA HILUX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "TOYOTA FORTUNER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "MITSUBISHI STRADA", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "ISUZU D-MAX", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
 
             // Los Amigos Motorpool Items
-            { category: "LIGHT EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "CRAWLER BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "WHEEL LOADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "ROAD ROLLER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "CRANE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "SHEET PILE DRIVER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] },
-            { category: "LIGHT EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [] }
+            { category: "LIGHT EQUIPMENT", type: "ROAD GRADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "WHEEL TYPE BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "CRAWLER BACKHOE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "WHEEL LOADER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "ROAD ROLLER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "CRANE", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "SHEET PILE DRIVER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] },
+            { category: "LIGHT EQUIPMENT", type: "20T HYDRAULIC BREAKER", longDown: 0, runningRepair: 0, ongoing: [], waiting: [], released: [], jobout: [], pms: [] }
         ];
 
         let state = [];
@@ -660,7 +736,20 @@
                 console.warn("Unable to fetch from Sheet DB, utilizing fallback state.", e);
                 state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
             }
+            ensureStateIntegrity();
             renderDashboard();
+        }
+
+        function ensureStateIntegrity() {
+            state.forEach(row => {
+                if (!row.ongoing) row.ongoing = [];
+                if (!row.jobout) row.jobout = [];
+                if (!row.waiting) row.waiting = [];
+                if (!row.released) row.released = [];
+                if (!row.pms) row.pms = [];
+                if (row.longDown === undefined) row.longDown = 0;
+                if (row.runningRepair === undefined) row.runningRepair = 0;
+            });
         }
 
         // Sync State with Google Sheets (POST)
@@ -696,6 +785,7 @@
         async function resetToDefaults() {
             if (confirm("Reset current registry view back to original factory matrix fields?")) {
                 state = JSON.parse(JSON.stringify(RECONSTRUCTED_DEFAULTS));
+                ensureStateIntegrity();
                 await saveToSheet();
                 renderDashboard();
             }
@@ -723,6 +813,7 @@
         }
 
         function renderDashboard() {
+            ensureStateIntegrity();
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
             const locationVal = document.getElementById('locationFilter').value;
             const gridBody = document.getElementById('motorpool-grid-body');
@@ -742,6 +833,9 @@
             endOfWeek.setDate(startOfWeek.getDate() + 6);
 
             let weeklyReleased = 0, weeklyDue = 0, monthlyReleased = 0;
+
+            // Recurring breakdowns tracking map
+            const breakdownTracker = {};
 
             categories.forEach(catName => {
                 let catRows = state.filter(row => row.category === catName);
@@ -772,6 +866,27 @@
                     const joboutList = row.jobout || [];
                     const waitingList = row.waiting || [];
                     const releasedList = row.released || [];
+
+                    // Register for Recurring Breakdown Analytics
+                    const allUnreleased = [...ongoingList, ...joboutList, ...waitingList];
+                    allUnreleased.forEach(u => {
+                        if (!breakdownTracker[u.id]) {
+                            breakdownTracker[u.id] = { id: u.id, type: row.type, category: row.category, occurrences: 1, states: [u.description || 'Active Maintenance Log'], locations: [u.location || 'Motorpool'] };
+                        } else {
+                            breakdownTracker[u.id].occurrences += 1;
+                            breakdownTracker[u.id].states.push(u.description || 'Maintenance Log');
+                        }
+                    });
+
+                    // Long Down flag check
+                    if (row.longDown > 0) {
+                        allUnreleased.forEach(u => {
+                            if (breakdownTracker[u.id] && !breakdownTracker[u.id].hasLongDown) {
+                                breakdownTracker[u.id].hasLongDown = true;
+                                breakdownTracker[u.id].occurrences += 1;
+                            }
+                        });
+                    }
 
                     // Performance calculations
                     const allUnits = [...ongoingList, ...joboutList, ...waitingList, ...releasedList];
@@ -911,7 +1026,66 @@
             document.getElementById('monthly-efficiency-pct').textContent = `${efficiencyPct}%`;
             document.getElementById('monthly-efficiency-bar').style.width = `${efficiencyPct}%`;
 
+            // Update Re-Occurring Equipment Breakdown Analytics
+            renderRecurringBreakdownsSummary(breakdownTracker);
+
             lucide.createIcons();
+        }
+
+        // Re-Occurring Equipment Breakdown Calculation & Renderer
+        function renderRecurringBreakdownsSummary(tracker) {
+            const list = Object.values(tracker).sort((a,b) => b.occurrences - a.occurrences);
+            const recurringUnits = list.filter(item => item.occurrences >= 1);
+
+            document.getElementById('recurring-units-count').textContent = recurringUnits.length;
+            const maxRepeat = list.length > 0 ? list[0].occurrences : 0;
+            document.getElementById('max-repeat-count').textContent = `${maxRepeat}x`;
+
+            const topTypesContainer = document.getElementById('recurring-top-types');
+            topTypesContainer.innerHTML = '';
+
+            if (recurringUnits.length === 0) {
+                topTypesContainer.innerHTML = `<span class="text-xs text-slate-500 italic">No recurring equipment breakdowns detected.</span>`;
+            } else {
+                const topTypes = [...new Set(recurringUnits.map(i => i.type))].slice(0, 3);
+                topTypes.forEach(t => {
+                    const badge = document.createElement('span');
+                    badge.className = 'text-[10px] font-bold bg-rose-500/15 border border-rose-500/30 text-rose-300 px-2 py-0.5 rounded-md uppercase';
+                    badge.textContent = t;
+                    topTypesContainer.appendChild(badge);
+                });
+            }
+
+            // Populate Modal
+            const modalList = document.getElementById('recurringBreakdownsList');
+            modalList.innerHTML = '';
+            if (recurringUnits.length === 0) {
+                modalList.innerHTML = `<div class="p-4 text-xs text-slate-500 italic text-center bg-slate-900/40 rounded-xl">No re-occurring breakdown logs identified across operational pools.</div>`;
+            } else {
+                recurringUnits.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'p-3 bg-slate-900/60 border border-slate-700/60 rounded-xl flex items-center justify-between text-xs';
+                    el.innerHTML = `
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-white text-sm">${item.id}</span>
+                                <span class="text-slate-400 font-semibold">(${item.type})</span>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">${item.occurrences} Breakdown Record(s)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">Diagnosis: ${item.states.join(' • ')}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-[10px] text-slate-500 font-medium uppercase block">${item.category}</span>
+                            <span class="text-xs font-bold text-blue-400">${item.hasLongDown ? 'Long Down Flagged' : 'Active Breakdown'}</span>
+                        </div>
+                    `;
+                    modalList.appendChild(el);
+                });
+            }
+        }
+
+        function openRecurringBreakdownsModal() {
+            openModal('recurringBreakdownsModal');
         }
 
         // ISO Week Helper Logic
@@ -1100,6 +1274,7 @@
             openModal('addUnitModal');
         }
 
+        // Fixed Equipment & Job Out Saving Handler
         async function handleAddUnit(e) {
             e.preventDefault();
             const type = document.getElementById('newUnitType').value;
@@ -1125,17 +1300,44 @@
                 return;
             }
 
-            const row = state.find(item => item.type === type);
-            if (row) {
-                if (!row[stateKey]) row[stateKey] = [];
-                row[stateKey].push({ id: code, completion: progress, targetDate: targetDate || null, description, location });
-                if (longDownVal > 0) row.longDown = (row.longDown || 0) + 1;
-                if (runningVal > 0) row.runningRepair = (row.runningRepair || 0) + 1;
-                renderDashboard();
-                closeModal('addUnitModal');
-                document.getElementById('addUnitForm').reset();
-                await saveToSheet();
+            // Find existing category row or dynamically initialize if unlisted
+            let row = state.find(item => item.type === type);
+            if (!row) {
+                const category = TYPE_CATEGORY_MAP[type] || "LIGHT EQUIPMENT";
+                row = {
+                    category: category,
+                    type: type,
+                    longDown: 0,
+                    runningRepair: 0,
+                    ongoing: [],
+                    jobout: [],
+                    waiting: [],
+                    released: [],
+                    pms: []
+                };
+                state.push(row);
             }
+
+            // Ensure array initialization for target state key
+            if (!row[stateKey]) {
+                row[stateKey] = [];
+            }
+
+            row[stateKey].push({
+                id: code,
+                completion: progress,
+                targetDate: targetDate || null,
+                description: description,
+                location: location
+            });
+
+            if (longDownVal > 0) row.longDown = (row.longDown || 0) + 1;
+            if (runningVal > 0) row.runningRepair = (row.runningRepair || 0) + 1;
+
+            renderDashboard();
+            closeModal('addUnitModal');
+            document.getElementById('addUnitForm').reset();
+            await saveToSheet();
         }
 
         function openManageModal(category, type, unitCode, stateKey) {
