@@ -105,6 +105,14 @@
             font-size: 0.78rem;
             letter-spacing: 0.02em;
         }
+        .mems-table th.sortable-th {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.15s ease;
+        }
+        .mems-table th.sortable-th:hover {
+            background-color: #d48914;
+        }
         .mems-table td {
             border: 1px solid #7f8694;
             padding: 5px 12px;
@@ -129,6 +137,17 @@
         .mems-table tr.data-row.selected-row td:not(.category-cell) {
             background-color: #fef08a;
             font-weight: 700;
+        }
+
+        /* Motorpool Sort Pills in Summary */
+        .mp-sort-btn {
+            transition: all 0.15s ease;
+        }
+        .mp-sort-btn.active-mp-sort {
+            background-color: #0f172a;
+            color: #fbbf24;
+            border-color: #f59e0b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         ::-webkit-scrollbar {
@@ -270,16 +289,74 @@
                 <span class="text-[11px] font-semibold text-slate-600">Tip: Click any row below to highlight its units on the LED wall above</span>
             </div>
 
+            <!-- Motorpool Sort & Direction Bar -->
+            <div class="bg-slate-300/80 border border-slate-400/80 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-wide flex items-center gap-1 mr-1">
+                        <i class="w-3.5 h-3.5 text-amber-700" data-lucide="arrow-up-down"></i> Sort by Motorpool:
+                    </span>
+                    <button type="button" id="mp-sort-none" onclick="setMotorpoolSort('default')" class="mp-sort-btn active-mp-sort px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 cursor-pointer">
+                        Default Order
+                    </button>
+                    <button type="button" id="mp-sort-GEM Motorpool" onclick="setMotorpoolSort('GEM Motorpool')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        GEM Motorpool
+                    </button>
+                    <button type="button" id="mp-sort-SV Repair Units" onclick="setMotorpoolSort('SV Repair Units')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        SV Repair Units
+                    </button>
+                    <button type="button" id="mp-sort-Los Amigos Motorpool" onclick="setMotorpoolSort('Los Amigos Motorpool')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        Los Amigos Motorpool
+                    </button>
+                    <button type="button" id="mp-sort-PMS / GENSET" onclick="setMotorpoolSort('PMS / GENSET')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        PMS/GENSET
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" id="mpSortDirBtn" onclick="toggleMotorpoolSortDir()" class="px-2.5 py-1 rounded-md text-[11px] font-extrabold border border-slate-600 bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center gap-1 cursor-pointer" title="Toggle Sort Direction (High to Low / Low to High)">
+                        <span id="mpSortDirLabel">DESC (High → Low)</span>
+                    </button>
+                    <span id="activeSortStatusBadge" class="text-[11px] font-bold text-slate-700 bg-amber-200/80 border border-amber-500/50 px-2 py-0.5 rounded-md">
+                        Sort: Default Equipment Order
+                    </span>
+                </div>
+            </div>
+
             <div class="overflow-x-auto rounded-lg border border-slate-500 shadow-sm">
                 <table class="mems-table w-full text-left">
                     <thead>
                         <tr>
                             <th class="w-48">CATEGORY</th>
-                            <th>EQUIPMENT TYPE</th>
-                            <th class="text-center w-28">NO. OF UNITS</th>
-                            <th class="text-center w-28">AVAILABLE</th>
-                            <th class="text-center w-28">DOWN</th>
-                            <th class="text-center w-32">AVAILABILITY%</th>
+                            <th class="sortable-th" onclick="cycleColumnSort('type')">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span>EQUIPMENT TYPE</span>
+                                    <span id="sort-ind-type" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('units')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>NO. OF UNITS</span>
+                                    <span id="sort-ind-units" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('available')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>AVAILABLE</span>
+                                    <span id="sort-ind-available" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('down')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>DOWN</span>
+                                    <span id="sort-ind-down" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-32 sortable-th" onclick="cycleColumnSort('availability')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>AVAILABILITY%</span>
+                                    <span id="sort-ind-availability" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="memsSummaryTableBody">
@@ -518,11 +595,12 @@
 
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
-        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v3";
+        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v4";
 
         const LIGHT_EQUIPMENT_TYPES = ["BOOM TRUCK", "CARGO TRUCK", "STAKE TRUCK", "PRIME MOVER"];
         const ATTACHMENT_TYPES = ["HIGH BED TRUCK", "LOW BED TRUCK", "BULK CEMENT TRUCK", "DOLLY"];
         const ALL_BASE_TYPES = [...LIGHT_EQUIPMENT_TYPES, ...ATTACHMENT_TYPES];
+        const MOTORPOOL_OPTIONS = ["GEM Motorpool", "SV Repair Units", "Los Amigos Motorpool", "PMS / GENSET"];
 
         const TYPE_GROUP_MAP = {
             "BOOM TRUCK": "Light Equipment",
@@ -713,6 +791,11 @@
         let activeManageState = { category: "", type: "", unitCode: "", stateKey: "", unitObj: null };
         let deleteConfirmPending = false;
 
+        // Summary Sort State
+        let summarySortMotorpool = "default"; // 'default' | 'GEM Motorpool' | 'SV Repair Units' | 'Los Amigos Motorpool' | 'PMS / GENSET'
+        let summarySortColumn = null; // null | 'type' | 'units' | 'available' | 'down' | 'availability'
+        let summarySortDir = "desc"; // 'asc' | 'desc'
+
         window.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('locationFilter').addEventListener('change', renderDashboard);
             await fetchSheetData();
@@ -895,6 +978,9 @@
                     state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
                     activeStatusFilter = "all";
                     highlightedEquipmentType = null;
+                    summarySortMotorpool = "default";
+                    summarySortColumn = null;
+                    summarySortDir = "desc";
                     ensureStateIntegrity();
                     populateDynamicEquipmentTypes();
                     updateFilterUI();
@@ -937,10 +1023,97 @@
         function clearAllFilters() {
             activeStatusFilter = "all";
             highlightedEquipmentType = null;
+            summarySortMotorpool = "default";
+            summarySortColumn = null;
+            summarySortDir = "desc";
             document.getElementById('searchInput').value = '';
             document.getElementById('locationFilter').value = 'All Motorpools';
             updateFilterUI();
             renderDashboard();
+        }
+
+        // Motorpool & Summary Table Sorting Controls
+        function setMotorpoolSort(motorpoolName) {
+            if (motorpoolName === "default") {
+                summarySortMotorpool = "default";
+                summarySortColumn = null;
+            } else {
+                if (summarySortMotorpool === motorpoolName) {
+                    summarySortDir = summarySortDir === "desc" ? "asc" : "desc";
+                } else {
+                    summarySortMotorpool = motorpoolName;
+                    summarySortDir = "desc";
+                }
+            }
+            updateSortControlsUI();
+            renderDashboard();
+        }
+
+        function toggleMotorpoolSortDir() {
+            summarySortDir = summarySortDir === "desc" ? "asc" : "desc";
+            if (summarySortMotorpool === "default" && !summarySortColumn) {
+                summarySortColumn = "units";
+            }
+            updateSortControlsUI();
+            renderDashboard();
+        }
+
+        function cycleColumnSort(colKey) {
+            if (summarySortColumn === colKey) {
+                if (summarySortDir === "desc") {
+                    summarySortDir = "asc";
+                } else {
+                    summarySortColumn = null;
+                    summarySortDir = "desc";
+                }
+            } else {
+                summarySortColumn = colKey;
+                summarySortDir = colKey === "type" ? "asc" : "desc";
+            }
+            updateSortControlsUI();
+            renderDashboard();
+        }
+
+        function updateSortControlsUI() {
+            document.querySelectorAll('.mp-sort-btn').forEach(btn => btn.classList.remove('active-mp-sort'));
+            const activeBtnId = summarySortMotorpool === "default" ? "mp-sort-none" : `mp-sort-${summarySortMotorpool}`;
+            const activeBtn = document.getElementById(activeBtnId);
+            if (activeBtn) activeBtn.classList.add('active-mp-sort');
+
+            const dirLabel = document.getElementById('mpSortDirLabel');
+            if (dirLabel) {
+                dirLabel.textContent = summarySortDir === "desc" ? "DESC (High → Low)" : "ASC (Low → High)";
+            }
+
+            const cols = ['type', 'units', 'available', 'down', 'availability'];
+            cols.forEach(c => {
+                const ind = document.getElementById(`sort-ind-${c}`);
+                if (!ind) return;
+                if (summarySortColumn === c) {
+                    ind.textContent = summarySortDir === "asc" ? "▲" : "▼";
+                } else {
+                    ind.textContent = "↕";
+                }
+            });
+
+            const statusBadge = document.getElementById('activeSortStatusBadge');
+            if (statusBadge) {
+                const mpLabel = summarySortMotorpool === "PMS / GENSET" ? "PMS/GENSET" : summarySortMotorpool;
+                if (summarySortMotorpool !== "default") {
+                    statusBadge.textContent = `Sorted by: ${mpLabel} (${summarySortDir.toUpperCase()} Unit Count)`;
+                } else if (summarySortColumn) {
+                    const colNames = {
+                        type: "Equipment Type",
+                        units: "No. of Units",
+                        available: "Available",
+                        down: "Down",
+                        availability: "Availability %"
+                    };
+                    statusBadge.textContent = `Sorted by: ${colNames[summarySortColumn]} (${summarySortDir.toUpperCase()})`;
+                } else {
+                    statusBadge.textContent = "Sort: Default Equipment Order";
+                }
+            }
         }
 
         function updateFilterUI() {
@@ -958,8 +1131,9 @@
             const highlightTag = document.getElementById('activeHighlightTag');
             const hasSearch = document.getElementById('searchInput').value.trim() !== '';
             const hasLocation = document.getElementById('locationFilter').value !== 'All Motorpools';
+            const hasSort = summarySortMotorpool !== 'default' || summarySortColumn !== null;
 
-            if (activeStatusFilter !== 'all' || highlightedEquipmentType || hasSearch || hasLocation) {
+            if (activeStatusFilter !== 'all' || highlightedEquipmentType || hasSearch || hasLocation || hasSort) {
                 clearBtn.classList.remove('hidden');
             } else {
                 clearBtn.classList.add('hidden');
@@ -971,6 +1145,8 @@
             } else {
                 highlightTag.classList.add('hidden');
             }
+
+            updateSortControlsUI();
         }
 
         function renderDashboard() {
@@ -1147,6 +1323,28 @@
             }
         }
 
+        function computeRowMetrics(row, locationVal = "All Motorpools", specificMotorpool = null) {
+            const matchLoc = (u) => {
+                const unitLoc = u.location || "GEM Motorpool";
+                if (specificMotorpool) return unitLoc === specificMotorpool;
+                return locationVal === "All Motorpools" || unitLoc === locationVal;
+            };
+            const filterFn = (arr) => (arr || []).filter(matchLoc);
+
+            const availableCount = filterFn(row.released).length + filterFn(row.restored).length;
+            const downCount = filterFn(row.ongoing).length + filterFn(row.jobout).length + filterFn(row.waiting).length + filterFn(row.pms).length;
+            const totalUnits = availableCount + downCount;
+            const availPctNum = totalUnits > 0 ? (availableCount / totalUnits) * 100 : 0;
+
+            return {
+                availableCount,
+                downCount,
+                totalUnits,
+                availPctNum,
+                availPctStr: availPctNum.toFixed(2)
+            };
+        }
+
         function renderMemsSummaryTable(rows, locationVal = "All Motorpools") {
             const tbody = document.getElementById('memsSummaryTableBody');
             tbody.innerHTML = '';
@@ -1171,22 +1369,51 @@
             groups.forEach(group => {
                 const baseGroupRows = group.orderedTypes.map(t => rows.find(r => r.type === t)).filter(Boolean);
                 const extraGroupRows = rows.filter(r => r.category === group.name && !group.orderedTypes.includes(r.type));
-                const groupRows = [...baseGroupRows, ...extraGroupRows];
+                let groupRows = [...baseGroupRows, ...extraGroupRows];
                 if (groupRows.length === 0) return;
+
+                // Attach computed metrics for sorting
+                let enriched = groupRows.map((row, defaultIdx) => ({
+                    row,
+                    defaultIdx,
+                    metrics: computeRowMetrics(row, locationVal, null),
+                    mpMetrics: summarySortMotorpool !== "default" ? computeRowMetrics(row, locationVal, summarySortMotorpool) : null
+                }));
+
+                if (summarySortMotorpool !== "default") {
+                    enriched.sort((a, b) => {
+                        const diff = a.mpMetrics.totalUnits - b.mpMetrics.totalUnits;
+                        if (diff !== 0) return summarySortDir === "desc" ? -diff : diff;
+                        const availDiff = a.mpMetrics.availableCount - b.mpMetrics.availableCount;
+                        if (availDiff !== 0) return summarySortDir === "desc" ? -availDiff : availDiff;
+                        return a.defaultIdx - b.defaultIdx;
+                    });
+                } else if (summarySortColumn) {
+                    enriched.sort((a, b) => {
+                        let cmp = 0;
+                        if (summarySortColumn === "type") {
+                            cmp = a.row.type.localeCompare(b.row.type);
+                        } else if (summarySortColumn === "units") {
+                            cmp = a.metrics.totalUnits - b.metrics.totalUnits;
+                        } else if (summarySortColumn === "available") {
+                            cmp = a.metrics.availableCount - b.metrics.availableCount;
+                        } else if (summarySortColumn === "down") {
+                            cmp = a.metrics.downCount - b.metrics.downCount;
+                        } else if (summarySortColumn === "availability") {
+                            cmp = a.metrics.availPctNum - b.metrics.availPctNum;
+                        }
+                        if (cmp !== 0) return summarySortDir === "asc" ? cmp : -cmp;
+                        return a.defaultIdx - b.defaultIdx;
+                    });
+                }
 
                 let subUnits = 0;
                 let subAvailable = 0;
                 let subDown = 0;
 
-                groupRows.forEach((row, idx) => {
-                    const filterLoc = (arr) => (arr || []).filter(u => locationVal === "All Motorpools" || (u.location || "GEM Motorpool") === locationVal);
-
-                    // Available includes Available (released) + Restored (restored)
-                    const availableCount = filterLoc(row.released).length + filterLoc(row.restored).length;
-                    // Down includes Down (ongoing / jobout) + Reported (waiting / pms)
-                    const downCount = filterLoc(row.ongoing).length + filterLoc(row.jobout).length + filterLoc(row.waiting).length + filterLoc(row.pms).length;
-                    const totalUnits = availableCount + downCount;
-                    const availPct = totalUnits > 0 ? ((availableCount / totalUnits) * 100).toFixed(2) : "0.00";
+                enriched.forEach((item, idx) => {
+                    const { row, metrics, mpMetrics } = item;
+                    const { totalUnits, availableCount, downCount, availPctStr } = metrics;
 
                     subUnits += totalUnits;
                     subAvailable += availableCount;
@@ -1203,18 +1430,24 @@
                         .map(w => w.charAt(0).toUpperCase() + w.slice(1))
                         .join(' ');
 
+                    let mpTagHtml = '';
+                    if (mpMetrics) {
+                        const shortMp = summarySortMotorpool === "PMS / GENSET" ? "PMS/GENSET" : summarySortMotorpool;
+                        mpTagHtml = `<span class="ml-1.5 inline-block text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-950 border border-amber-600/30">${shortMp}: ${mpMetrics.totalUnits}</span>`;
+                    }
+
                     let categoryCellHtml = '';
                     if (idx === 0) {
-                        categoryCellHtml = `<td rowspan="${groupRows.length}" class="category-cell align-top font-bold text-slate-900 bg-[#d8dce3] select-none">${group.name}</td>`;
+                        categoryCellHtml = `<td rowspan="${enriched.length}" class="category-cell align-top font-bold text-slate-900 bg-[#d8dce3] select-none">${group.name}</td>`;
                     }
 
                     tr.innerHTML = `
                         ${categoryCellHtml}
-                        <td class="font-semibold">${formattedType}</td>
+                        <td class="font-semibold">${formattedType}${mpTagHtml}</td>
                         <td class="text-center font-bold">${totalUnits}</td>
                         <td class="text-center font-bold text-emerald-800">${availableCount}</td>
                         <td class="text-center font-bold text-rose-800">${downCount}</td>
-                        <td class="text-center font-extrabold">${availPct}%</td>
+                        <td class="text-center font-extrabold">${availPctStr}%</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -1374,7 +1607,8 @@
             } else {
                 const bulkText = document.getElementById('newBulkAssetCodes').value.toUpperCase();
                 rawCodes = bulkText
-                    .split(/[\n,;]+/)
+                    .split(/[
+,;]+/)
                     .map(s => s.trim())
                     .filter(Boolean);
                 if (rawCodes.length === 0) {
@@ -1544,7 +1778,8 @@
         }
 
         function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Asset Number,LED Status,Location,Completion,Target Date,Remarks\n";
+            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Asset Number,LED Status,Location,Completion,Target Date,Remarks
+";
             state.forEach(row => {
                 const allLists = [
                     { list: row.released || [], status: "Available" },
@@ -1558,7 +1793,8 @@
                     list.forEach(u => {
                         const desc = (u.description || "").replace(/,/g, " ");
                         const comp = u.completion ?? (status === "Available" || status === "Restored" ? 100 : 0);
-                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}","${u.location || 'GEM Motorpool'}",${comp}%,"${u.targetDate || ''}","${desc}"\n`;
+                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}","${u.location || 'GEM Motorpool'}",${comp}%,"${u.targetDate || ''}","${desc}"
+`;
                     });
                 });
             });
