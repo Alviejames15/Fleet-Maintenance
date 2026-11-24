@@ -241,7 +241,7 @@
                 <div class="flex items-center gap-2 text-xs text-slate-300 font-semibold">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span>Interactive Asset LED Wall</span>
-                    <span id="totalMonitoredBadge" class="text-[11px] font-bold bg-slate-800 text-amber-300 border border-slate-700 px-2 py-0.5 rounded-md">70 Units Monitored</span>
+                    <span id="totalMonitoredBadge" class="text-[11px] font-bold bg-slate-800 text-amber-300 border border-slate-700 px-2 py-0.5 rounded-md">69 Units Monitored</span>
                     <span id="activeHighlightTag" class="hidden text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md"></span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -274,7 +274,7 @@
                 <table class="mems-table w-full text-left">
                     <thead>
                         <tr>
-                            <th class="w-44">CATEGORY</th>
+                            <th class="w-48">CATEGORY</th>
                             <th>EQUIPMENT TYPE</th>
                             <th class="text-center w-28">NO. OF UNITS</th>
                             <th class="text-center w-28">AVAILABLE</th>
@@ -342,15 +342,18 @@
                             <option value="CARGO TRUCK">CARGO TRUCK</option>
                             <option value="STAKE TRUCK">STAKE TRUCK</option>
                             <option value="PRIME MOVER">PRIME MOVER</option>
-                            <option value="ATTACHMENTS">ATTACHMENTS</option>
+                            <option value="HIGH BED TRUCK">HIGH BED TRUCK</option>
+                            <option value="LOW BED TRUCK">LOW BED TRUCK</option>
+                            <option value="BULK CEMENT TRUCK">BULK CEMENT TRUCK</option>
+                            <option value="DOLLY">DOLLY</option>
                             <option value="__CUSTOM__">+ Custom Equipment Type...</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Summary Category</label>
                         <select id="newAssetCategorySelect" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-slate-100 focus:outline-none focus:border-blue-500">
-                            <option value="Prime Equipment">Prime Equipment</option>
-                            <option value="Others">Others</option>
+                            <option value="Light Equipment">Light Equipment</option>
+                            <option value="Attachment">Attachment</option>
                         </select>
                     </div>
                 </div>
@@ -364,7 +367,7 @@
                 <!-- Single Asset Input -->
                 <div id="singleAssetInputWrapper">
                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Asset Number / Code</label>
-                    <input type="text" id="newSingleAssetCode" placeholder="e.g. BT-70, CT-80, PM-38, LBT-26" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-slate-100 placeholder-slate-500 uppercase focus:outline-none focus:border-blue-500"/>
+                    <input type="text" id="newSingleAssetCode" placeholder="e.g. BT-70, CT-80, PM-38, LBT-26, DL-01" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-slate-100 placeholder-slate-500 uppercase focus:outline-none focus:border-blue-500"/>
                 </div>
 
                 <!-- Bulk Asset Input -->
@@ -515,12 +518,26 @@
 
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
-        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v2";
+        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v3";
 
-        // Exact Requested Asset Numbers & Equipment Types
+        const LIGHT_EQUIPMENT_TYPES = ["BOOM TRUCK", "CARGO TRUCK", "STAKE TRUCK", "PRIME MOVER"];
+        const ATTACHMENT_TYPES = ["HIGH BED TRUCK", "LOW BED TRUCK", "BULK CEMENT TRUCK", "DOLLY"];
+        const ALL_BASE_TYPES = [...LIGHT_EQUIPMENT_TYPES, ...ATTACHMENT_TYPES];
+
+        const TYPE_GROUP_MAP = {
+            "BOOM TRUCK": "Light Equipment",
+            "CARGO TRUCK": "Light Equipment",
+            "STAKE TRUCK": "Light Equipment",
+            "PRIME MOVER": "Light Equipment",
+            "HIGH BED TRUCK": "Attachment",
+            "LOW BED TRUCK": "Attachment",
+            "BULK CEMENT TRUCK": "Attachment",
+            "DOLLY": "Attachment"
+        };
+
         const FLEET_DEFAULT_STATE = [
             {
-                category: "Prime Equipment",
+                category: "Light Equipment",
                 type: "BOOM TRUCK",
                 released: [
                     { id: "BT-06", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -550,7 +567,7 @@
                 pms: []
             },
             {
-                category: "Prime Equipment",
+                category: "Light Equipment",
                 type: "CARGO TRUCK",
                 released: [
                     { id: "CT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -583,7 +600,7 @@
                 pms: []
             },
             {
-                category: "Prime Equipment",
+                category: "Light Equipment",
                 type: "STAKE TRUCK",
                 released: [
                     { id: "ST-60", completion: 100, location: "GEM Motorpool", description: "Operational" }
@@ -595,7 +612,7 @@
                 pms: []
             },
             {
-                category: "Prime Equipment",
+                category: "Light Equipment",
                 type: "PRIME MOVER",
                 released: [
                     { id: "PM-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -624,14 +641,9 @@
                 pms: []
             },
             {
-                category: "Others",
-                type: "ATTACHMENTS",
+                category: "Attachment",
+                type: "HIGH BED TRUCK",
                 released: [
-                    { id: "LBT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-19", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-25", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-07", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-08", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-09", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -640,13 +652,25 @@
                     { id: "HBT-20", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-21", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-22", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "HBT-23", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "BCT-04", completion: 100, location: "Los Amigos Motorpool", description: "Operational" },
-                    { id: "BCT-07", completion: 100, location: "Los Amigos Motorpool", description: "Operational" }
+                    { id: "HBT-23", completion: 100, location: "GEM Motorpool", description: "Operational" }
                 ],
-                waiting: [
-                    { id: "BCT-05", completion: 30, location: "Los Amigos Motorpool", description: "Awaiting pneumatic discharge valve" }
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "LOW BED TRUCK",
+                released: [
+                    { id: "LBT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-19", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-25", completion: 100, location: "GEM Motorpool", description: "Operational" }
                 ],
+                waiting: [],
                 ongoing: [
                     { id: "LBT-01", completion: 85, location: "GEM Motorpool", description: "Hydraulic ramp cylinder rebuild" },
                     { id: "LBT-17", completion: 70, location: "GEM Motorpool", description: "Axle bearing & brake shoe replacement" }
@@ -654,16 +678,33 @@
                 restored: [],
                 jobout: [],
                 pms: []
+            },
+            {
+                category: "Attachment",
+                type: "BULK CEMENT TRUCK",
+                released: [
+                    { id: "BCT-04", completion: 100, location: "Los Amigos Motorpool", description: "Operational" },
+                    { id: "BCT-07", completion: 100, location: "Los Amigos Motorpool", description: "Operational" }
+                ],
+                waiting: [
+                    { id: "BCT-05", completion: 30, location: "Los Amigos Motorpool", description: "Awaiting pneumatic discharge valve" }
+                ],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "DOLLY",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
             }
         ];
-
-        const TYPE_GROUP_MAP = {
-            "BOOM TRUCK": "Prime Equipment",
-            "CARGO TRUCK": "Prime Equipment",
-            "STAKE TRUCK": "Prime Equipment",
-            "PRIME MOVER": "Prime Equipment",
-            "ATTACHMENTS": "Others"
-        };
 
         let state = [];
         let activeStatusFilter = "all"; // 'all' | 'available' | 'reported' | 'down' | 'restored'
@@ -707,16 +748,91 @@
             lucide.createIcons();
         }
 
+        function normalizeCategory(cat, type) {
+            if (LIGHT_EQUIPMENT_TYPES.includes(type)) return "Light Equipment";
+            if (ATTACHMENT_TYPES.includes(type)) return "Attachment";
+            if (cat === "Prime Equipment" || cat === "Light Equipment") return "Light Equipment";
+            if (cat === "Others" || cat === "Attachments" || cat === "Attachment") return "Attachment";
+            return TYPE_GROUP_MAP[type] || "Attachment";
+        }
+
         function ensureStateIntegrity() {
+            const normalizedRows = [];
+
             state.forEach(row => {
-                if (!row.category) row.category = TYPE_GROUP_MAP[row.type] || "Others";
-                if (!row.released) row.released = [];
-                if (!row.restored) row.restored = [];
-                if (!row.waiting) row.waiting = [];
-                if (!row.pms) row.pms = [];
-                if (!row.ongoing) row.ongoing = [];
-                if (!row.jobout) row.jobout = [];
+                if (row.type === "ATTACHMENTS") {
+                    const buckets = ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'];
+                    const targetMap = {
+                        'HBT-': 'HIGH BED TRUCK',
+                        'LBT-': 'LOW BED TRUCK',
+                        'BCT-': 'BULK CEMENT TRUCK',
+                        'DL-': 'DOLLY'
+                    };
+
+                    buckets.forEach(bKey => {
+                        (row[bKey] || []).forEach(u => {
+                            const prefix = Object.keys(targetMap).find(p => u.id.toUpperCase().startsWith(p));
+                            const mappedType = prefix ? targetMap[prefix] : "HIGH BED TRUCK";
+                            let targetRow = normalizedRows.find(r => r.type === mappedType);
+                            if (!targetRow) {
+                                targetRow = {
+                                    category: "Attachment",
+                                    type: mappedType,
+                                    released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
+                                };
+                                normalizedRows.push(targetRow);
+                            }
+                            if (!targetRow[bKey].some(existing => existing.id === u.id)) {
+                                targetRow[bKey].push(u);
+                            }
+                        });
+                    });
+                } else {
+                    const cleanType = row.type === "BULK CEMENT RUCK" ? "BULK CEMENT TRUCK" : row.type;
+                    let existing = normalizedRows.find(r => r.type === cleanType);
+                    if (!existing) {
+                        existing = {
+                            category: normalizeCategory(row.category, cleanType),
+                            type: cleanType,
+                            released: [...(row.released || [])],
+                            restored: [...(row.restored || [])],
+                            waiting: [...(row.waiting || [])],
+                            pms: [...(row.pms || [])],
+                            ongoing: [...(row.ongoing || [])],
+                            jobout: [...(row.jobout || [])]
+                        };
+                        normalizedRows.push(existing);
+                    } else {
+                        ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'].forEach(bKey => {
+                            (row[bKey] || []).forEach(u => {
+                                if (!existing[bKey].some(x => x.id === u.id)) existing[bKey].push(u);
+                            });
+                        });
+                    }
+                }
             });
+
+            ALL_BASE_TYPES.forEach(baseType => {
+                if (!normalizedRows.some(r => r.type === baseType)) {
+                    normalizedRows.push({
+                        category: TYPE_GROUP_MAP[baseType],
+                        type: baseType,
+                        released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
+                    });
+                }
+            });
+
+            normalizedRows.forEach(row => {
+                row.category = normalizeCategory(row.category, row.type);
+                row.released = row.released || [];
+                row.restored = row.restored || [];
+                row.waiting = row.waiting || [];
+                row.pms = row.pms || [];
+                row.ongoing = row.ongoing || [];
+                row.jobout = row.jobout || [];
+            });
+
+            state = normalizedRows;
         }
 
         async function fetchSheetData() {
@@ -732,6 +848,7 @@
                     const data = await response.json();
                     if (Array.isArray(data) && data.length > 0 && data.some(r => r.type === "BOOM TRUCK" && (r.released?.some(u => u.id === "BT-06")))) {
                         state = data;
+                        ensureStateIntegrity();
                         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
                         badge.textContent = "Google Sheet Connected";
                     } else {
@@ -772,7 +889,7 @@
         function resetToDefaults() {
             openConfirmModal(
                 "Reset FLEET MONITORING",
-                "Reset all asset numbers and LED statuses back to the default 70-unit fleet monitoring baseline?",
+                "Reset all asset numbers and LED statuses back to the default fleet monitoring baseline?",
                 async () => {
                     localStorage.removeItem(LOCAL_STORAGE_KEY);
                     state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
@@ -783,7 +900,7 @@
                     updateFilterUI();
                     renderDashboard();
                     await saveToSheet();
-                    showToast("Fleet Monitoring reset to default 70-unit baseline.", "success");
+                    showToast("Fleet Monitoring reset to default baseline.", "success");
                 }
             );
         }
@@ -976,13 +1093,15 @@
             }
             emptyMsg.classList.add('hidden');
 
-            // Group order priority matching user's equipment sequence, then natural numeric sort
             const typePriority = {
                 "BOOM TRUCK": 1,
                 "CARGO TRUCK": 2,
                 "STAKE TRUCK": 3,
                 "PRIME MOVER": 4,
-                "ATTACHMENTS": 5
+                "HIGH BED TRUCK": 5,
+                "LOW BED TRUCK": 6,
+                "BULK CEMENT TRUCK": 7,
+                "DOLLY": 8
             };
             cards.sort((a, b) => {
                 const pA = typePriority[a.type] || 99;
@@ -1033,8 +1152,16 @@
             tbody.innerHTML = '';
 
             const groups = [
-                { name: "Prime Equipment", subtotalLabel: "Prime Equipment Total" },
-                { name: "Others", subtotalLabel: "Other Equipment Total" }
+                {
+                    name: "Light Equipment",
+                    orderedTypes: LIGHT_EQUIPMENT_TYPES,
+                    subtotalLabel: "Light Equipment Total"
+                },
+                {
+                    name: "Attachment",
+                    orderedTypes: ATTACHMENT_TYPES,
+                    subtotalLabel: "Attachment Total"
+                }
             ];
 
             let grandTotalUnits = 0;
@@ -1042,7 +1169,9 @@
             let grandTotalDown = 0;
 
             groups.forEach(group => {
-                const groupRows = rows.filter(r => r.category === group.name);
+                const baseGroupRows = group.orderedTypes.map(t => rows.find(r => r.type === t)).filter(Boolean);
+                const extraGroupRows = rows.filter(r => r.category === group.name && !group.orderedTypes.includes(r.type));
+                const groupRows = [...baseGroupRows, ...extraGroupRows];
                 if (groupRows.length === 0) return;
 
                 let subUnits = 0;
@@ -1052,7 +1181,9 @@
                 groupRows.forEach((row, idx) => {
                     const filterLoc = (arr) => (arr || []).filter(u => locationVal === "All Motorpools" || (u.location || "GEM Motorpool") === locationVal);
 
+                    // Available includes Available (released) + Restored (restored)
                     const availableCount = filterLoc(row.released).length + filterLoc(row.restored).length;
+                    // Down includes Down (ongoing / jobout) + Reported (waiting / pms)
                     const downCount = filterLoc(row.ongoing).length + filterLoc(row.jobout).length + filterLoc(row.waiting).length + filterLoc(row.pms).length;
                     const totalUnits = availableCount + downCount;
                     const availPct = totalUnits > 0 ? ((availableCount / totalUnits) * 100).toFixed(2) : "0.00";
@@ -1123,14 +1254,12 @@
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // Populate equipment types into the Add Asset Number dropdown (including any custom added ones)
         function populateDynamicEquipmentTypes() {
             const select = document.getElementById('newAssetTypeSelect');
             if (!select) return;
             const currentVal = select.value;
-            const baseTypes = ["BOOM TRUCK", "CARGO TRUCK", "STAKE TRUCK", "PRIME MOVER", "ATTACHMENTS"];
             const stateTypes = state.map(r => r.type);
-            const merged = [...new Set([...baseTypes, ...stateTypes])];
+            const merged = [...new Set([...ALL_BASE_TYPES, ...stateTypes])];
 
             select.innerHTML = '';
             merged.forEach(t => {
@@ -1180,9 +1309,9 @@
                 customWrapper.classList.add('hidden');
                 const existingRow = state.find(r => r.type === val);
                 if (existingRow) {
-                    catSelect.value = existingRow.category;
+                    catSelect.value = normalizeCategory(existingRow.category, val);
                 } else {
-                    catSelect.value = TYPE_GROUP_MAP[val] || "Others";
+                    catSelect.value = TYPE_GROUP_MAP[val] || "Attachment";
                 }
             }
         }
@@ -1254,7 +1383,6 @@
                 }
             }
 
-            // Collect all existing asset codes to prevent duplicates
             const existingMap = new Map();
             state.forEach(row => {
                 const allUnits = [
