@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>FLEET MONITORING</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #d1d5db; /* Classic industrial light-slate backdrop */
+        }
+
+        /* 3D Glossy LED Indicator Spheres */
+        .led-sphere {
+            width: 22px;
+            height: 22px;
+            border-radius: 9999px;
+            flex-shrink: 0;
+            position: relative;
+            box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.55), inset 0 2px 3px rgba(255, 255, 255, 0.65);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .led-sphere::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 5px;
+            width: 7px;
+            height: 4px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.75);
+            transform: rotate(-25deg);
+        }
+
+        .led-available {
+            background: radial-gradient(circle at 35% 30%, #86efac, #22c55e 45%, #15803d 95%);
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.85), inset 0 -3px 5px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.75);
+        }
+        .led-reported {
+            background: radial-gradient(circle at 35% 30%, #fde047, #eab308 45%, #a16207 95%);
+            box-shadow: 0 0 8px rgba(234, 179, 8, 0.85), inset 0 -3px 5px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.75);
+        }
+        .led-down {
+            background: radial-gradient(circle at 35% 30%, #fca5a5, #ef4444 45%, #991b1b 95%);
+            box-shadow: 0 0 9px rgba(239, 68, 68, 0.9), inset 0 -3px 5px rgba(0, 0, 0, 0.55), inset 0 2px 3px rgba(255, 255, 255, 0.75);
+        }
+        .led-restored {
+            background: radial-gradient(circle at 35% 30%, #93c5fd, #3b82f6 45%, #1d4ed8 95%);
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.85), inset 0 -3px 5px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.75);
+        }
+
+        /* Metallic Dark Capsule Unit Tile */
+        .mems-unit-pill {
+            background: linear-gradient(180deg, #242933 0%, #1e232b 55%, #161a20 100%);
+            border: 1.5px solid #111317;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            transition: all 0.15s ease-in-out;
+        }
+        .mems-unit-pill:hover {
+            transform: translateY(-1px) scale(1.03);
+            border-color: #60a5fa;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            z-index: 20;
+        }
+        .mems-unit-pill.highlighted-type {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 2px #f59e0b, 0 4px 12px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Legend Pill Capsule */
+        .mems-legend-pill {
+            background: linear-gradient(180deg, #373b44 0%, #23262c 100%);
+            border: 1.5px solid #14161a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            transition: all 0.15s ease;
+        }
+        .mems-legend-pill:hover {
+            transform: translateY(-1px);
+            border-color: #94a3b8;
+        }
+        .mems-legend-pill.active-filter {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 2px #1e293b, 0 0 0 4px #3b82f6;
+        }
+
+        /* Summary Table Styling */
+        .mems-table {
+            border-collapse: collapse;
+            background-color: #d8dce3;
+        }
+        .mems-table th {
+            background-color: #e59a24;
+            color: #111827;
+            font-weight: 800;
+            border: 1px solid #6b7280;
+            padding: 7px 12px;
+            font-size: 0.78rem;
+            letter-spacing: 0.02em;
+        }
+        .mems-table th.sortable-th {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.15s ease;
+        }
+        .mems-table th.sortable-th:hover {
+            background-color: #d48914;
+        }
+        .mems-table td {
+            border: 1px solid #7f8694;
+            padding: 5px 12px;
+            font-size: 0.82rem;
+            color: #111827;
+        }
+        .mems-table tr.subtotal-row td {
+            background-color: #e59a24;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .mems-table tr.grandtotal-row td {
+            background-color: #d98a14;
+            font-weight: 900;
+            color: #000000;
+            border-top: 2px solid #374151;
+        }
+        .mems-table tr.data-row:hover td:not(.category-cell) {
+            background-color: #cbd5e1;
+            cursor: pointer;
+        }
+        .mems-table tr.data-row.selected-row td:not(.category-cell) {
+            background-color: #fef08a;
+            font-weight: 700;
+        }
+
+        /* Motorpool Sort Pills in Summary */
+        .mp-sort-btn {
+            transition: all 0.15s ease;
+        }
+        .mp-sort-btn.active-mp-sort {
+            background-color: #0f172a;
+            color: #fbbf24;
+            border-color: #f59e0b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #cbd5e1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #64748b;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-900 selection:bg-blue-600 selection:text-white">
+
+    <!-- Top Utility & Filter Bar -->
+    <header class="bg-slate-900 text-slate-100 border-b border-slate-700 sticky top-0 z-40 shadow-lg">
+        <div class="max-w-[1440px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-amber-500 rounded-lg text-slate-950 shadow">
+                    <i class="w-5 h-5" data-lucide="activity"></i>
+                </div>
+                <div class="flex items-center gap-2.5">
+                    <h1 class="text-lg sm:text-xl font-black tracking-wider text-white uppercase">FLEET MONITORING</h1>
+                    <span id="syncStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Live Sync Ready</span>
+                </div>
+            </div>
+
+            <!-- Interactive Controls -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Motorpool Location Filter -->
+                <div class="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5">
+                    <i class="w-3.5 h-3.5 text-amber-400" data-lucide="map-pin"></i>
+                    <select id="locationFilter" class="bg-transparent text-xs font-semibold text-white focus:outline-none cursor-pointer">
+                        <option value="All Motorpools" class="bg-slate-800">All Motorpools</option>
+                        <option value="GEM Motorpool" class="bg-slate-800">GEM Motorpool</option>
+                        <option value="SV Repair Units" class="bg-slate-800">SV Repair Units</option>
+                        <option value="Los Amigos Motorpool" class="bg-slate-800">Los Amigos Motorpool</option>
+                        <option value="PMS / GENSET" class="bg-slate-800">PMS / GENSET</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <button onclick="downloadCSV()" class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-600 transition">
+                    <i class="w-3.5 h-3.5" data-lucide="download"></i> Export CSV
+                </button>
+                <button onclick="openAddAssetModal()" class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow shadow-blue-600/30 transition">
+                    <i class="w-3.5 h-3.5" data-lucide="plus-circle"></i> Add Asset Number
+                </button>
+                <button onclick="resetToDefaults()" class="flex items-center gap-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-500/30 transition" title="Reset Grid to Default State">
+                    <i class="w-3.5 h-3.5" data-lucide="rotate-ccw"></i> Reset Defaults
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-[1440px] w-full mx-auto px-3 sm:px-6 py-5 flex-1 space-y-6">
+
+        <!-- Dashboard Title, Search & 4-Status LED Legend Bar -->
+        <section class="text-center space-y-3">
+            <h2 class="text-xl sm:text-2xl md:text-[26px] font-black text-slate-900 tracking-wide uppercase">
+                FLEET MONITORING
+            </h2>
+
+            <!-- Interactive Status Legend Pills & Search Filter -->
+            <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-1">
+                <button id="legend-available" onclick="toggleStatusFilter('available')" class="mems-legend-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer">
+                    <span class="led-sphere led-available"></span>
+                    <span class="text-white font-bold text-xs sm:text-sm tracking-wide">Available</span>
+                    <span id="count-pill-available" class="text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-md">0</span>
+                </button>
+
+                <button id="legend-reported" onclick="toggleStatusFilter('reported')" class="mems-legend-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer">
+                    <span class="led-sphere led-reported"></span>
+                    <span class="text-white font-bold text-xs sm:text-sm tracking-wide">Reported</span>
+                    <span id="count-pill-reported" class="text-[11px] font-extrabold bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-md">0</span>
+                </button>
+
+                <button id="legend-down" onclick="toggleStatusFilter('down')" class="mems-legend-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer">
+                    <span class="led-sphere led-down"></span>
+                    <span class="text-white font-bold text-xs sm:text-sm tracking-wide">Down</span>
+                    <span id="count-pill-down" class="text-[11px] font-extrabold bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded-md">0</span>
+                </button>
+
+                <button id="legend-restored" onclick="toggleStatusFilter('restored')" class="mems-legend-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer">
+                    <span class="led-sphere led-restored"></span>
+                    <span class="text-white font-bold text-xs sm:text-sm tracking-wide">Restored</span>
+                    <span id="count-pill-restored" class="text-[11px] font-extrabold bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-md">0</span>
+                </button>
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <i class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" data-lucide="search"></i>
+                    <input id="searchInput" oninput="renderDashboard()" type="text" placeholder="Search asset code or type..." class="pl-8 pr-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white placeholder-slate-400 focus:outline-none focus:border-amber-400 w-48 sm:w-56 shadow"/>
+                </div>
+
+                <button id="clearFiltersBtn" onclick="clearAllFilters()" class="hidden text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-2 rounded-xl shadow transition flex items-center gap-1">
+                    <i class="w-3.5 h-3.5" data-lucide="x-circle"></i> All / Reset Filters
+                </button>
+            </div>
+        </section>
+
+        <!-- Interactive Equipment Tile Wall (Dark Container with Multi-Column Capsule Grid) -->
+        <section class="bg-[#11151c] border border-slate-700 rounded-xl p-3.5 sm:p-5 shadow-xl relative space-y-3.5">
+            <!-- Tile Wall Sub-Header Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2 text-xs text-slate-300 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Interactive Asset LED Wall</span>
+                    <span id="totalMonitoredBadge" class="text-[11px] font-bold bg-slate-800 text-amber-300 border border-slate-700 px-2 py-0.5 rounded-md">69 Units Monitored</span>
+                    <span id="activeHighlightTag" class="hidden text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md"></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="hidden sm:inline text-[11px] text-slate-400">Click any unit pill to update status</span>
+                    <button onclick="openAddAssetModal()" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold px-3 py-1.5 rounded-lg shadow transition">
+                        <i class="w-3.5 h-3.5" data-lucide="plus"></i> + Add Asset Number
+                    </button>
+                </div>
+            </div>
+
+            <div id="memsTileColumnsContainer" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2.5 items-start">
+                <!-- Dynamically rendered columns of dark pill capsules with glowing LEDs -->
+            </div>
+            <div id="emptyWallMessage" class="hidden py-10 text-center text-slate-400 font-semibold text-sm">
+                No equipment units match the current filter criteria.
+            </div>
+        </section>
+
+        <!-- Equipment Availability Summary Table -->
+        <section class="bg-slate-200 border border-slate-400 rounded-xl p-3 sm:p-5 shadow-lg space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="w-4 h-4 text-amber-600" data-lucide="table"></i>
+                    <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">Equipment Availability Summary</h3>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-600">Tip: Click any row below to highlight its units on the LED wall above</span>
+            </div>
+
+            <!-- Motorpool Sort & Direction Bar -->
+            <div class="bg-slate-300/80 border border-slate-400/80 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-wide flex items-center gap-1 mr-1">
+                        <i class="w-3.5 h-3.5 text-amber-700" data-lucide="arrow-up-down"></i> Sort by Motorpool:
+                    </span>
+                    <button type="button" id="mp-sort-none" onclick="setMotorpoolSort('default')" class="mp-sort-btn active-mp-sort px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 cursor-pointer">
+                        Default Order
+                    </button>
+                    <button type="button" id="mp-sort-GEM Motorpool" onclick="setMotorpoolSort('GEM Motorpool')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        GEM Motorpool
+                    </button>
+                    <button type="button" id="mp-sort-SV Repair Units" onclick="setMotorpoolSort('SV Repair Units')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        SV Repair Units
+                    </button>
+                    <button type="button" id="mp-sort-Los Amigos Motorpool" onclick="setMotorpoolSort('Los Amigos Motorpool')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        Los Amigos Motorpool
+                    </button>
+                    <button type="button" id="mp-sort-PMS / GENSET" onclick="setMotorpoolSort('PMS / GENSET')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
+                        PMS/GENSET
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" id="mpSortDirBtn" onclick="toggleMotorpoolSortDir()" class="px-2.5 py-1 rounded-md text-[11px] font-extrabold border border-slate-600 bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center gap-1 cursor-pointer" title="Toggle Sort Direction (High to Low / Low to High)">
+                        <span id="mpSortDirLabel">DESC (High → Low)</span>
+                    </button>
+                    <span id="activeSortStatusBadge" class="text-[11px] font-bold text-slate-700 bg-amber-200/80 border border-amber-500/50 px-2 py-0.5 rounded-md">
+                        Sort: Default Equipment Order
+                    </span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg border border-slate-500 shadow-sm">
+                <table class="mems-table w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="w-48">CATEGORY</th>
+                            <th class="sortable-th" onclick="cycleColumnSort('type')">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span>EQUIPMENT TYPE</span>
+                                    <span id="sort-ind-type" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('units')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>NO. OF UNITS</span>
+                                    <span id="sort-ind-units" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('available')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>AVAILABLE</span>
+                                    <span id="sort-ind-available" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('down')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>DOWN</span>
+                                    <span id="sort-ind-down" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                            <th class="text-center w-32 sortable-th" onclick="cycleColumnSort('availability')">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span>AVAILABILITY%</span>
+                                    <span id="sort-ind-availability" class="text-[10px] font-black text-slate-800">↕</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="memsSummaryTableBody">
+                        <!-- Dynamically populated summary rows, subtotals, and Grand Total -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Custom Hover Tooltip for LED Pills -->
+        <div id="unitHoverTooltip" class="hidden fixed z-50 pointer-events-none bg-slate-900/95 backdrop-blur-md text-slate-100 border border-slate-600 rounded-xl p-3 shadow-2xl text-xs w-64 space-y-1.5">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-1.5">
+                <span id="ttAssetCode" class="font-mono font-black text-sm text-white">--</span>
+                <span id="ttStatusBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">--</span>
+            </div>
+            <div class="space-y-1 text-[11px]">
+                <div class="flex justify-between"><span class="text-slate-400">Equipment:</span><span id="ttEquipType" class="font-semibold text-slate-200 text-right">--</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Location:</span><span id="ttLocation" class="font-semibold text-amber-300 text-right">--</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Completion:</span><span id="ttCompletion" class="font-bold text-blue-300">--%</span></div>
+                <div id="ttNotesWrapper" class="pt-1 border-t border-slate-800">
+                    <span class="text-slate-400 block">Diagnosis / Notes:</span>
+                    <span id="ttNotes" class="text-slate-200 italic">--</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Modal: Add Asset Number for Monitoring (Single or Bulk) -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="addAssetModal">
+        <div class="bg-slate-800 rounded-2xl max-w-lg w-full shadow-2xl border border-slate-700 overflow-hidden text-slate-100 max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="w-5 h-5 text-amber-400" data-lucide="plus-circle"></i> Add Asset Number for Monitoring
+                </h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('addAssetModal')" type="button">
+                    <i class="w-5 h-5" data-lucide="x"></i>
+                </button>
+            </div>
+
+            <form class="p-6 space-y-4 overflow-y-auto flex-1" id="addAssetForm" onsubmit="handleAddAssetSubmit(event)">
+                <!-- Mode Switcher: Single vs Bulk -->
+                <div class="flex items-center justify-between bg-slate-900/80 p-1.5 rounded-xl border border-slate-700">
+                    <button type="button" id="modeSingleBtn" onclick="setAddEntryMode('single')" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white transition">
+                        Single Asset Number
+                    </button>
+                    <button type="button" id="modeBulkBtn" onclick="setAddEntryMode('bulk')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">
+                        Bulk Asset Numbers
+                    </button>
+                </div>
+
+                <!-- Equipment Type & Category -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Equipment Type</label>
+                        <select id="newAssetTypeSelect" onchange="handleNewTypeChange(this.value)" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-slate-100 focus:outline-none focus:border-blue-500">
+                            <option value="BOOM TRUCK">BOOM TRUCK</option>
+                            <option value="CARGO TRUCK">CARGO TRUCK</option>
+                            <option value="STAKE TRUCK">STAKE TRUCK</option>
+                            <option value="PRIME MOVER">PRIME MOVER</option>
+                            <option value="HIGH BED TRUCK">HIGH BED TRUCK</option>
+                            <option value="LOW BED TRUCK">LOW BED TRUCK</option>
+                            <option value="BULK CEMENT TRUCK">BULK CEMENT TRUCK</option>
+                            <option value="DOLLY">DOLLY</option>
+                            <option value="__CUSTOM__">+ Custom Equipment Type...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Summary Category</label>
+                        <select id="newAssetCategorySelect" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-slate-100 focus:outline-none focus:border-blue-500">
+                            <option value="Light Equipment">Light Equipment</option>
+                            <option value="Attachment">Attachment</option>
+                            <option value="Service Vehicle">Service Vehicle</option>
+                            <option value="Heavy Equipment">Heavy Equipment</option>
+                            <option value="Genset">Genset</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Custom Equipment Type Input (Hidden unless selected) -->
+                <div id="customEquipTypeWrapper" class="hidden">
+                    <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1.5">Specify Custom Equipment Type</label>
+                    <input type="text" id="newCustomAssetType" placeholder="e.g. DUMP TRUCK, FORKLIFT, GENSET" class="w-full px-3 py-2.5 bg-slate-900 border border-amber-500/50 rounded-xl text-sm text-slate-100 placeholder-slate-500 uppercase focus:outline-none focus:border-amber-400"/>
+                </div>
+
+                <!-- Single Asset Input -->
+                <div id="singleAssetInputWrapper">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Asset Number / Code</label>
+                    <input type="text" id="newSingleAssetCode" placeholder="e.g. BT-70, CT-80, PM-38, LBT-26, DL-01" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-slate-100 placeholder-slate-500 uppercase focus:outline-none focus:border-blue-500"/>
+                </div>
+
+                <!-- Bulk Asset Input -->
+                <div id="bulkAssetInputWrapper" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Bulk Asset Numbers (Comma or Newline Separated)</label>
+                    <textarea id="newBulkAssetCodes" rows="3" placeholder="BT-68, BT-69, BT-70&#10;BT-71" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-slate-100 placeholder-slate-500 uppercase focus:outline-none focus:border-blue-500"></textarea>
+                </div>
+
+                <!-- Motorpool Location & Initial LED Status -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Motorpool Location</label>
+                        <select id="newAssetLocation" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+                            <option value="GEM Motorpool">GEM Motorpool</option>
+                            <option value="SV Repair Units">SV Repair Units</option>
+                            <option value="Los Amigos Motorpool">Los Amigos Motorpool</option>
+                            <option value="PMS / GENSET">PMS / GENSET</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Monitoring LED Status</label>
+                        <select id="newAssetStatus" onchange="adjustAddFormDefaults()" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-slate-100 focus:outline-none focus:border-blue-500">
+                            <option value="released">Available (Green LED)</option>
+                            <option value="waiting">Reported (Yellow LED)</option>
+                            <option value="ongoing">Down (Red LED)</option>
+                            <option value="restored">Restored (Blue LED)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Completion & Target Date -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Completion (%)</label>
+                        <input type="number" id="newAssetProgress" min="0" max="100" value="100" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-blue-500"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Target Date</label>
+                        <input type="date" id="newAssetTargetDate" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-blue-500"/>
+                    </div>
+                </div>
+
+                <!-- Notes / Remarks -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Remarks / Diagnosis Notes</label>
+                    <input type="text" id="newAssetNotes" placeholder="Optional operational status or repair details..." class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"/>
+                </div>
+
+                <div class="pt-3 flex gap-3 justify-end border-t border-slate-700">
+                    <button type="button" onclick="closeModal('addAssetModal')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-xl text-xs font-semibold transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5">
+                        <i class="w-4 h-4" data-lucide="check"></i> Add to Monitoring Wall
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Lifecycle Management Deck (Edit Existing Unit LED Status) -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="manageUnitModal">
+        <div class="bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl border border-slate-700 overflow-hidden text-slate-100">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="w-5 h-5 text-blue-400" data-lucide="sliders"></i> Asset Status Control
+                </h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('manageUnitModal')" type="button">
+                    <i class="w-5 h-5" data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between bg-slate-900/70 p-3.5 rounded-xl border border-slate-700">
+                    <div class="flex items-center gap-3">
+                        <span id="manageUnitBadge" class="px-3 py-1.5 bg-slate-800 border border-slate-600 text-white font-mono text-base font-black rounded-lg">--</span>
+                        <div>
+                            <p id="manageUnitType" class="text-sm font-bold text-slate-100">--</p>
+                            <p id="manageUnitCategory" class="text-xs text-slate-400">--</p>
+                        </div>
+                    </div>
+                    <span id="manageUnitLed" class="led-sphere led-available"></span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-1.5">Update Monitoring LED Status</label>
+                    <select id="manageUnitStatus" onchange="handleManageStatusChange(this.value)" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-slate-100 focus:outline-none focus:border-blue-500">
+                        <option value="released">Available (Green LED - Operational)</option>
+                        <option value="waiting">Reported (Yellow LED - Waiting Parts/PMS)</option>
+                        <option value="ongoing">Down (Red LED - On-Going / Job Out)</option>
+                        <option value="restored">Restored (Blue LED - Returned to Service)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Motorpool Location</label>
+                    <select id="manageUnitLocation" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+                        <option value="GEM Motorpool">GEM Motorpool</option>
+                        <option value="SV Repair Units">SV Repair Units</option>
+                        <option value="Los Amigos Motorpool">Los Amigos Motorpool</option>
+                        <option value="PMS / GENSET">PMS / GENSET</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5 bg-slate-900/50 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Repair / Readiness Completion</span>
+                        <span id="progressPercentDisplay" class="text-sm font-black text-amber-400">100%</span>
+                    </div>
+                    <input id="manageUnitProgressSlider" type="range" min="0" max="100" oninput="updateProgressDisplay(this.value)" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"/>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Diagnosis / Operational Remarks</label>
+                    <textarea id="manageUnitDescription" rows="2" placeholder="Enter repair notes or status remarks..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Target Completion Date</label>
+                    <input id="manageUnitTargetDate" type="date" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-blue-500"/>
+                </div>
+
+                <div class="pt-3 flex gap-3 justify-between border-t border-slate-700">
+                    <button type="button" onclick="handleDeleteUnitClick()" class="px-3.5 py-2 bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/30 transition flex items-center gap-1.5">
+                        <i class="w-3.5 h-3.5" data-lucide="trash-2"></i>
+                        <span id="deleteUnitBtnText">Remove Asset</span>
+                    </button>
+                    <button type="button" onclick="saveAssetDetailedChanges()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow transition">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="confirmActionModal">
+        <div class="bg-slate-800 rounded-2xl max-w-sm w-full shadow-2xl border border-slate-700 p-6 text-slate-100 space-y-4">
+            <div class="flex items-center gap-3 text-amber-400">
+                <i class="w-6 h-6 shrink-0" data-lucide="alert-triangle"></i>
+                <h3 class="font-bold text-base text-white" id="confirmModalTitle">Confirm Action</h3>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed" id="confirmModalMessage">Are you sure you want to proceed?</p>
+            <div class="flex justify-end gap-2.5 pt-2 border-t border-slate-700">
+                <button onclick="closeModal('confirmActionModal')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold text-white transition">Cancel</button>
+                <button id="confirmModalProceedBtn" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 rounded-xl text-xs font-bold text-white transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
+        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v5";
+
+        const LIGHT_EQUIPMENT_TYPES = [
+            "BOOM TRUCK",
+            "CARGO TRUCK",
+            "STAKE TRUCK",
+            "PRIME MOVER",
+            "DUMP TRUCK",
+            "MINI DUMP TRUCK",
+            "FUEL TRUCK",
+            "PMT"
+        ];
+        const ATTACHMENT_TYPES = [
+            "HIGH BED TRUCK",
+            "LOW BED TRUCK",
+            "BULK CEMENT TRUCK",
+            "DOLLY",
+            "SHEET PILE DRIVER",
+            "HYDRAULIC BREAKER"
+        ];
+        const SERVICE_VEHICLE_TYPES = [
+            "TOYOTA FORTUNER",
+            "ISUZU D-MAX",
+            "NISSAN NAVARA",
+            "KIA K2700",
+            "KIA SORENTO",
+            "NISSAN X-TRAIL",
+            "MITSUBISHI PAJERO",
+            "JMC",
+            "FORD RANGER",
+            "TOYOTA HILUX",
+            "MITSUBISHI STRADA",
+            "KIA K2500"
+        ];
+        const HEAVY_EQUIPMENT_TYPES = [
+            "BULLDOZER",
+            "WHEEL TYPE BACKHOE",
+            "CRAWLER BACKHOE",
+            "WHEEL LOADER",
+            "ROAD ROLLER",
+            "CRANE",
+            "ROAD GRADER"
+        ];
+        const GENSET_TYPES = [
+            "GENSET 50KV",
+            "GENSET 100KV",
+            "GENSET 150KV",
+            "GENSET 250KV"
+        ];
+
+        const CATEGORY_ORDER = [
+            "Light Equipment",
+            "Attachment",
+            "Service Vehicle",
+            "Heavy Equipment",
+            "Genset"
+        ];
+
+        const ALL_BASE_TYPES = [
+            ...LIGHT_EQUIPMENT_TYPES,
+            ...ATTACHMENT_TYPES,
+            ...SERVICE_VEHICLE_TYPES,
+            ...HEAVY_EQUIPMENT_TYPES,
+            ...GENSET_TYPES
+        ];
+        const MOTORPOOL_OPTIONS = ["GEM Motorpool", "SV Repair Units", "Los Amigos Motorpool", "PMS / GENSET"];
+
+        const TYPE_GROUP_MAP = {};
+        LIGHT_EQUIPMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Light Equipment"; });
+        ATTACHMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Attachment"; });
+        SERVICE_VEHICLE_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Service Vehicle"; });
+        HEAVY_EQUIPMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Heavy Equipment"; });
+        GENSET_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Genset"; });
+
+        const FLEET_DEFAULT_STATE = [
+            {
+                category: "Light Equipment",
+                type: "BOOM TRUCK",
+                released: [
+                    { id: "BT-06", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-29", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-30", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-32", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-36", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-38", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-40", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-47", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-48", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-50", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-63", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BT-66", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                ],
+                waiting: [
+                    { id: "BT-39", completion: 25, location: "GEM Motorpool", description: "Reported boom hydraulic valve leak" }
+                ],
+                ongoing: [
+                    { id: "BT-58", completion: 45, location: "GEM Motorpool", description: "Outrigger cylinder overhaul" }
+                ],
+                restored: [
+                    { id: "BT-67", completion: 100, location: "GEM Motorpool", description: "Restored after PTO repair" }
+                ],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "CARGO TRUCK",
+                released: [
+                    { id: "CT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-12", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-38", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-53", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-61", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-63", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-66", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-67", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-70", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-73", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-74", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-75", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-77", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "CT-78", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                ],
+                waiting: [
+                    { id: "CT-59", completion: 15, location: "GEM Motorpool", description: "Awaiting clutch assembly replacement" }
+                ],
+                ongoing: [
+                    { id: "CT-19", completion: 50, location: "GEM Motorpool", description: "Transmission & differential repair" },
+                    { id: "CT-22", completion: 65, location: "GEM Motorpool", description: "Brake chamber & air line service" }
+                ],
+                restored: [
+                    { id: "CT-76", completion: 100, location: "GEM Motorpool", description: "Restored to active haulage" }
+                ],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "STAKE TRUCK",
+                released: [
+                    { id: "ST-60", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                ],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "PRIME MOVER",
+                released: [
+                    { id: "PM-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-17", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-20", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-23", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-29", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-30", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-31", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-32", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-34", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-35", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "PM-37", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                ],
+                waiting: [
+                    { id: "PM-33", completion: 20, location: "GEM Motorpool", description: "Reported turbocharger boost sensor fault" }
+                ],
+                ongoing: [
+                    { id: "PM-19", completion: 40, location: "GEM Motorpool", description: "Fifth-wheel & suspension overhaul" }
+                ],
+                restored: [
+                    { id: "PM-36", completion: 100, location: "GEM Motorpool", description: "Restored after injector calibration" }
+                ],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "HIGH BED TRUCK",
+                released: [
+                    { id: "HBT-07", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-08", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-09", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-15", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-18", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-20", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-21", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-22", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "HBT-23", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                ],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "LOW BED TRUCK",
+                released: [
+                    { id: "LBT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-19", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-25", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                ],
+                waiting: [],
+                ongoing: [
+                    { id: "LBT-01", completion: 85, location: "GEM Motorpool", description: "Hydraulic ramp cylinder rebuild" },
+                    { id: "LBT-17", completion: 70, location: "GEM Motorpool", description: "Axle bearing & brake shoe replacement" }
+                ],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "BULK CEMENT TRUCK",
+                released: [
+                    { id: "BCT-04", completion: 100, location: "Los Amigos Motorpool", description: "Operational" },
+                    { id: "BCT-07", completion: 100, location: "Los Amigos Motorpool", description: "Operational" }
+                ],
+                waiting: [
+                    { id: "BCT-05", completion: 30, location: "Los Amigos Motorpool", description: "Awaiting pneumatic discharge valve" }
+                ],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "DOLLY",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "DUMP TRUCK",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "MINI DUMP TRUCK",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "FUEL TRUCK",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "PMT",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "SHEET PILE DRIVER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "HYDRAULIC BREAKER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "TOYOTA FORTUNER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "ISUZU D-MAX",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "NISSAN NAVARA",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "KIA K2700",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "KIA SORENTO",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "NISSAN X-TRAIL",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "MITSUBISHI PAJERO",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "JMC",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "FORD RANGER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "TOYOTA HILUX",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "MITSUBISHI STRADA",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "KIA K2500",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "BULLDOZER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "WHEEL TYPE BACKHOE",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "CRAWLER BACKHOE",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "WHEEL LOADER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "ROAD ROLLER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "CRANE",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "ROAD GRADER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 50KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 100KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 150KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 250KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            }
+        ];
+
+        let state = [];
+        let activeStatusFilter = "all"; // 'all' | 'available' | 'reported' | 'down' | 'restored'
+        let highlightedEquipmentType = null;
+        let addEntryMode = "single"; // 'single' | 'bulk'
+        let activeManageState = { category: "", type: "", unitCode: "", stateKey: "", unitObj: null };
+        let deleteConfirmPending = false;
+
+        // Summary Sort State
+        let summarySortMotorpool = "default"; // 'default' | 'GEM Motorpool' | 'SV Repair Units' | 'Los Amigos Motorpool' | 'PMS / GENSET'
+        let summarySortColumn = null; // null | 'type' | 'units' | 'available' | 'down' | 'availability'
+        let summarySortDir = "desc"; // 'asc' | 'desc'
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('locationFilter').addEventListener('change', renderDashboard);
+            await fetchSheetData();
+            lucide.createIcons();
+        });
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const colors = {
+                success: "bg-emerald-900/95 border-emerald-500 text-emerald-100",
+                error: "bg-rose-900/95 border-rose-500 text-rose-100",
+                info: "bg-slate-900/95 border-blue-500 text-slate-100"
+            };
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-2xl text-xs font-semibold flex items-center gap-2.5 transition-all duration-300 ${colors[type] || colors.info}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3400);
+        }
+
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalMessage').textContent = message;
+            const proceedBtn = document.getElementById('confirmModalProceedBtn');
+            proceedBtn.onclick = async () => {
+                closeModal('confirmActionModal');
+                await onConfirm();
+            };
+            openModal('confirmActionModal');
+            lucide.createIcons();
+        }
+
+        function normalizeCategory(cat, type) {
+            const upperType = (type || "").toUpperCase().trim();
+            if (TYPE_GROUP_MAP[upperType]) return TYPE_GROUP_MAP[upperType];
+            if (cat === "Prime Equipment" || cat === "Light Equipment") return "Light Equipment";
+            if (cat === "Others" || cat === "Attachments" || cat === "Attachment") return "Attachment";
+            if (cat === "Service Vehicle" || cat === "Service Vehicles") return "Service Vehicle";
+            if (cat === "Heavy Equipment") return "Heavy Equipment";
+            if (cat === "Genset" || cat === "Gensets") return "Genset";
+            return "Light Equipment";
+        }
+
+        function ensureStateIntegrity() {
+            const normalizedRows = [];
+
+            state.forEach(row => {
+                if (row.type === "ATTACHMENTS") {
+                    const buckets = ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'];
+                    const targetMap = {
+                        'HBT-': 'HIGH BED TRUCK',
+                        'LBT-': 'LOW BED TRUCK',
+                        'BCT-': 'BULK CEMENT TRUCK',
+                        'DL-': 'DOLLY'
+                    };
+
+                    buckets.forEach(bKey => {
+                        (row[bKey] || []).forEach(u => {
+                            const prefix = Object.keys(targetMap).find(p => u.id.toUpperCase().startsWith(p));
+                            const mappedType = prefix ? targetMap[prefix] : "HIGH BED TRUCK";
+                            let targetRow = normalizedRows.find(r => r.type === mappedType);
+                            if (!targetRow) {
+                                targetRow = {
+                                    category: "Attachment",
+                                    type: mappedType,
+                                    released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
+                                };
+                                normalizedRows.push(targetRow);
+                            }
+                            if (!targetRow[bKey].some(existing => existing.id === u.id)) {
+                                targetRow[bKey].push(u);
+                            }
+                        });
+                    });
+                } else {
+                    const cleanType = row.type === "BULK CEMENT RUCK" ? "BULK CEMENT TRUCK" : row.type;
+                    let existing = normalizedRows.find(r => r.type === cleanType);
+                    if (!existing) {
+                        existing = {
+                            category: normalizeCategory(row.category, cleanType),
+                            type: cleanType,
+                            released: [...(row.released || [])],
+                            restored: [...(row.restored || [])],
+                            waiting: [...(row.waiting || [])],
+                            pms: [...(row.pms || [])],
+                            ongoing: [...(row.ongoing || [])],
+                            jobout: [...(row.jobout || [])]
+                        };
+                        normalizedRows.push(existing);
+                    } else {
+                        ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'].forEach(bKey => {
+                            (row[bKey] || []).forEach(u => {
+                                if (!existing[bKey].some(x => x.id === u.id)) existing[bKey].push(u);
+                            });
+                        });
+                    }
+                }
+            });
+
+            ALL_BASE_TYPES.forEach(baseType => {
+                if (!normalizedRows.some(r => r.type === baseType)) {
+                    normalizedRows.push({
+                        category: TYPE_GROUP_MAP[baseType],
+                        type: baseType,
+                        released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
+                    });
+                }
+            });
+
+            normalizedRows.forEach(row => {
+                row.category = normalizeCategory(row.category, row.type);
+                row.released = row.released || [];
+                row.restored = row.restored || [];
+                row.waiting = row.waiting || [];
+                row.pms = row.pms || [];
+                row.ongoing = row.ongoing || [];
+                row.jobout = row.jobout || [];
+            });
+
+            state = normalizedRows;
+        }
+
+        async function fetchSheetData() {
+            const badge = document.getElementById('syncStatusBadge');
+            try {
+                badge.textContent = "Syncing...";
+                const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (cached) {
+                    state = JSON.parse(cached);
+                    badge.textContent = "Fleet Ledger Loaded";
+                } else {
+                    const response = await fetch(GOOGLE_SCRIPT_URL);
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length > 0 && data.some(r => r.type === "BOOM TRUCK" && (r.released?.some(u => u.id === "BT-06")))) {
+                        state = data;
+                        ensureStateIntegrity();
+                        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+                        badge.textContent = "Google Sheet Connected";
+                    } else {
+                        state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
+                        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+                        badge.textContent = "Fleet Ledger Ready";
+                    }
+                }
+            } catch (e) {
+                console.warn("Unable to fetch from Sheet DB, utilizing local persistence/default state.", e);
+                const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+                state = cached ? JSON.parse(cached) : JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
+                badge.textContent = "Local Persistence Active";
+            }
+            ensureStateIntegrity();
+            populateDynamicEquipmentTypes();
+            renderDashboard();
+        }
+
+        async function saveToSheet() {
+            const badge = document.getElementById('syncStatusBadge');
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+                badge.textContent = "Saving...";
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(state)
+                });
+                badge.textContent = "Synced & Saved";
+            } catch (e) {
+                console.error("Failed to commit updates to Google Sheets:", e);
+                badge.textContent = "Saved Locally";
+            }
+        }
+
+        function resetToDefaults() {
+            openConfirmModal(
+                "Reset FLEET MONITORING",
+                "Reset all asset numbers and LED statuses back to the default fleet monitoring baseline?",
+                async () => {
+                    localStorage.removeItem(LOCAL_STORAGE_KEY);
+                    state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
+                    activeStatusFilter = "all";
+                    highlightedEquipmentType = null;
+                    summarySortMotorpool = "default";
+                    summarySortColumn = null;
+                    summarySortDir = "desc";
+                    ensureStateIntegrity();
+                    populateDynamicEquipmentTypes();
+                    updateFilterUI();
+                    renderDashboard();
+                    await saveToSheet();
+                    showToast("Fleet Monitoring reset to default baseline.", "success");
+                }
+            );
+        }
+
+        function getMemsStatusFromStateKey(stateKey) {
+            if (stateKey === 'released') return 'available';
+            if (stateKey === 'restored') return 'restored';
+            if (stateKey === 'waiting' || stateKey === 'pms') return 'reported';
+            return 'down'; // ongoing or jobout
+        }
+
+        function getMemsStatusLabel(memsStatus) {
+            const labels = {
+                available: "Available",
+                reported: "Reported",
+                down: "Down",
+                restored: "Restored"
+            };
+            return labels[memsStatus] || "Available";
+        }
+
+        function toggleStatusFilter(status) {
+            activeStatusFilter = (activeStatusFilter === status) ? "all" : status;
+            updateFilterUI();
+            renderDashboard();
+        }
+
+        function toggleTypeHighlight(equipType) {
+            highlightedEquipmentType = (highlightedEquipmentType === equipType) ? null : equipType;
+            updateFilterUI();
+            renderDashboard();
+        }
+
+        function clearAllFilters() {
+            activeStatusFilter = "all";
+            highlightedEquipmentType = null;
+            summarySortMotorpool = "default";
+            summarySortColumn = null;
+            summarySortDir = "desc";
+            document.getElementById('searchInput').value = '';
+            document.getElementById('locationFilter').value = 'All Motorpools';
+            updateFilterUI();
+            renderDashboard();
+        }
+
+        // Motorpool & Summary Table Sorting Controls
+        function setMotorpoolSort(motorpoolName) {
+            if (motorpoolName === "default") {
+                summarySortMotorpool = "default";
+                summarySortColumn = null;
+            } else {
+                if (summarySortMotorpool === motorpoolName) {
+                    summarySortDir = summarySortDir === "desc" ? "asc" : "desc";
+                } else {
+                    summarySortMotorpool = motorpoolName;
+                    summarySortDir = "desc";
+                }
+            }
+            updateSortControlsUI();
+            renderDashboard();
+        }
+
+        function toggleMotorpoolSortDir() {
+            summarySortDir = summarySortDir === "desc" ? "asc" : "desc";
+            if (summarySortMotorpool === "default" && !summarySortColumn) {
+                summarySortColumn = "units";
+            }
+            updateSortControlsUI();
+            renderDashboard();
+        }
+
+        function cycleColumnSort(colKey) {
+            if (summarySortColumn === colKey) {
+                if (summarySortDir === "desc") {
+                    summarySortDir = "asc";
+                } else {
+                    summarySortColumn = null;
+                    summarySortDir = "desc";
+                }
+            } else {
+                summarySortColumn = colKey;
+                summarySortDir = colKey === "type" ? "asc" : "desc";
+            }
+            updateSortControlsUI();
+            renderDashboard();
+        }
+
+        function updateSortControlsUI() {
+            document.querySelectorAll('.mp-sort-btn').forEach(btn => btn.classList.remove('active-mp-sort'));
+            const activeBtnId = summarySortMotorpool === "default" ? "mp-sort-none" : `mp-sort-${summarySortMotorpool}`;
+            const activeBtn = document.getElementById(activeBtnId);
+            if (activeBtn) activeBtn.classList.add('active-mp-sort');
+
+            const dirLabel = document.getElementById('mpSortDirLabel');
+            if (dirLabel) {
+                dirLabel.textContent = summarySortDir === "desc" ? "DESC (High → Low)" : "ASC (Low → High)";
+            }
+
+            const cols = ['type', 'units', 'available', 'down', 'availability'];
+            cols.forEach(c => {
+                const ind = document.getElementById(`sort-ind-${c}`);
+                if (!ind) return;
+                if (summarySortColumn === c) {
+                    ind.textContent = summarySortDir === "asc" ? "▲" : "▼";
+                } else {
+                    ind.textContent = "↕";
+                }
+            });
+
+            const statusBadge = document.getElementById('activeSortStatusBadge');
+            if (statusBadge) {
+                const mpLabel = summarySortMotorpool === "PMS / GENSET" ? "PMS/GENSET" : summarySortMotorpool;
+                if (summarySortMotorpool !== "default") {
+                    statusBadge.textContent = `Sorted by: ${mpLabel} (${summarySortDir.toUpperCase()} Unit Count)`;
+                } else if (summarySortColumn) {
+                    const colNames = {
+                        type: "Equipment Type",
+                        units: "No. of Units",
+                        available: "Available",
+                        down: "Down",
+                        availability: "Availability %"
+                    };
+                    statusBadge.textContent = `Sorted by: ${colNames[summarySortColumn]} (${summarySortDir.toUpperCase()})`;
+                } else {
+                    statusBadge.textContent = "Sort: Default Equipment Order";
+                }
+            }
+        }
+
+        function updateFilterUI() {
+            ['available', 'reported', 'down', 'restored'].forEach(st => {
+                const el = document.getElementById(`legend-${st}`);
+                if (!el) return;
+                if (activeStatusFilter === st) {
+                    el.classList.add('active-filter');
+                } else {
+                    el.classList.remove('active-filter');
+                }
+            });
+
+            const clearBtn = document.getElementById('clearFiltersBtn');
+            const highlightTag = document.getElementById('activeHighlightTag');
+            const hasSearch = document.getElementById('searchInput').value.trim() !== '';
+            const hasLocation = document.getElementById('locationFilter').value !== 'All Motorpools';
+            const hasSort = summarySortMotorpool !== 'default' || summarySortColumn !== null;
+
+            if (activeStatusFilter !== 'all' || highlightedEquipmentType || hasSearch || hasLocation || hasSort) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            if (highlightedEquipmentType) {
+                highlightTag.textContent = `Filtered Type: ${highlightedEquipmentType}`;
+                highlightTag.classList.remove('hidden');
+            } else {
+                highlightTag.classList.add('hidden');
+            }
+
+            updateSortControlsUI();
+        }
+
+        function renderDashboard() {
+            ensureStateIntegrity();
+            updateFilterUI();
+
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const locationVal = document.getElementById('locationFilter').value;
+
+            let totalAvailable = 0;
+            let totalReported = 0;
+            let totalDown = 0;
+            let totalRestored = 0;
+
+            const allUnitCards = [];
+
+            state.forEach(row => {
+                const buckets = [
+                    { key: 'released', list: row.released || [], memsStatus: 'available' },
+                    { key: 'restored', list: row.restored || [], memsStatus: 'restored' },
+                    { key: 'waiting', list: row.waiting || [], memsStatus: 'reported' },
+                    { key: 'pms', list: row.pms || [], memsStatus: 'reported' },
+                    { key: 'ongoing', list: row.ongoing || [], memsStatus: 'down' },
+                    { key: 'jobout', list: row.jobout || [], memsStatus: 'down' }
+                ];
+
+                buckets.forEach(bucket => {
+                    bucket.list.forEach(u => {
+                        const unitLoc = u.location || "GEM Motorpool";
+                        if (locationVal !== "All Motorpools" && unitLoc !== locationVal) return;
+
+                        if (bucket.memsStatus === 'available') totalAvailable++;
+                        else if (bucket.memsStatus === 'reported') totalReported++;
+                        else if (bucket.memsStatus === 'down') totalDown++;
+                        else if (bucket.memsStatus === 'restored') totalRestored++;
+
+                        if (activeStatusFilter !== 'all' && bucket.memsStatus !== activeStatusFilter) return;
+
+                        if (searchVal) {
+                            const matchId = u.id.toLowerCase().includes(searchVal);
+                            const matchType = row.type.toLowerCase().includes(searchVal);
+                            const matchDesc = (u.description || '').toLowerCase().includes(searchVal);
+                            if (!matchId && !matchType && !matchDesc) return;
+                        }
+
+                        allUnitCards.push({
+                            id: u.id,
+                            type: row.type,
+                            category: row.category,
+                            location: unitLoc,
+                            stateKey: bucket.key,
+                            memsStatus: bucket.memsStatus,
+                            completion: u.completion ?? (bucket.memsStatus === 'available' || bucket.memsStatus === 'restored' ? 100 : 0),
+                            description: u.description || '',
+                            targetDate: u.targetDate || ''
+                        });
+                    });
+                });
+            });
+
+            document.getElementById('count-pill-available').textContent = totalAvailable;
+            document.getElementById('count-pill-reported').textContent = totalReported;
+            document.getElementById('count-pill-down').textContent = totalDown;
+            document.getElementById('count-pill-restored').textContent = totalRestored;
+
+            const grandUnitsCount = totalAvailable + totalReported + totalDown + totalRestored;
+            document.getElementById('totalMonitoredBadge').textContent = `${grandUnitsCount} Unit${grandUnitsCount === 1 ? '' : 's'} Monitored`;
+
+            renderMemsTileWall(allUnitCards);
+            renderMemsSummaryTable(state, locationVal);
+            lucide.createIcons();
+        }
+
+        function showUnitTooltip(e, card) {
+            const tooltip = document.getElementById('unitHoverTooltip');
+            document.getElementById('ttAssetCode').textContent = card.id;
+            document.getElementById('ttEquipType').textContent = card.type;
+            document.getElementById('ttLocation').textContent = card.location;
+            document.getElementById('ttCompletion').textContent = `${card.completion}%`;
+            document.getElementById('ttNotes').textContent = card.description || "Operational / No fault remarks";
+
+            const badge = document.getElementById('ttStatusBadge');
+            badge.textContent = getMemsStatusLabel(card.memsStatus);
+            const badgeStyles = {
+                available: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
+                reported: "bg-amber-500/20 text-amber-300 border border-amber-500/40",
+                down: "bg-rose-500/20 text-rose-300 border border-rose-500/40",
+                restored: "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+            };
+            badge.className = `px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${badgeStyles[card.memsStatus] || badgeStyles.available}`;
+
+            tooltip.classList.remove('hidden');
+            moveUnitTooltip(e);
+        }
+
+        function moveUnitTooltip(e) {
+            const tooltip = document.getElementById('unitHoverTooltip');
+            if (tooltip.classList.contains('hidden')) return;
+            const offset = 14;
+            let left = e.clientX + offset;
+            let top = e.clientY + offset;
+            if (left + 265 > window.innerWidth) left = e.clientX - 270;
+            if (top + 160 > window.innerHeight) top = e.clientY - 165;
+            tooltip.style.left = `${Math.max(8, left)}px`;
+            tooltip.style.top = `${Math.max(8, top)}px`;
+        }
+
+        function hideUnitTooltip() {
+            document.getElementById('unitHoverTooltip').classList.add('hidden');
+        }
+
+        function renderMemsTileWall(cards) {
+            const container = document.getElementById('memsTileColumnsContainer');
+            const emptyMsg = document.getElementById('emptyWallMessage');
+            container.innerHTML = '';
+
+            if (cards.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+
+            const typePriority = {};
+            ALL_BASE_TYPES.forEach((t, idx) => { typePriority[t] = idx + 1; });
+            cards.sort((a, b) => {
+                const pA = typePriority[a.type] || 99;
+                const pB = typePriority[b.type] || 99;
+                if (pA !== pB) return pA - pB;
+                return a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' });
+            });
+
+            const numCols = 10;
+            const itemsPerCol = Math.ceil(cards.length / numCols);
+
+            for (let c = 0; c < numCols; c++) {
+                const colSlice = cards.slice(c * itemsPerCol, (c + 1) * itemsPerCol);
+                if (colSlice.length === 0) continue;
+
+                const colDiv = document.createElement('div');
+                colDiv.className = "flex flex-col gap-2";
+
+                colSlice.forEach(card => {
+                    const isHighlighted = highlightedEquipmentType === card.type;
+                    const dimmed = highlightedEquipmentType && !isHighlighted ? 'opacity-30' : '';
+                    const highlightCls = isHighlighted ? 'highlighted-type' : '';
+
+                    const btn = document.createElement('button');
+                    btn.type = "button";
+                    btn.onmouseenter = (e) => showUnitTooltip(e, card);
+                    btn.onmousemove = (e) => moveUnitTooltip(e);
+                    btn.onmouseleave = () => hideUnitTooltip();
+                    btn.onclick = () => {
+                        hideUnitTooltip();
+                        openManageModal(card.category, card.type, card.id, card.stateKey);
+                    };
+                    btn.className = `mems-unit-pill w-full px-2.5 py-1.5 flex items-center justify-between gap-1.5 text-left cursor-pointer ${highlightCls} ${dimmed}`;
+
+                    btn.innerHTML = `
+                        <span class="font-mono text-[11px] sm:text-xs font-bold text-slate-100 tracking-wide truncate">${card.id}</span>
+                        <span class="led-sphere led-${card.memsStatus}"></span>
+                    `;
+                    colDiv.appendChild(btn);
+                });
+
+                container.appendChild(colDiv);
+            }
+        }
+
+        function computeRowMetrics(row, locationVal = "All Motorpools", specificMotorpool = null) {
+            const matchLoc = (u) => {
+                const unitLoc = u.location || "GEM Motorpool";
+                if (specificMotorpool) return unitLoc === specificMotorpool;
+                return locationVal === "All Motorpools" || unitLoc === locationVal;
+            };
+            const filterFn = (arr) => (arr || []).filter(matchLoc);
+
+            const availableCount = filterFn(row.released).length + filterFn(row.restored).length;
+            const downCount = filterFn(row.ongoing).length + filterFn(row.jobout).length + filterFn(row.waiting).length + filterFn(row.pms).length;
+            const totalUnits = availableCount + downCount;
+            const availPctNum = totalUnits > 0 ? (availableCount / totalUnits) * 100 : 0;
+
+            return {
+                availableCount,
+                downCount,
+                totalUnits,
+                availPctNum,
+                availPctStr: availPctNum.toFixed(2)
+            };
+        }
+
+        function renderMemsSummaryTable(rows, locationVal = "All Motorpools") {
+            const tbody = document.getElementById('memsSummaryTableBody');
+            tbody.innerHTML = '';
+
+            const groups = [
+                {
+                    name: "Light Equipment",
+                    orderedTypes: LIGHT_EQUIPMENT_TYPES,
+                    subtotalLabel: "Light Equipment Total"
+                },
+                {
+                    name: "Attachment",
+                    orderedTypes: ATTACHMENT_TYPES,
+                    subtotalLabel: "Attachment Total"
+                },
+                {
+                    name: "Service Vehicle",
+                    orderedTypes: SERVICE_VEHICLE_TYPES,
+                    subtotalLabel: "Service Vehicle Total"
+                },
+                {
+                    name: "Heavy Equipment",
+                    orderedTypes: HEAVY_EQUIPMENT_TYPES,
+                    subtotalLabel: "Heavy Equipment Total"
+                },
+                {
+                    name: "Genset",
+                    orderedTypes: GENSET_TYPES,
+                    subtotalLabel: "Genset Total"
+                }
+            ];
+
+            let grandTotalUnits = 0;
+            let grandTotalAvailable = 0;
+            let grandTotalDown = 0;
+
+            groups.forEach(group => {
+                const baseGroupRows = group.orderedTypes.map(t => rows.find(r => r.type === t)).filter(Boolean);
+                const extraGroupRows = rows.filter(r => r.category === group.name && !group.orderedTypes.includes(r.type));
+                let groupRows = [...baseGroupRows, ...extraGroupRows];
+                if (groupRows.length === 0) return;
+
+                // Attach computed metrics for sorting
+                let enriched = groupRows.map((row, defaultIdx) => ({
+                    row,
+                    defaultIdx,
+                    metrics: computeRowMetrics(row, locationVal, null),
+                    mpMetrics: summarySortMotorpool !== "default" ? computeRowMetrics(row, locationVal, summarySortMotorpool) : null
+                }));
+
+                if (summarySortMotorpool !== "default") {
+                    enriched.sort((a, b) => {
+                        const diff = a.mpMetrics.totalUnits - b.mpMetrics.totalUnits;
+                        if (diff !== 0) return summarySortDir === "desc" ? -diff : diff;
+                        const availDiff = a.mpMetrics.availableCount - b.mpMetrics.availableCount;
+                        if (availDiff !== 0) return summarySortDir === "desc" ? -availDiff : availDiff;
+                        return a.defaultIdx - b.defaultIdx;
+                    });
+                } else if (summarySortColumn) {
+                    enriched.sort((a, b) => {
+                        let cmp = 0;
+                        if (summarySortColumn === "type") {
+                            cmp = a.row.type.localeCompare(b.row.type);
+                        } else if (summarySortColumn === "units") {
+                            cmp = a.metrics.totalUnits - b.metrics.totalUnits;
+                        } else if (summarySortColumn === "available") {
+                            cmp = a.metrics.availableCount - b.metrics.availableCount;
+                        } else if (summarySortColumn === "down") {
+                            cmp = a.metrics.downCount - b.metrics.downCount;
+                        } else if (summarySortColumn === "availability") {
+                            cmp = a.metrics.availPctNum - b.metrics.availPctNum;
+                        }
+                        if (cmp !== 0) return summarySortDir === "asc" ? cmp : -cmp;
+                        return a.defaultIdx - b.defaultIdx;
+                    });
+                }
+
+                let subUnits = 0;
+                let subAvailable = 0;
+                let subDown = 0;
+
+                enriched.forEach((item, idx) => {
+                    const { row, metrics, mpMetrics } = item;
+                    const { totalUnits, availableCount, downCount, availPctStr } = metrics;
+
+                    subUnits += totalUnits;
+                    subAvailable += availableCount;
+                    subDown += downCount;
+
+                    const tr = document.createElement('tr');
+                    const isSelected = highlightedEquipmentType === row.type;
+                    tr.className = `data-row transition ${isSelected ? 'selected-row' : ''}`;
+                    tr.onclick = () => toggleTypeHighlight(row.type);
+
+                    const formattedType = row.type
+                        .toLowerCase()
+                        .split(' ')
+                        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                        .join(' ');
+
+                    let mpTagHtml = '';
+                    if (mpMetrics) {
+                        const shortMp = summarySortMotorpool === "PMS / GENSET" ? "PMS/GENSET" : summarySortMotorpool;
+                        mpTagHtml = `<span class="ml-1.5 inline-block text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-950 border border-amber-600/30">${shortMp}: ${mpMetrics.totalUnits}</span>`;
+                    }
+
+                    let categoryCellHtml = '';
+                    if (idx === 0) {
+                        categoryCellHtml = `<td rowspan="${enriched.length}" class="category-cell align-top font-bold text-slate-900 bg-[#d8dce3] select-none">${group.name}</td>`;
+                    }
+
+                    tr.innerHTML = `
+                        ${categoryCellHtml}
+                        <td class="font-semibold">${formattedType}${mpTagHtml}</td>
+                        <td class="text-center font-bold">${totalUnits}</td>
+                        <td class="text-center font-bold text-emerald-800">${availableCount}</td>
+                        <td class="text-center font-bold text-rose-800">${downCount}</td>
+                        <td class="text-center font-extrabold">${availPctStr}%</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                grandTotalUnits += subUnits;
+                grandTotalAvailable += subAvailable;
+                grandTotalDown += subDown;
+
+                const subAvailPct = subUnits > 0 ? ((subAvailable / subUnits) * 100).toFixed(2) : "0.00";
+                const subTr = document.createElement('tr');
+                subTr.className = "subtotal-row";
+                subTr.innerHTML = `
+                    <td>${group.subtotalLabel}</td>
+                    <td>${group.subtotalLabel}</td>
+                    <td class="text-center">${subUnits}</td>
+                    <td class="text-center">${subAvailable}</td>
+                    <td class="text-center">${subDown}</td>
+                    <td class="text-center">${subAvailPct}%</td>
+                `;
+                tbody.appendChild(subTr);
+            });
+
+            const grandAvailPct = grandTotalUnits > 0 ? ((grandTotalAvailable / grandTotalUnits) * 100).toFixed(2) : "0.00";
+            const grandTr = document.createElement('tr');
+            grandTr.className = "grandtotal-row";
+            grandTr.innerHTML = `
+                <td>Grand Total</td>
+                <td>Grand Total</td>
+                <td class="text-center">${grandTotalUnits}</td>
+                <td class="text-center">${grandTotalAvailable}</td>
+                <td class="text-center">${grandTotalDown}</td>
+                <td class="text-center">${grandAvailPct}%</td>
+            `;
+            tbody.appendChild(grandTr);
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function populateDynamicEquipmentTypes() {
+            const select = document.getElementById('newAssetTypeSelect');
+            if (!select) return;
+            const currentVal = select.value;
+            const stateTypes = state.map(r => r.type);
+            const merged = [...new Set([...ALL_BASE_TYPES, ...stateTypes])];
+
+            select.innerHTML = '';
+            merged.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                select.appendChild(opt);
+            });
+            const customOpt = document.createElement('option');
+            customOpt.value = "__CUSTOM__";
+            customOpt.textContent = "+ Custom Equipment Type...";
+            select.appendChild(customOpt);
+
+            if (merged.includes(currentVal)) {
+                select.value = currentVal;
+            }
+            handleNewTypeChange(select.value);
+        }
+
+        function setAddEntryMode(mode) {
+            addEntryMode = mode;
+            const singleBtn = document.getElementById('modeSingleBtn');
+            const bulkBtn = document.getElementById('modeBulkBtn');
+            const singleWrap = document.getElementById('singleAssetInputWrapper');
+            const bulkWrap = document.getElementById('bulkAssetInputWrapper');
+
+            if (mode === 'single') {
+                singleBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white transition";
+                bulkBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
+                singleWrap.classList.remove('hidden');
+                bulkWrap.classList.add('hidden');
+            } else {
+                bulkBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white transition";
+                singleBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
+                bulkWrap.classList.remove('hidden');
+                singleWrap.classList.add('hidden');
+            }
+        }
+
+        function handleNewTypeChange(val) {
+            const customWrapper = document.getElementById('customEquipTypeWrapper');
+            const catSelect = document.getElementById('newAssetCategorySelect');
+
+            if (val === "__CUSTOM__") {
+                customWrapper.classList.remove('hidden');
+            } else {
+                customWrapper.classList.add('hidden');
+                const existingRow = state.find(r => r.type === val);
+                if (existingRow) {
+                    catSelect.value = normalizeCategory(existingRow.category, val);
+                } else {
+                    catSelect.value = TYPE_GROUP_MAP[val] || "Attachment";
+                }
+            }
+        }
+
+        function adjustAddFormDefaults() {
+            const stateKey = document.getElementById('newAssetStatus').value;
+            const progressInput = document.getElementById('newAssetProgress');
+            if (stateKey === 'released' || stateKey === 'restored') {
+                progressInput.value = 100;
+                progressInput.disabled = true;
+            } else if (stateKey === 'waiting') {
+                progressInput.value = 15;
+                progressInput.disabled = false;
+            } else {
+                progressInput.value = 40;
+                progressInput.disabled = false;
+            }
+        }
+
+        function openAddAssetModal() {
+            populateDynamicEquipmentTypes();
+            setAddEntryMode('single');
+            document.getElementById('newSingleAssetCode').value = '';
+            document.getElementById('newBulkAssetCodes').value = '';
+            document.getElementById('newAssetNotes').value = '';
+            const todayStr = new Date().toISOString().slice(0, 10);
+            document.getElementById('newAssetTargetDate').value = todayStr;
+            adjustAddFormDefaults();
+            openModal('addAssetModal');
+            lucide.createIcons();
+            setTimeout(() => document.getElementById('newSingleAssetCode').focus(), 60);
+        }
+
+        async function handleAddAssetSubmit(e) {
+            e.preventDefault();
+            let selectedType = document.getElementById('newAssetTypeSelect').value;
+            if (selectedType === "__CUSTOM__") {
+                selectedType = document.getElementById('newCustomAssetType').value.toUpperCase().trim();
+                if (!selectedType) {
+                    showToast("Please specify a custom equipment type.", "error");
+                    return;
+                }
+            }
+
+            const selectedCategory = document.getElementById('newAssetCategorySelect').value;
+            const location = document.getElementById('newAssetLocation').value;
+            const stateKey = document.getElementById('newAssetStatus').value;
+            const progress = parseInt(document.getElementById('newAssetProgress').value) || 0;
+            const targetDate = document.getElementById('newAssetTargetDate').value;
+            const notes = document.getElementById('newAssetNotes').value.trim();
+
+            let rawCodes = [];
+            if (addEntryMode === 'single') {
+                const singleVal = document.getElementById('newSingleAssetCode').value.toUpperCase().trim();
+                if (!singleVal) {
+                    showToast("Please enter an asset number to monitor.", "error");
+                    return;
+                }
+                rawCodes = [singleVal];
+            } else {
+                const bulkText = document.getElementById('newBulkAssetCodes').value.toUpperCase();
+                rawCodes = bulkText
+                    .split(/[
+,;]+/)
+                    .map(s => s.trim())
+                    .filter(Boolean);
+                if (rawCodes.length === 0) {
+                    showToast("Please enter one or more asset numbers.", "error");
+                    return;
+                }
+            }
+
+            const existingMap = new Map();
+            state.forEach(row => {
+                const allUnits = [
+                    ...(row.ongoing || []), ...(row.pms || []), ...(row.jobout || []),
+                    ...(row.waiting || []), ...(row.released || []), ...(row.restored || [])
+                ];
+                allUnits.forEach(u => existingMap.set(u.id, row.type));
+            });
+
+            let row = state.find(item => item.type === selectedType);
+            if (!row) {
+                row = {
+                    category: selectedCategory,
+                    type: selectedType,
+                    released: [],
+                    restored: [],
+                    waiting: [],
+                    pms: [],
+                    ongoing: [],
+                    jobout: []
+                };
+                state.push(row);
+            }
+
+            if (!row[stateKey]) row[stateKey] = [];
+            const isHealthy = (stateKey === 'released' || stateKey === 'restored');
+
+            const addedCodes = [];
+            const skippedCodes = [];
+
+            rawCodes.forEach(code => {
+                if (existingMap.has(code) || addedCodes.includes(code)) {
+                    skippedCodes.push(code);
+                    return;
+                }
+                row[stateKey].push({
+                    id: code,
+                    completion: isHealthy ? 100 : progress,
+                    targetDate: targetDate || null,
+                    description: notes || (isHealthy ? "Operational" : "Added for monitoring"),
+                    location: location
+                });
+                addedCodes.push(code);
+            });
+
+            if (addedCodes.length === 0) {
+                showToast(`Asset number(s) already exist on the monitoring wall: ${skippedCodes.join(', ')}`, "error");
+                return;
+            }
+
+            populateDynamicEquipmentTypes();
+            renderDashboard();
+            closeModal('addAssetModal');
+
+            let msg = `Added ${addedCodes.join(', ')} to ${selectedType} (${getMemsStatusLabel(getMemsStatusFromStateKey(stateKey))}).`;
+            if (skippedCodes.length > 0) {
+                msg += ` Skipped existing: ${skippedCodes.join(', ')}.`;
+            }
+            showToast(msg, "success");
+            await saveToSheet();
+        }
+
+        function updateProgressDisplay(val) {
+            document.getElementById('progressPercentDisplay').textContent = `${val}%`;
+        }
+
+        function openManageModal(category, type, unitCode, stateKey) {
+            const row = state.find(item => item.type === type);
+            if (!row) return;
+            const list = row[stateKey] || [];
+            const unit = list.find(u => u.id === unitCode);
+            if (!unit) return;
+
+            activeManageState = { category, type, unitCode, stateKey, unitObj: unit };
+            deleteConfirmPending = false;
+            document.getElementById('deleteUnitBtnText').textContent = "Remove Asset";
+
+            document.getElementById('manageUnitBadge').textContent = unitCode;
+            document.getElementById('manageUnitCategory').textContent = category;
+            document.getElementById('manageUnitType').textContent = type;
+
+            const ledEl = document.getElementById('manageUnitLed');
+            ledEl.className = `led-sphere led-${getMemsStatusFromStateKey(stateKey)}`;
+
+            document.getElementById('manageUnitDescription').value = unit.description || '';
+            document.getElementById('manageUnitStatus').value = stateKey;
+            document.getElementById('manageUnitLocation').value = unit.location || 'GEM Motorpool';
+
+            const comp = unit.completion ?? (stateKey === 'released' || stateKey === 'restored' ? 100 : 0);
+            updateProgressDisplay(comp);
+            document.getElementById('manageUnitProgressSlider').value = comp;
+            document.getElementById('manageUnitTargetDate').value = unit.targetDate || "";
+
+            openModal('manageUnitModal');
+            lucide.createIcons();
+        }
+
+        function handleManageStatusChange(newStatusKey) {
+            const slider = document.getElementById('manageUnitProgressSlider');
+            const ledEl = document.getElementById('manageUnitLed');
+            ledEl.className = `led-sphere led-${getMemsStatusFromStateKey(newStatusKey)}`;
+
+            if (newStatusKey === 'released' || newStatusKey === 'restored') {
+                updateProgressDisplay(100);
+                slider.value = 100;
+            } else if (newStatusKey === 'waiting') {
+                if (slider.value == 100) slider.value = 15;
+                updateProgressDisplay(slider.value);
+            } else {
+                if (slider.value == 100) slider.value = 40;
+                updateProgressDisplay(slider.value);
+            }
+        }
+
+        async function saveAssetDetailedChanges() {
+            const { type, unitCode, stateKey, unitObj } = activeManageState;
+            const row = state.find(item => item.type === type);
+            if (!row || !unitObj) return;
+
+            const newStatusKey = document.getElementById('manageUnitStatus').value;
+            const newDescription = document.getElementById('manageUnitDescription').value.trim();
+            const newTargetDate = document.getElementById('manageUnitTargetDate').value;
+            const newLocation = document.getElementById('manageUnitLocation').value;
+            const newProgress = parseInt(document.getElementById('manageUnitProgressSlider').value) || 0;
+
+            row[stateKey] = (row[stateKey] || []).filter(u => u.id !== unitCode);
+
+            const isNowHealthy = (newStatusKey === 'released' || newStatusKey === 'restored');
+            unitObj.description = newDescription;
+            unitObj.targetDate = newTargetDate;
+            unitObj.location = newLocation;
+            unitObj.completion = isNowHealthy ? 100 : newProgress;
+
+            if (!row[newStatusKey]) row[newStatusKey] = [];
+            row[newStatusKey].push(unitObj);
+
+            renderDashboard();
+            closeModal('manageUnitModal');
+            showToast(`Updated ${unitCode} → ${getMemsStatusLabel(getMemsStatusFromStateKey(newStatusKey))}`, "success");
+            await saveToSheet();
+        }
+
+        async function handleDeleteUnitClick() {
+            if (!deleteConfirmPending) {
+                deleteConfirmPending = true;
+                document.getElementById('deleteUnitBtnText').textContent = "Click Again to Confirm";
+                return;
+            }
+            const { type, unitCode, stateKey } = activeManageState;
+            const row = state.find(item => item.type === type);
+            if (!row) return;
+
+            row[stateKey] = (row[stateKey] || []).filter(u => u.id !== unitCode);
+
+            renderDashboard();
+            closeModal('manageUnitModal');
+            showToast(`Removed asset ${unitCode} from monitoring.`, "info");
+            await saveToSheet();
+        }
+
+        function downloadCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Asset Number,LED Status,Location,Completion,Target Date,Remarks
+";
+            state.forEach(row => {
+                const allLists = [
+                    { list: row.released || [], status: "Available" },
+                    { list: row.restored || [], status: "Restored" },
+                    { list: row.waiting || [], status: "Reported" },
+                    { list: row.pms || [], status: "Reported" },
+                    { list: row.ongoing || [], status: "Down" },
+                    { list: row.jobout || [], status: "Down" }
+                ];
+                allLists.forEach(({ list, status }) => {
+                    list.forEach(u => {
+                        const desc = (u.description || "").replace(/,/g, " ");
+                        const comp = u.completion ?? (status === "Available" || status === "Restored" ? 100 : 0);
+                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}","${u.location || 'GEM Motorpool'}",${comp}%,"${u.targetDate || ''}","${desc}"
+`;
+                    });
+                });
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `fleet_monitoring_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Fleet Monitoring CSV exported successfully.", "success");
+        }
+    </script>
+</body>
+</html>
