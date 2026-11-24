@@ -431,6 +431,9 @@
                         <select id="newAssetCategorySelect" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-slate-100 focus:outline-none focus:border-blue-500">
                             <option value="Light Equipment">Light Equipment</option>
                             <option value="Attachment">Attachment</option>
+                            <option value="Service Vehicle">Service Vehicle</option>
+                            <option value="Heavy Equipment">Heavy Equipment</option>
+                            <option value="Genset">Genset</option>
                         </select>
                     </div>
                 </div>
@@ -595,23 +598,79 @@
 
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
-        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v4";
+        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v5";
 
-        const LIGHT_EQUIPMENT_TYPES = ["BOOM TRUCK", "CARGO TRUCK", "STAKE TRUCK", "PRIME MOVER"];
-        const ATTACHMENT_TYPES = ["HIGH BED TRUCK", "LOW BED TRUCK", "BULK CEMENT TRUCK", "DOLLY"];
-        const ALL_BASE_TYPES = [...LIGHT_EQUIPMENT_TYPES, ...ATTACHMENT_TYPES];
+        const LIGHT_EQUIPMENT_TYPES = [
+            "BOOM TRUCK",
+            "CARGO TRUCK",
+            "STAKE TRUCK",
+            "PRIME MOVER",
+            "DUMP TRUCK",
+            "MINI DUMP TRUCK",
+            "FUEL TRUCK",
+            "PMT"
+        ];
+        const ATTACHMENT_TYPES = [
+            "HIGH BED TRUCK",
+            "LOW BED TRUCK",
+            "BULK CEMENT TRUCK",
+            "DOLLY",
+            "SHEET PILE DRIVER",
+            "HYDRAULIC BREAKER"
+        ];
+        const SERVICE_VEHICLE_TYPES = [
+            "TOYOTA FORTUNER",
+            "ISUZU D-MAX",
+            "NISSAN NAVARA",
+            "KIA K2700",
+            "KIA SORENTO",
+            "NISSAN X-TRAIL",
+            "MITSUBISHI PAJERO",
+            "JMC",
+            "FORD RANGER",
+            "TOYOTA HILUX",
+            "MITSUBISHI STRADA",
+            "KIA K2500"
+        ];
+        const HEAVY_EQUIPMENT_TYPES = [
+            "BULLDOZER",
+            "WHEEL TYPE BACKHOE",
+            "CRAWLER BACKHOE",
+            "WHEEL LOADER",
+            "ROAD ROLLER",
+            "CRANE",
+            "ROAD GRADER"
+        ];
+        const GENSET_TYPES = [
+            "GENSET 50KV",
+            "GENSET 100KV",
+            "GENSET 150KV",
+            "GENSET 250KV"
+        ];
+
+        const CATEGORY_ORDER = [
+            "Light Equipment",
+            "Attachment",
+            "Service Vehicle",
+            "Heavy Equipment",
+            "Genset"
+        ];
+
+        const ALL_BASE_TYPES = [
+            ...LIGHT_EQUIPMENT_TYPES,
+            ...ATTACHMENT_TYPES,
+            ...SERVICE_VEHICLE_TYPES,
+            ...HEAVY_EQUIPMENT_TYPES,
+            ...GENSET_TYPES
+        ];
         const MOTORPOOL_OPTIONS = ["GEM Motorpool", "SV Repair Units", "Los Amigos Motorpool", "PMS / GENSET"];
 
-        const TYPE_GROUP_MAP = {
-            "BOOM TRUCK": "Light Equipment",
-            "CARGO TRUCK": "Light Equipment",
-            "STAKE TRUCK": "Light Equipment",
-            "PRIME MOVER": "Light Equipment",
-            "HIGH BED TRUCK": "Attachment",
-            "LOW BED TRUCK": "Attachment",
-            "BULK CEMENT TRUCK": "Attachment",
-            "DOLLY": "Attachment"
-        };
+        const TYPE_GROUP_MAP = {};
+        LIGHT_EQUIPMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Light Equipment"; });
+        ATTACHMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Attachment"; });
+        SERVICE_VEHICLE_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Service Vehicle"; });
+        HEAVY_EQUIPMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Heavy Equipment"; });
+        GENSET_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Genset"; });
 
         const FLEET_DEFAULT_STATE = [
             {
@@ -781,6 +840,296 @@
                 restored: [],
                 jobout: [],
                 pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "DUMP TRUCK",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "MINI DUMP TRUCK",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "FUEL TRUCK",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Light Equipment",
+                type: "PMT",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "SHEET PILE DRIVER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Attachment",
+                type: "HYDRAULIC BREAKER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "TOYOTA FORTUNER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "ISUZU D-MAX",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "NISSAN NAVARA",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "KIA K2700",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "KIA SORENTO",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "NISSAN X-TRAIL",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "MITSUBISHI PAJERO",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "JMC",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "FORD RANGER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "TOYOTA HILUX",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "MITSUBISHI STRADA",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Service Vehicle",
+                type: "KIA K2500",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "BULLDOZER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "WHEEL TYPE BACKHOE",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "CRAWLER BACKHOE",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "WHEEL LOADER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "ROAD ROLLER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "CRANE",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Heavy Equipment",
+                type: "ROAD GRADER",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 50KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 100KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 150KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
+            },
+            {
+                category: "Genset",
+                type: "GENSET 250KV",
+                released: [],
+                waiting: [],
+                ongoing: [],
+                restored: [],
+                jobout: [],
+                pms: []
             }
         ];
 
@@ -832,11 +1181,14 @@
         }
 
         function normalizeCategory(cat, type) {
-            if (LIGHT_EQUIPMENT_TYPES.includes(type)) return "Light Equipment";
-            if (ATTACHMENT_TYPES.includes(type)) return "Attachment";
+            const upperType = (type || "").toUpperCase().trim();
+            if (TYPE_GROUP_MAP[upperType]) return TYPE_GROUP_MAP[upperType];
             if (cat === "Prime Equipment" || cat === "Light Equipment") return "Light Equipment";
             if (cat === "Others" || cat === "Attachments" || cat === "Attachment") return "Attachment";
-            return TYPE_GROUP_MAP[type] || "Attachment";
+            if (cat === "Service Vehicle" || cat === "Service Vehicles") return "Service Vehicle";
+            if (cat === "Heavy Equipment") return "Heavy Equipment";
+            if (cat === "Genset" || cat === "Gensets") return "Genset";
+            return "Light Equipment";
         }
 
         function ensureStateIntegrity() {
@@ -1269,16 +1621,8 @@
             }
             emptyMsg.classList.add('hidden');
 
-            const typePriority = {
-                "BOOM TRUCK": 1,
-                "CARGO TRUCK": 2,
-                "STAKE TRUCK": 3,
-                "PRIME MOVER": 4,
-                "HIGH BED TRUCK": 5,
-                "LOW BED TRUCK": 6,
-                "BULK CEMENT TRUCK": 7,
-                "DOLLY": 8
-            };
+            const typePriority = {};
+            ALL_BASE_TYPES.forEach((t, idx) => { typePriority[t] = idx + 1; });
             cards.sort((a, b) => {
                 const pA = typePriority[a.type] || 99;
                 const pB = typePriority[b.type] || 99;
@@ -1359,6 +1703,21 @@
                     name: "Attachment",
                     orderedTypes: ATTACHMENT_TYPES,
                     subtotalLabel: "Attachment Total"
+                },
+                {
+                    name: "Service Vehicle",
+                    orderedTypes: SERVICE_VEHICLE_TYPES,
+                    subtotalLabel: "Service Vehicle Total"
+                },
+                {
+                    name: "Heavy Equipment",
+                    orderedTypes: HEAVY_EQUIPMENT_TYPES,
+                    subtotalLabel: "Heavy Equipment Total"
+                },
+                {
+                    name: "Genset",
+                    orderedTypes: GENSET_TYPES,
+                    subtotalLabel: "Genset Total"
                 }
             ];
 
