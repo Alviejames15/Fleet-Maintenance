@@ -1033,8 +1033,59 @@ function doPost(e) {
             lucide.createIcons();
         }
 
+        let pendingLocalMutationUntil = 0;
+        let deletedAssetIds = new Set();
+
+        function safeParseJson(rawText) {
+            if (!rawText || typeof rawText !== 'string') return null;
+            try {
+                return JSON.parse(rawText);
+            } catch (err) {
+                console.warn("Corrupted JSON ignored safely:", err);
+                return null;
+            }
+        }
+
+        function sanitizeUnitObject(u, fallbackStatusKey = 'released') {
+            if (!u || typeof u !== 'object') return null;
+            const rawId = u.id ?? u.assetId ?? u.code ?? "";
+            const cleanId = String(rawId).toUpperCase().trim();
+            if (!cleanId) return null;
+            const isHealthy = (fallbackStatusKey === 'released' || fallbackStatusKey === 'restored');
+            const parsedComp = Number(u.completion);
+            const completion = Number.isFinite(parsedComp)
+                ? Math.max(0, Math.min(100, parsedComp))
+                : (isHealthy ? 100 : 0);
+
+            return {
+                id: cleanId,
+                completion: completion,
+                targetDate: u.targetDate ? String(u.targetDate) : null,
+                description: u.description != null ? String(u.description) : (isHealthy ? "Operational" : ""),
+                location: u.location ? String(u.location) : "GEM Motorpool"
+            };
+        }
+
+        function countTotalAssetsInState(stateList) {
+            if (!Array.isArray(stateList)) return 0;
+            const buckets = ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'];
+            const uniqueIds = new Set();
+            stateList.forEach(row => {
+                if (!row || typeof row !== 'object') return;
+                buckets.forEach(bKey => {
+                    if (Array.isArray(row[bKey])) {
+                        row[bKey].forEach(u => {
+                            const id = u && u.id ? String(u.id).toUpperCase().trim() : "";
+                            if (id) uniqueIds.add(id);
+                        });
+                    }
+                });
+            });
+            return uniqueIds.size;
+        }
+
         function inferAttachmentTypeFromId(id) {
-            const upper = (id || "").toUpperCase();
+            const upper = String(id || "").toUpperCase();
             if (upper.startsWith("LBT")) return "LOW BED TRUCK";
             if (upper.startsWith("HBT")) return "HIGH BED TRUCK";
             if (upper.startsWith("BCT")) return "BULK CEMENT TRUCK";
@@ -1062,12 +1113,23 @@ function doPost(e) {
                 });
             });
 
+            if (!Array.isArray(rawState)) {
+                return Array.from(migratedMap.values());
+            }
+
+            const buckets = ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'];
+
             rawState.forEach(row => {
-                const buckets = ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'];
-                if (row.type === "ATTACHMENTS") {
-                    // Split legacy generic ATTACHMENTS into specific Attachment types
+                if (!row || typeof row !== 'object') return;
+                const rowType = String(row.type || "").toUpperCase().trim();
+                if (!rowType) return;
+
+                if (rowType === "ATTACHMENTS") {
                     buckets.forEach(bKey => {
-                        (row[bKey] || []).forEach(u => {
+                        const list = Array.isArray(row[bKey]) ? row[bKey] : [];
+                        list.forEach(rawUnit => {
+                            const u = sanitizeUnitObject(rawUnit, bKey);
+                            if (!u || deletedAssetIds.has(u.id)) return;
                             const specificType = inferAttachmentTypeFromId(u.id);
                             if (!migratedMap.has(specificType)) {
                                 migratedMap.set(specificType, {
@@ -1076,23 +1138,37 @@ function doPost(e) {
                                     released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
                                 });
                             }
-                            migratedMap.get(specificType)[bKey].push(u);
+                            const bucketArr = migratedMap.get(specificType)[bKey];
+                            if (!bucketArr.some(existing => existing.id === u.id)) {
+                                bucketArr.push(u);
+                            }
                         });
                     });
                 } else {
-                    const mappedCat = TYPE_GROUP_MAP[row.type] || (row.category === "Prime Equipment" ? "LIGHT EQUIPMENT" : (row.category === "Others" ? "ATTACHMENT" : row.category)) || "LIGHT EQUIPMENT";
-                    if (!migratedMap.has(row.type)) {
-                        migratedMap.set(row.type, {
+                    const mappedCat = TYPE_GROUP_MAP[rowType]
+                        || (row.category === "Prime Equipment" ? "LIGHT EQUIPMENT"
+                            : (row.category === "Others" ? "ATTACHMENT" : row.category))
+                        || "LIGHT EQUIPMENT";
+
+                    if (!migratedMap.has(rowType)) {
+                        migratedMap.set(rowType, {
                             category: mappedCat,
-                            type: row.type,
+                            type: rowType,
                             released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
                         });
                     }
-                    const targetRow = migratedMap.get(row.type);
+                    const targetRow = migratedMap.get(rowType);
                     targetRow.category = mappedCat;
+
                     buckets.forEach(bKey => {
-                        (row[bKey] || []).forEach(u => {
-                            if (!targetRow[bKey].some(existing => existing.id === u.id)) {
+                        const list = Array.isArray(row[bKey]) ? row[bKey] : [];
+                        list.forEach(rawUnit => {
+                            const u = sanitizeUnitObject(rawUnit, bKey);
+                            if (!u || deletedAssetIds.has(u.id)) return;
+                            const alreadyInAnyBucket = buckets.some(k =>
+                                (targetRow[k] || []).some(existing => existing.id === u.id)
+                            );
+                            if (!alreadyInAnyBucket) {
                                 targetRow[bKey].push(u);
                             }
                         });
@@ -1104,10 +1180,14 @@ function doPost(e) {
         }
 
         function ensureStateIntegrity() {
+            if (!Array.isArray(state) || state.length === 0) {
+                state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
+            }
+
             // Guarantee all required equipment types exist in state
             Object.entries(CATEGORY_EQUIPMENT_TYPES).forEach(([cat, types]) => {
                 types.forEach(t => {
-                    let existing = state.find(r => r.type === t);
+                    let existing = state.find(r => r && r.type === t);
                     if (!existing) {
                         state.push({
                             category: cat,
@@ -1125,14 +1205,19 @@ function doPost(e) {
                 });
             });
 
+            const buckets = ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'];
             state.forEach(row => {
+                if (!row || typeof row !== 'object') return;
                 if (!row.category) row.category = TYPE_GROUP_MAP[row.type] || "LIGHT EQUIPMENT";
-                if (!row.released) row.released = [];
-                if (!row.restored) row.restored = [];
-                if (!row.waiting) row.waiting = [];
-                if (!row.pms) row.pms = [];
-                if (!row.ongoing) row.ongoing = [];
-                if (!row.jobout) row.jobout = [];
+                buckets.forEach(bKey => {
+                    if (!Array.isArray(row[bKey])) {
+                        row[bKey] = [];
+                    } else {
+                        row[bKey] = row[bKey]
+                            .map(u => sanitizeUnitObject(u, bKey))
+                            .filter(u => u && !deletedAssetIds.has(u.id));
+                    }
+                });
             });
         }
 
@@ -1173,17 +1258,31 @@ function doPost(e) {
 
             // On initial load, immediately render local cache/defaults so UI never feels blank while cloud loads
             if (isInitial) {
-                const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-                state = cached ? migrateLegacyRecords(JSON.parse(cached)) : JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
+                const cachedRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
+                const parsedCached = safeParseJson(cachedRaw);
+                state = parsedCached
+                    ? migrateLegacyRecords(parsedCached)
+                    : JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
                 ensureStateIntegrity();
                 populateDynamicEquipmentTypes();
                 renderDashboard();
             }
 
+            // Do not overwrite recent user edits with a slow/stale poll response
+            if (!isInitial && !forceNotify && Date.now() < pendingLocalMutationUntil) {
+                if (badge) badge.textContent = `Live Synced • ${formatSyncTime()}`;
+                return;
+            }
+
             try {
                 const cacheBusterUrl = `${GOOGLE_SCRIPT_URL}${GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?'}t=${Date.now()}`;
                 const response = await fetch(cacheBusterUrl, { cache: 'no-store' });
-                const rawPayload = await response.json();
+                const responseText = await response.text();
+                const rawPayload = safeParseJson(responseText);
+
+                if (!rawPayload) {
+                    throw new Error("Non-JSON or empty response from sync endpoint");
+                }
 
                 // Support both { ok, revision, fleet: [...] } and direct [...] array responses
                 const remoteArray = Array.isArray(rawPayload)
@@ -1194,6 +1293,16 @@ function doPost(e) {
 
                 if (remoteArray && remoteArray.length > 0) {
                     const normalizedRemote = migrateLegacyRecords(remoteArray);
+                    const localAssetCount = countTotalAssetsInState(state);
+                    const remoteAssetCount = countTotalAssetsInState(normalizedRemote);
+
+                    // Guard against accidental wipeout if remote returns empty/zeroed assets while local has registered assets
+                    if (localAssetCount > 0 && remoteAssetCount === 0 && !isInitial) {
+                        console.warn("Blocked empty/zeroed remote payload to protect registered local assets.");
+                        if (badge) badge.textContent = `Protected Local (${localAssetCount} assets)`;
+                        return;
+                    }
+
                     const remoteHash = JSON.stringify(normalizedRemote);
 
                     if (remoteHash !== lastKnownServerHash) {
@@ -1221,16 +1330,17 @@ function doPost(e) {
                     if (badge) badge.textContent = `Live Synced • ${formatSyncTime()}`;
                 } else {
                     // Remote database is empty -> seed it with current baseline so other users see the full fleet immediately
-                    if (isInitial) {
+                    if (isInitial && countTotalAssetsInState(state) > 0) {
                         await saveToSheet(true);
                     }
                     if (badge) badge.textContent = `Live Connected • ${formatSyncTime()}`;
                 }
             } catch (e) {
                 console.warn("Live cloud fetch fallback to local cache:", e);
-                if (badge) badge.textContent = "Offline / Local Cache";
+                ensureStateIntegrity();
+                if (badge) badge.textContent = "Local Cache Active";
                 if (forceNotify) {
-                    showToast("Could not reach Google Sheet endpoint. Check your Sync URL.", "error");
+                    showToast("Using local ledger (remote endpoint unreachable or non-JSON).", "info");
                 }
             }
         }
@@ -1238,7 +1348,9 @@ function doPost(e) {
         async function saveToSheet(isInitialSeed = false) {
             const badge = document.getElementById('syncStatusBadge');
             isSavingInProgress = true;
+            pendingLocalMutationUntil = Date.now() + 10000;
             try {
+                ensureStateIntegrity();
                 const serializedState = JSON.stringify(state);
                 localStorage.setItem(LOCAL_STORAGE_KEY, serializedState);
                 lastKnownServerHash = serializedState;
@@ -1264,10 +1376,9 @@ function doPost(e) {
                 console.error("Failed to commit updates to Google Sheets:", e);
                 if (badge) badge.textContent = "Saved Locally (Retry Sync)";
             } finally {
-                // Brief cooldown so immediate poll doesn't overwrite before Google Sheets finishes committing
                 setTimeout(() => {
                     isSavingInProgress = false;
-                }, 1800);
+                }, 1500);
             }
         }
 
@@ -1337,6 +1448,7 @@ function doPost(e) {
                 "Reset FLEET MONITORING",
                 "Reset all asset numbers, categories, and LED statuses back to the default fleet monitoring baseline?",
                 async () => {
+                    deletedAssetIds.clear();
                     localStorage.removeItem(LOCAL_STORAGE_KEY);
                     state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
                     activeStatusFilter = "all";
@@ -1420,6 +1532,7 @@ function doPost(e) {
         }
 
         function renderDashboard() {
+            try {
             ensureStateIntegrity();
             updateFilterUI();
 
@@ -1488,7 +1601,12 @@ function doPost(e) {
 
             renderMemsTileWall(allUnitCards);
             renderMemsSummaryTable(state, locationVal);
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            } catch (err) {
+                console.error("Dashboard render error recovered safely:", err);
+            }
         }
 
         function showUnitTooltip(e, card) {
@@ -2024,7 +2142,9 @@ function doPost(e) {
             const row = state.find(item => item.type === type);
             if (!row) return;
 
-            row[stateKey] = (row[stateKey] || []).filter(u => u.id !== unitCode);
+            const cleanDeletedId = String(unitCode || "").toUpperCase().trim();
+            if (cleanDeletedId) deletedAssetIds.add(cleanDeletedId);
+            row[stateKey] = (row[stateKey] || []).filter(u => String(u.id || "").toUpperCase().trim() !== cleanDeletedId);
 
             renderDashboard();
             closeModal('manageUnitModal');
