@@ -302,7 +302,7 @@
             </div>
         </section>
 
-        <!-- SECTION 1 (Below Equipment Availability Summary): Repaired Assets by Specific Date & Monthly -->
+        <!-- SECTION 1 (Below Equipment Availability Summary): Repaired / For Testing Assets — Daily & Monthly Log -->
         <section id="repairedByDateSection" class="bg-slate-900 text-slate-100 border border-slate-700 rounded-xl p-4 sm:p-5 shadow-xl space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
                 <div class="flex items-center gap-2.5">
@@ -311,11 +311,12 @@
                     </div>
                     <div>
                         <h3 class="text-sm sm:text-base font-black text-white uppercase tracking-wide flex flex-wrap items-center gap-2">
-                            <span>Repaired / For Testing Assets — Daily & Monthly Log</span>
-                            <span id="repairedCountBadge" class="text-[11px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full">0 For Testing</span>
-                            <span id="repairedLongDownResolvedBadge" class="text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">0 Long Down (>7d) Repaired</span>
+                            <span>REPAIRED / FOR TESTING ASSETS — DAILY & MONTHLY LOG</span>
+                            <span id="repairedCountBadge" class="text-[11px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full">0 Logged</span>
+                            <span id="repairedOperationalCountBadge" class="text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">0 Repaired (Operational)</span>
+                            <span id="repairedLongDownResolvedBadge" class="text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full">0 Long Down (>7d) Repaired</span>
                         </h3>
-                        <p class="text-[11px] text-slate-400">Filter units for testing by Specific Date, Monthly Period, or All Dates — highlighting resolved Long Down (>7d) units</p>
+                        <p class="text-[11px] text-slate-400">Tracks units currently For Testing (Blue LED) and units promoted from For Testing to Operational (Green LED) as Repaired</p>
                     </div>
                 </div>
 
@@ -367,7 +368,7 @@
                 <div class="lg:col-span-5 bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-                            <i class="w-3.5 h-3.5" data-lucide="bar-chart-3"></i> Monthly For Testing Summary
+                            <i class="w-3.5 h-3.5" data-lucide="bar-chart-3"></i> Monthly Repaired / Testing Summary
                         </span>
                         <span class="text-[10px] text-slate-400">Click any month to filter</span>
                     </div>
@@ -381,7 +382,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <span class="text-xs font-black uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
                             <i class="w-3.5 h-3.5" data-lucide="check-circle-2"></i>
-                            <span id="longDownRepairedSpotlightTitle">Long Down (>7d) Units For Testing</span>
+                            <span id="longDownRepairedSpotlightTitle">Long Down (>7d) Units Repaired / For Testing</span>
                         </span>
                         <span id="longDownSpotlightCount" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-500/40">0 Units</span>
                     </div>
@@ -389,7 +390,7 @@
                         <!-- Dynamically rendered resolved Long Down units with exact date & month -->
                     </div>
                     <div id="emptyLongDownSpotlightMsg" class="hidden py-3 text-center text-[11px] text-slate-400 italic">
-                        No Long Down (>7d) units recorded as for testing in this specific date/month filter.
+                        No Long Down (>7d) units recorded as repaired or for testing in this specific date/month filter.
                     </div>
                 </div>
             </div>
@@ -400,7 +401,7 @@
                     <thead>
                         <tr class="bg-slate-800/90 text-slate-300 uppercase text-[11px] tracking-wider border-b border-slate-700">
                             <th class="py-2.5 px-3 font-bold">Asset No.</th>
-                            <th class="py-2.5 px-3 font-bold">Repair Classification</th>
+                            <th class="py-2.5 px-3 font-bold">Repair / Testing Status</th>
                             <th class="py-2.5 px-3 font-bold">Category</th>
                             <th class="py-2.5 px-3 font-bold">Equipment Type</th>
                             <th class="py-2.5 px-3 font-bold">Motorpool</th>
@@ -410,13 +411,13 @@
                         </tr>
                     </thead>
                     <tbody id="repairedByDateTableBody" class="divide-y divide-slate-800 bg-slate-950/50">
-                        <!-- Dynamically rendered repaired assets -->
+                        <!-- Dynamically rendered repaired & for-testing assets -->
                     </tbody>
                 </table>
             </div>
             <div id="emptyRepairedDateMessage" class="hidden py-8 text-center bg-slate-950/40 rounded-lg border border-dashed border-slate-800 space-y-1">
-                <p id="emptyRepairedTitle" class="text-xs sm:text-sm font-bold text-slate-300">No assets recorded as for testing for the selected period.</p>
-                <p class="text-[11px] text-slate-500">Switch between Specific Date, Monthly, or All Dates, or set an asset's LED status to For Testing (Blue LED).</p>
+                <p id="emptyRepairedTitle" class="text-xs sm:text-sm font-bold text-slate-300">No repaired or for testing assets recorded for the selected period.</p>
+                <p class="text-[11px] text-slate-500">Switch between Specific Date, Monthly, or All Dates, or promote a For Testing unit to Operational.</p>
             </div>
         </section>
 
@@ -659,6 +660,9 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                         <option value="ongoing">Down (Red LED - On-Going / Job Out)</option>
                         <option value="restored">For Testing (Blue LED - Post-Repair Trial)</option>
                     </select>
+                    <p id="manageRepairedPromotionHint" class="hidden text-[11px] font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/40 rounded-lg px-2.5 py-1.5 mt-1.5">
+                        ✓ Promoting from For Testing → Operational will log this asset as Repaired in the Daily & Monthly Log.
+                    </p>
                 </div>
 
                 <div>
@@ -679,7 +683,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                         <p id="manageLongDownPreview" class="text-[10px] font-bold text-slate-400 mt-1">--</p>
                     </div>
                     <div id="manageRepairedDateWrapper">
-                        <label class="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-1.5">Repaired / For Testing Date</label>
+                        <label id="manageRepairedDateLabel" class="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-1.5">Repaired / For Testing Date</label>
                         <input id="manageUnitRepairedDate" type="date" class="w-full px-3 py-2 bg-slate-900 border border-blue-500/40 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-blue-400"/>
                     </div>
                 </div>
@@ -1115,7 +1119,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
         let activeManageState = { category: "", type: "", unitCode: "", stateKey: "", unitObj: null };
         let deleteConfirmPending = false;
 
-        // Section 1 state: For Testing Assets (Daily & Monthly)
+        // Section 1 state: Repaired & For Testing Assets (Daily & Monthly)
         let repairedFilterMode = "month"; // 'date' | 'month' | 'all'
         let selectedRepairedDate = getTodayDateString();
         let selectedRepairedMonth = getCurrentMonthString();
@@ -1278,9 +1282,20 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                     delete u.downSince;
                 });
 
-                // Ensure operational items are not flagged as down
+                // Ensure operational items are not flagged as down; preserve repaired log metadata if promoted from For Testing
                 row.released.forEach(u => {
                     delete u.downSince;
+                    if (u.isRepaired) {
+                        if (!u.repairedDate) {
+                            u.repairedDate = today;
+                        }
+                        if (typeof u.priorDowntimeDays !== 'number') {
+                            u.priorDowntimeDays = 0;
+                        }
+                        if (typeof u.wasLongDown !== 'boolean') {
+                            u.wasLongDown = u.priorDowntimeDays > LONG_DOWN_THRESHOLD_DAYS;
+                        }
+                    }
                 });
 
                 // Ensure down/reported items have a downSince date so >7d auto-flag works reliably
@@ -1506,6 +1521,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                         const repMonth = repDate.length >= 7 ? repDate.slice(0, 7) : '';
                         const priorDowntimeDays = typeof u.priorDowntimeDays === 'number' ? u.priorDowntimeDays : 0;
                         const wasLongDown = Boolean(u.wasLongDown) || priorDowntimeDays > LONG_DOWN_THRESHOLD_DAYS;
+                        const isRepairedOperational = (bucket.memsStatus === 'available' && Boolean(u.isRepaired));
 
                         const record = {
                             id: u.id,
@@ -1523,11 +1539,13 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                             repairedDate: repDate,
                             repairedMonth: repMonth,
                             wasLongDown,
-                            priorDowntimeDays
+                            priorDowntimeDays,
+                            isRepaired: Boolean(u.isRepaired),
+                            isRepairedOperational
                         };
 
-                        // Collect For Testing records for Section 1
-                        if (bucket.memsStatus === 'restored') {
+                        // Collect For Testing (Blue LED) AND Repaired Operational (promoted from For Testing -> Operational) for Section 1
+                        if (bucket.memsStatus === 'restored' || isRepairedOperational) {
                             allRepairedEntries.push(record);
                         }
 
@@ -1607,7 +1625,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                 downtimeRow.classList.add('hidden');
             }
 
-            if (card.memsStatus === 'restored' && card.repairedDate) {
+            if ((card.memsStatus === 'restored' || card.isRepairedOperational) && card.repairedDate) {
                 repairedRow.classList.remove('hidden');
                 repairedVal.textContent = `${formatFullDateWithMonth(card.repairedDate)} (${card.repairedDate})${card.wasLongDown ? ' • Was >7d Down' : ''}`;
             } else {
@@ -1615,7 +1633,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             }
 
             const badge = document.getElementById('ttStatusBadge');
-            badge.textContent = getMemsStatusLabel(card.memsStatus);
+            badge.textContent = card.isRepairedOperational ? "Operational (Repaired)" : getMemsStatusLabel(card.memsStatus);
             const badgeStyles = {
                 available: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
                 reported: "bg-amber-500/20 text-amber-300 border border-amber-500/40",
@@ -1910,6 +1928,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             const emptyBox = document.getElementById('emptyRepairedDateMessage');
             const emptyTitle = document.getElementById('emptyRepairedTitle');
             const countBadge = document.getElementById('repairedCountBadge');
+            const repairedOpBadge = document.getElementById('repairedOperationalCountBadge');
             const longDownResolvedBadge = document.getElementById('repairedLongDownResolvedBadge');
             const monthlyListContainer = document.getElementById('monthlyRepairedSummaryList');
             const spotlightTitle = document.getElementById('longDownRepairedSpotlightTitle');
@@ -1933,18 +1952,20 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             // Build Monthly Aggregation Cards
             const monthGroups = new Map();
             const currentMonth = getCurrentMonthString();
-            monthGroups.set(currentMonth, { month: currentMonth, total: 0, longDownResolved: 0 });
+            monthGroups.set(currentMonth, { month: currentMonth, total: 0, repairedOp: 0, forTesting: 0, longDownResolved: 0 });
             if (selectedRepairedMonth && !monthGroups.has(selectedRepairedMonth)) {
-                monthGroups.set(selectedRepairedMonth, { month: selectedRepairedMonth, total: 0, longDownResolved: 0 });
+                monthGroups.set(selectedRepairedMonth, { month: selectedRepairedMonth, total: 0, repairedOp: 0, forTesting: 0, longDownResolved: 0 });
             }
 
             baseRepaired.forEach(item => {
                 const mKey = item.repairedMonth || currentMonth;
                 if (!monthGroups.has(mKey)) {
-                    monthGroups.set(mKey, { month: mKey, total: 0, longDownResolved: 0 });
+                    monthGroups.set(mKey, { month: mKey, total: 0, repairedOp: 0, forTesting: 0, longDownResolved: 0 });
                 }
                 const entry = monthGroups.get(mKey);
                 entry.total++;
+                if (item.isRepairedOperational) entry.repairedOp++;
+                else entry.forTesting++;
                 if (item.wasLongDown) entry.longDownResolved++;
             });
 
@@ -1968,8 +1989,8 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                         <span class="text-[10px] font-mono text-slate-400">${mObj.month}</span>
                     </div>
                     <div class="flex items-center justify-between text-[11px]">
-                        <span class="font-extrabold text-blue-300">${mObj.total} For Testing</span>
-                        <span class="font-bold ${mObj.longDownResolved > 0 ? 'text-emerald-300' : 'text-slate-500'}">${mObj.longDownResolved} >7d</span>
+                        <span class="font-extrabold text-emerald-300">${mObj.repairedOp} Repaired</span>
+                        <span class="font-bold text-blue-300">${mObj.forTesting} Testing</span>
                     </div>
                 `;
                 monthlyListContainer.appendChild(mBtn);
@@ -1997,7 +2018,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                 .filter(i => i.wasLongDown)
                 .sort((a, b) => (b.repairedDate || '').localeCompare(a.repairedDate || ''));
 
-            spotlightTitle.textContent = `Long Down (>7d) Units For Testing — ${periodLabel}`;
+            spotlightTitle.textContent = `Long Down (>7d) Units Repaired / For Testing — ${periodLabel}`;
             spotlightCount.textContent = `${resolvedLongDownInPeriod.length} Unit${resolvedLongDownInPeriod.length === 1 ? '' : 's'}`;
             spotlightGrid.innerHTML = '';
 
@@ -2006,17 +2027,25 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             } else {
                 emptySpotlightMsg.classList.add('hidden');
                 resolvedLongDownInPeriod.forEach(item => {
+                    const ledCls = item.isRepairedOperational ? 'led-available' : 'led-restored';
+                    const statePill = item.isRepairedOperational
+                        ? `<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">REPAIRED • OPERATIONAL</span>`
+                        : `<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40">FOR TESTING</span>`;
+
                     const spotCard = document.createElement('div');
                     spotCard.onclick = () => openManageModal(item.category, item.type, item.id, item.stateKey);
                     spotCard.className = "bg-slate-900/90 hover:bg-slate-800 border border-emerald-500/40 rounded-lg p-2.5 cursor-pointer transition flex flex-col justify-between gap-1.5";
                     spotCard.innerHTML = `
                         <div class="flex items-center justify-between gap-1.5">
                             <div class="flex items-center gap-1.5">
-                                <span class="led-sphere led-restored" style="width:12px;height:12px;"></span>
+                                <span class="led-sphere ${ledCls}" style="width:12px;height:12px;"></span>
                                 <span class="font-mono font-black text-xs text-white">${item.id}</span>
                                 <span class="text-[10px] font-bold text-slate-300">• ${item.type}</span>
                             </div>
-                            <span class="text-[10px] font-black px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">Was ${item.priorDowntimeDays || '>7'}d Down</span>
+                            <div class="flex items-center gap-1">
+                                ${statePill}
+                                <span class="text-[10px] font-black px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">Was ${item.priorDowntimeDays || '>7'}d Down</span>
+                            </div>
                         </div>
                         <div class="flex flex-wrap items-center justify-between gap-1 text-[11px]">
                             <span class="text-emerald-300 font-bold">Repaired: ${formatFullDateWithMonth(item.repairedDate)} (${formatMonthLabel(item.repairedMonth)})</span>
@@ -2034,17 +2063,22 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
 
             tableFiltered.sort((a, b) => {
                 if (a.repairedDate !== b.repairedDate) return (b.repairedDate || '').localeCompare(a.repairedDate || '');
+                if (a.isRepairedOperational !== b.isRepairedOperational) return a.isRepairedOperational ? -1 : 1;
                 if (a.wasLongDown !== b.wasLongDown) return a.wasLongDown ? -1 : 1;
                 return a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' });
             });
 
-            countBadge.textContent = `${tableFiltered.length} For Testing (${periodLabel})`;
+            const repairedOpCount = tableFiltered.filter(i => i.isRepairedOperational).length;
+            const forTestingCount = tableFiltered.length - repairedOpCount;
+
+            countBadge.textContent = `${tableFiltered.length} Total (${forTestingCount} Testing, ${repairedOpCount} Repaired)`;
+            repairedOpBadge.textContent = `${repairedOpCount} Repaired (Operational)`;
             longDownResolvedBadge.textContent = `${resolvedLongDownInPeriod.length} Long Down (>7d) Repaired`;
             tbody.innerHTML = '';
 
             if (tableFiltered.length === 0) {
                 emptyBox.classList.remove('hidden');
-                emptyTitle.textContent = `No assets for testing found for ${periodLabel}${filterRepairedOnlyLongDown ? ' (Long Down >7d Only filter active)' : ''}.`;
+                emptyTitle.textContent = `No repaired or for testing assets found for ${periodLabel}${filterRepairedOnlyLongDown ? ' (Long Down >7d Only filter active)' : ''}.`;
                 return;
             }
 
@@ -2052,27 +2086,41 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
 
             tableFiltered.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.className = item.wasLongDown
-                    ? "bg-emerald-950/20 hover:bg-emerald-950/35 transition cursor-pointer"
-                    : "hover:bg-slate-800/70 transition cursor-pointer";
+                tr.className = item.isRepairedOperational
+                    ? "bg-emerald-950/25 hover:bg-emerald-950/40 transition cursor-pointer"
+                    : (item.wasLongDown
+                        ? "bg-blue-950/20 hover:bg-blue-950/35 transition cursor-pointer"
+                        : "hover:bg-slate-800/70 transition cursor-pointer");
                 tr.onclick = () => openManageModal(item.category, item.type, item.id, item.stateKey);
 
-                const classBadgeHtml = item.wasLongDown
-                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">LONG DOWN (>7d) RESOLVED</span>`
+                const ledCls = item.isRepairedOperational ? 'led-available' : 'led-restored';
+                const assetIdColorCls = item.isRepairedOperational ? 'text-emerald-300' : 'text-blue-300';
+
+                const primaryStatusBadge = item.isRepairedOperational
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">REPAIRED • OPERATIONAL</span>`
                     : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30">FOR TESTING</span>`;
+
+                const longDownTagHtml = item.wasLongDown
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">LONG DOWN (>7d) RESOLVED</span>`
+                    : '';
 
                 const priorDowntimeHtml = item.priorDowntimeDays > 0
                     ? `<span class="font-extrabold ${item.wasLongDown ? 'text-rose-300' : 'text-slate-300'}">${item.priorDowntimeDays} day${item.priorDowntimeDays === 1 ? '' : 's'}</span>`
                     : `<span class="text-slate-500">—</span>`;
 
                 tr.innerHTML = `
-                    <td class="py-2.5 px-3 font-mono font-black text-blue-300">
+                    <td class="py-2.5 px-3 font-mono font-black ${assetIdColorCls}">
                         <div class="flex items-center gap-2">
-                            <span class="led-sphere led-restored" style="width:14px;height:14px;"></span>
+                            <span class="led-sphere ${ledCls}" style="width:14px;height:14px;"></span>
                             <span>${item.id}</span>
                         </div>
                     </td>
-                    <td class="py-2.5 px-3">${classBadgeHtml}</td>
+                    <td class="py-2.5 px-3">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            ${primaryStatusBadge}
+                            ${longDownTagHtml}
+                        </div>
+                    </td>
                     <td class="py-2.5 px-3 text-slate-300 font-medium">${item.category}</td>
                     <td class="py-2.5 px-3 text-white font-semibold">${item.type}</td>
                     <td class="py-2.5 px-3 text-amber-300 font-medium">${item.location}</td>
@@ -2081,7 +2129,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                         <div class="text-[10px] font-semibold text-slate-400">${formatFullDateWithMonth(item.repairedDate)} • ${formatMonthLabel(item.repairedMonth)}</div>
                     </td>
                     <td class="py-2.5 px-3 text-center">${priorDowntimeHtml}</td>
-                    <td class="py-2.5 px-3 text-slate-300">${item.description || 'For Testing'}</td>
+                    <td class="py-2.5 px-3 text-slate-300">${item.description || (item.isRepairedOperational ? 'Repaired & Operational' : 'For Testing')}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -2541,7 +2589,17 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
         function syncManageDateFieldsVisibility(statusKey) {
             const downWrap = document.getElementById('manageDownSinceWrapper');
             const repWrap = document.getElementById('manageRepairedDateWrapper');
+            const repLabel = document.getElementById('manageRepairedDateLabel');
+            const promoHint = document.getElementById('manageRepairedPromotionHint');
             const isActiveRepair = (statusKey === 'ongoing' || statusKey === 'waiting' || statusKey === 'pms' || statusKey === 'jobout');
+            const isPromotingFromTesting = (activeManageState.stateKey === 'restored' && statusKey === 'released');
+            const isAlreadyRepairedOperational = (statusKey === 'released' && Boolean(activeManageState.unitObj?.isRepaired));
+
+            if (isPromotingFromTesting) {
+                promoHint.classList.remove('hidden');
+            } else {
+                promoHint.classList.add('hidden');
+            }
 
             if (isActiveRepair) {
                 downWrap.classList.remove('hidden');
@@ -2549,6 +2607,11 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             } else if (statusKey === 'restored') {
                 downWrap.classList.add('hidden');
                 repWrap.classList.remove('hidden');
+                repLabel.textContent = "Repaired / For Testing Date";
+            } else if (isPromotingFromTesting || isAlreadyRepairedOperational) {
+                downWrap.classList.add('hidden');
+                repWrap.classList.remove('hidden');
+                repLabel.textContent = "Repaired Date (Logged)";
             } else {
                 downWrap.classList.add('hidden');
                 repWrap.classList.add('hidden');
@@ -2564,7 +2627,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             if (newStatusKey === 'released' || newStatusKey === 'restored') {
                 updateProgressDisplay(100);
                 slider.value = 100;
-                if (newStatusKey === 'restored' && !document.getElementById('manageUnitRepairedDate').value) {
+                if ((newStatusKey === 'restored' || activeManageState.stateKey === 'restored') && !document.getElementById('manageUnitRepairedDate').value) {
                     document.getElementById('manageUnitRepairedDate').value = todayStr;
                 }
             } else if (newStatusKey === 'waiting') {
@@ -2601,6 +2664,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             const newRepairedDate = document.getElementById('manageUnitRepairedDate').value || getTodayDateString();
 
             const wasActiveRepair = (stateKey === 'ongoing' || stateKey === 'waiting' || stateKey === 'pms' || stateKey === 'jobout');
+            const wasForTesting = (stateKey === 'restored');
             const previousDownSince = unitObj.downSince || '';
 
             sourceRow[stateKey] = (sourceRow[stateKey] || []).filter(u => u.id !== unitCode);
@@ -2624,6 +2688,8 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
             unitObj.location = newLocation;
             unitObj.completion = isNowHealthy ? 100 : newProgress;
 
+            let promotedToOperationalAsRepaired = false;
+
             if (newStatusKey === 'restored') {
                 unitObj.repairedDate = newRepairedDate;
                 if (wasActiveRepair && previousDownSince) {
@@ -2635,13 +2701,31 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                     unitObj.wasLongDown = false;
                 }
                 delete unitObj.downSince;
+            } else if (newStatusKey === 'released') {
+                delete unitObj.downSince;
+                // When an asset in "For Testing" updates to "Operational", include it as Repaired in REPAIRED/FOR TESTING ASSETS - DAILY & MONTHLY LOG
+                if (wasForTesting || unitObj.isRepaired) {
+                    promotedToOperationalAsRepaired = wasForTesting;
+                    unitObj.isRepaired = true;
+                    unitObj.repairedDate = newRepairedDate || unitObj.repairedDate || getTodayDateString();
+                    if (typeof unitObj.priorDowntimeDays !== 'number') {
+                        unitObj.priorDowntimeDays = 0;
+                    }
+                    if (typeof unitObj.wasLongDown !== 'boolean') {
+                        unitObj.wasLongDown = unitObj.priorDowntimeDays > LONG_DOWN_THRESHOLD_DAYS;
+                    }
+                    if (!unitObj.description || unitObj.description === "For Testing") {
+                        unitObj.description = "Repaired & Operational (Passed Testing)";
+                    } else if (wasForTesting && /for testing/i.test(unitObj.description)) {
+                        unitObj.description = unitObj.description.replace(/for testing/ig, "Repaired & Operational");
+                    }
+                }
             } else if (isNowActiveRepair) {
                 unitObj.downSince = newDownSince;
                 delete unitObj.repairedDate;
                 delete unitObj.wasLongDown;
                 delete unitObj.priorDowntimeDays;
-            } else {
-                delete unitObj.downSince;
+                delete unitObj.isRepaired;
             }
 
             if (!targetRow[newStatusKey]) targetRow[newStatusKey] = [];
@@ -2649,7 +2733,12 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
 
             renderDashboard();
             closeModal('manageUnitModal');
-            showToast(`Updated ${unitCode} (${newType}) → ${getMemsStatusLabel(getMemsStatusFromStateKey(newStatusKey))}`, "success");
+
+            if (promotedToOperationalAsRepaired) {
+                showToast(`${unitCode} (${newType}) updated to Operational & logged as Repaired in Daily & Monthly Log.`, "success");
+            } else {
+                showToast(`Updated ${unitCode} (${newType}) → ${getMemsStatusLabel(getMemsStatusFromStateKey(newStatusKey))}`, "success");
+            }
             await saveToSheet();
         }
 
@@ -2672,7 +2761,7 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
         }
 
         function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Asset Number,LED Status,Long Down (>7d),Days Down / Prior Downtime,Down Since,Repaired Date,Repaired Month,Location,Completion,Target Date,Remarks\n";
+            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Asset Number,LED Status,Repaired Log Status,Long Down (>7d),Days Down / Prior Downtime,Down Since,Repaired Date,Repaired Month,Location,Completion,Target Date,Remarks\n";
             state.forEach(row => {
                 const allLists = [
                     { list: row.released || [], status: "Operational", memsStatus: "available" },
@@ -2691,9 +2780,12 @@ DT-04" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl
                         const isLongDown = isActiveRepair
                             ? (daysDown > LONG_DOWN_THRESHOLD_DAYS)
                             : Boolean(u.wasLongDown);
+                        const repLogStatus = memsStatus === "restored"
+                            ? "FOR TESTING"
+                            : (memsStatus === "available" && u.isRepaired ? "REPAIRED (OPERATIONAL)" : "");
                         const repDate = u.repairedDate || '';
                         const repMonth = repDate.length >= 7 ? repDate.slice(0, 7) : '';
-                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}","${isLongDown ? 'YES' : 'NO'}",${daysDown},"${u.downSince || ''}","${repDate}","${repMonth}","${u.location || 'GEM Motorpool'}",${comp}%,"${u.targetDate || ''}","${desc}"\n`;
+                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}","${repLogStatus}","${isLongDown ? 'YES' : 'NO'}",${daysDown},"${u.downSince || ''}","${repDate}","${repMonth}","${u.location || 'GEM Motorpool'}",${comp}%,"${u.targetDate || ''}","${desc}"\n`;
                     });
                 });
             });
