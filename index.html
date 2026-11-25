@@ -174,6 +174,12 @@
                 </div>
 
                 <!-- Action Buttons -->
+                <button id="manualSyncBtn" onclick="manualLiveSync()" class="flex items-center gap-1.5 bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/40 transition" title="Pull latest shared changes immediately">
+                    <i id="manualSyncIcon" class="w-3.5 h-3.5" data-lucide="refresh-cw"></i> Sync Now
+                </button>
+                <button onclick="openShareSyncModal()" class="flex items-center gap-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-500/40 transition" title="Copy Live Collaboration Link & Apps Script Setup">
+                    <i class="w-3.5 h-3.5" data-lucide="share-2"></i> Share Live Link
+                </button>
                 <button onclick="downloadCSV()" class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-600 transition">
                     <i class="w-3.5 h-3.5" data-lucide="download"></i> Export CSV
                 </button>
@@ -527,9 +533,134 @@
         </div>
     </div>
 
+    <!-- Modal: Share Live Sync Link & Collaborative Backend Setup -->
+    <div class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 z-50" id="shareSyncModal">
+        <div class="bg-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-700 overflow-hidden text-slate-100 max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="w-5 h-5 text-amber-400" data-lucide="share-2"></i> Multi-User Live Sync & Share Link
+                </h3>
+                <button class="text-slate-400 hover:text-white" onclick="closeModal('shareSyncModal')" type="button">
+                    <i class="w-5 h-5" data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+                <!-- Live Collaboration Status Banner -->
+                <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3.5 flex items-start gap-3">
+                    <i class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" data-lucide="radio"></i>
+                    <div class="space-y-1">
+                        <p class="font-bold text-emerald-300 text-sm">Real-Time Team Collaboration Active</p>
+                        <p class="text-slate-300 leading-relaxed">
+                            Anyone who opens your shared link automatically pulls the latest fleet status from the shared Google Sheet database every <strong class="text-white">8 seconds</strong> and whenever they switch tabs. All edits made by any team member are pushed live to the shared backend.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Shareable Link Box -->
+                <div class="space-y-2">
+                    <label class="block font-bold text-slate-300 uppercase tracking-wider">1. Copy & Send Live Dashboard Link</label>
+                    <div class="flex gap-2">
+                        <input id="shareableLinkInput" type="text" readonly class="flex-1 px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl font-mono text-xs text-amber-300 focus:outline-none"/>
+                        <button type="button" onclick="copyShareableLink()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow transition flex items-center gap-1.5 shrink-0">
+                            <i class="w-4 h-4" data-lucide="copy"></i> Copy Link
+                        </button>
+                    </div>
+                    <p id="fileProtocolWarning" class="hidden text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2">
+                        Note: You are currently viewing this file locally (<code>file://</code>). Host this <code>index.html</code> on GitHub Pages, Netlify, Vercel, or Google Apps Script Web App so others can open the link on their phones/PCs.
+                    </p>
+                </div>
+
+                <!-- Google Apps Script Endpoint Configuration -->
+                <div class="space-y-2 border-t border-slate-700 pt-4">
+                    <label class="block font-bold text-slate-300 uppercase tracking-wider">2. Shared Google Apps Script Sync URL</label>
+                    <div class="flex gap-2">
+                        <input id="customScriptUrlInput" type="text" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-[11px] text-slate-200 focus:outline-none focus:border-blue-500"/>
+                        <button type="button" onclick="updateScriptUrl()" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl transition shrink-0">
+                            Save URL
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">
+                        The saved Sync URL is automatically embedded into the <strong>Copy Link</strong> URL (<code>?sync=...</code>) so anyone you share the link with connects to the exact same live database automatically.
+                    </p>
+                </div>
+
+                <!-- Apps Script Backend Code Snippet (Collapsible/Copyable) -->
+                <div class="space-y-2 border-t border-slate-700 pt-4">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-slate-300 uppercase tracking-wider">3. Google Apps Script Backend Code (For Multi-User Read/Write)</label>
+                        <button type="button" onclick="copyAppsScriptCode()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold rounded-lg text-[11px] flex items-center gap-1 transition">
+                            <i class="w-3.5 h-3.5" data-lucide="code"></i> Copy Code.gs
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">
+                        Ensure your Google Apps Script Web App is deployed with <strong>Execute as: Me</strong> and <strong>Who has access: Anyone</strong>, using this script so both <code>GET</code> (live polling) and <code>POST</code> (team edits) sync cleanly:
+                    </p>
+                    <pre id="appsScriptSnippet" class="bg-slate-950 border border-slate-700 rounded-xl p-3 font-mono text-[10px] text-emerald-300 overflow-x-auto max-h-40 select-all">const SHEET_NAME = "FleetLiveDB";
+
+function getDbSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.getRange("A1:C1").setValues([["UpdatedAt", "Revision", "PayloadJSON"]]);
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  const sheet = getDbSheet();
+  const payload = sheet.getRange("C2").getValue();
+  const rev = sheet.getRange("B2").getValue() || 0;
+  const updatedAt = sheet.getRange("A2").getValue() || "";
+  const output = payload
+    ? JSON.stringify({ ok: true, revision: rev, updatedAt: updatedAt, fleet: JSON.parse(payload) })
+    : JSON.stringify({ ok: true, revision: 0, fleet: [] });
+  return ContentService.createTextOutput(output).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const body = JSON.parse(e.postData.contents);
+    const fleetData = Array.isArray(body) ? body : (body.fleet || []);
+    const sheet = getDbSheet();
+    const currentRev = Number(sheet.getRange("B2").getValue() || 0) + 1;
+    const now = new Date().toISOString();
+    sheet.getRange("A2:C2").setValues([[now, currentRev, JSON.stringify(fleetData)]]);
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, revision: currentRev, updatedAt: now }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
-        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v3";
+        const DEFAULT_GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
+        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v4";
+        const SCRIPT_URL_STORAGE_KEY = "fleet_monitoring_sync_url_v1";
+        const LIVE_POLL_INTERVAL_MS = 8000;
+
+        function getActiveScriptUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramUrl = urlParams.get('sync');
+            if (paramUrl && paramUrl.startsWith('http')) {
+                localStorage.setItem(SCRIPT_URL_STORAGE_KEY, paramUrl);
+                return paramUrl;
+            }
+            return localStorage.getItem(SCRIPT_URL_STORAGE_KEY) || DEFAULT_GOOGLE_SCRIPT_URL;
+        }
+
+        let GOOGLE_SCRIPT_URL = getActiveScriptUrl();
+        let lastKnownServerHash = "";
+        let lastKnownRevision = 0;
+        let isSavingInProgress = false;
+        let livePollTimer = null;
 
         // Master Category & Equipment Type Definitions
         const CATEGORY_EQUIPMENT_TYPES = {
@@ -863,7 +994,13 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('locationFilter').addEventListener('change', renderDashboard);
-            await fetchSheetData();
+            await fetchSheetData({ isInitial: true });
+            startLiveSyncPolling();
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    fetchSheetData({ silent: true });
+                }
+            });
             lucide.createIcons();
         });
 
@@ -999,53 +1136,199 @@
             });
         }
 
-        async function fetchSheetData() {
-            const badge = document.getElementById('syncStatusBadge');
-            try {
-                badge.textContent = "Syncing...";
-                const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (cached) {
-                    state = migrateLegacyRecords(JSON.parse(cached));
-                    badge.textContent = "Fleet Ledger Loaded";
-                } else {
-                    const response = await fetch(GOOGLE_SCRIPT_URL);
-                    const data = await response.json();
-                    if (Array.isArray(data) && data.length > 0 && data.some(r => r.type === "BOOM TRUCK" && (r.released?.some(u => u.id === "BT-06")))) {
-                        state = migrateLegacyRecords(data);
-                        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-                        badge.textContent = "Google Sheet Connected";
-                    } else {
-                        state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
-                        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-                        badge.textContent = "Fleet Ledger Ready";
-                    }
-                }
-            } catch (e) {
-                console.warn("Unable to fetch from Sheet DB, utilizing local persistence/default state.", e);
-                const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-                state = cached ? migrateLegacyRecords(JSON.parse(cached)) : JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
-                badge.textContent = "Local Persistence Active";
-            }
-            ensureStateIntegrity();
-            populateDynamicEquipmentTypes();
-            renderDashboard();
+        function isAnyModalOpen() {
+            return ['addAssetModal', 'manageUnitModal', 'confirmActionModal', 'shareSyncModal'].some(id => {
+                const el = document.getElementById(id);
+                return el && !el.classList.contains('hidden');
+            });
         }
 
-        async function saveToSheet() {
+        function startLiveSyncPolling() {
+            if (livePollTimer) clearInterval(livePollTimer);
+            livePollTimer = setInterval(() => {
+                if (!document.hidden && !isSavingInProgress && !isAnyModalOpen()) {
+                    fetchSheetData({ silent: true });
+                }
+            }, LIVE_POLL_INTERVAL_MS);
+        }
+
+        async function manualLiveSync() {
+            const icon = document.getElementById('manualSyncIcon');
+            if (icon) icon.classList.add('animate-spin');
+            await fetchSheetData({ forceNotify: true });
+            if (icon) setTimeout(() => icon.classList.remove('animate-spin'), 450);
+        }
+
+        function formatSyncTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        async function fetchSheetData(options = {}) {
+            const { isInitial = false, silent = false, forceNotify = false } = options;
+            if (isSavingInProgress) return;
+
             const badge = document.getElementById('syncStatusBadge');
+            if (!silent && badge) badge.textContent = "Syncing Live...";
+
+            // On initial load, immediately render local cache/defaults so UI never feels blank while cloud loads
+            if (isInitial) {
+                const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+                state = cached ? migrateLegacyRecords(JSON.parse(cached)) : JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
+                ensureStateIntegrity();
+                populateDynamicEquipmentTypes();
+                renderDashboard();
+            }
+
             try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-                badge.textContent = "Saving...";
+                const cacheBusterUrl = `${GOOGLE_SCRIPT_URL}${GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?'}t=${Date.now()}`;
+                const response = await fetch(cacheBusterUrl, { cache: 'no-store' });
+                const rawPayload = await response.json();
+
+                // Support both { ok, revision, fleet: [...] } and direct [...] array responses
+                const remoteArray = Array.isArray(rawPayload)
+                    ? rawPayload
+                    : (Array.isArray(rawPayload?.fleet) ? rawPayload.fleet : null);
+
+                const remoteRev = typeof rawPayload?.revision === 'number' ? rawPayload.revision : 0;
+
+                if (remoteArray && remoteArray.length > 0) {
+                    const normalizedRemote = migrateLegacyRecords(remoteArray);
+                    const remoteHash = JSON.stringify(normalizedRemote);
+
+                    if (remoteHash !== lastKnownServerHash) {
+                        const hadPreviousState = lastKnownServerHash !== "";
+                        lastKnownServerHash = remoteHash;
+                        if (remoteRev > 0) lastKnownRevision = remoteRev;
+
+                        state = normalizedRemote;
+                        localStorage.setItem(LOCAL_STORAGE_KEY, remoteHash);
+                        ensureStateIntegrity();
+
+                        const activeCat = document.getElementById('newAssetCategorySelect')?.value || "HEAVY EQUIPMENT";
+                        populateDynamicEquipmentTypes(activeCat);
+                        renderDashboard();
+
+                        if (hadPreviousState && !isInitial) {
+                            showToast(`Live update received from team (${formatSyncTime()}).`, "info");
+                        } else if (forceNotify) {
+                            showToast("Dashboard synced with latest live fleet data.", "success");
+                        }
+                    } else if (forceNotify) {
+                        showToast("Already up to date with live shared data.", "success");
+                    }
+
+                    if (badge) badge.textContent = `Live Synced • ${formatSyncTime()}`;
+                } else {
+                    // Remote database is empty -> seed it with current baseline so other users see the full fleet immediately
+                    if (isInitial) {
+                        await saveToSheet(true);
+                    }
+                    if (badge) badge.textContent = `Live Connected • ${formatSyncTime()}`;
+                }
+            } catch (e) {
+                console.warn("Live cloud fetch fallback to local cache:", e);
+                if (badge) badge.textContent = "Offline / Local Cache";
+                if (forceNotify) {
+                    showToast("Could not reach Google Sheet endpoint. Check your Sync URL.", "error");
+                }
+            }
+        }
+
+        async function saveToSheet(isInitialSeed = false) {
+            const badge = document.getElementById('syncStatusBadge');
+            isSavingInProgress = true;
+            try {
+                const serializedState = JSON.stringify(state);
+                localStorage.setItem(LOCAL_STORAGE_KEY, serializedState);
+                lastKnownServerHash = serializedState;
+                lastKnownRevision += 1;
+
+                if (badge) badge.textContent = "Publishing Live...";
+
+                const payload = {
+                    revision: lastKnownRevision,
+                    updatedAt: new Date().toISOString(),
+                    fleet: state
+                };
+
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(state)
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
                 });
-                badge.textContent = "Synced & Saved";
+
+                if (badge) badge.textContent = `Live Synced • ${formatSyncTime()}`;
             } catch (e) {
                 console.error("Failed to commit updates to Google Sheets:", e);
-                badge.textContent = "Saved Locally";
+                if (badge) badge.textContent = "Saved Locally (Retry Sync)";
+            } finally {
+                // Brief cooldown so immediate poll doesn't overwrite before Google Sheets finishes committing
+                setTimeout(() => {
+                    isSavingInProgress = false;
+                }, 1800);
+            }
+        }
+
+        function buildShareableUrl() {
+            const baseUrl = window.location.href.split('?')[0].split('#')[0];
+            const url = new URL(baseUrl);
+            url.searchParams.set('sync', GOOGLE_SCRIPT_URL);
+            return url.toString();
+        }
+
+        function openShareSyncModal() {
+            const linkInput = document.getElementById('shareableLinkInput');
+            const scriptInput = document.getElementById('customScriptUrlInput');
+            const fileWarning = document.getElementById('fileProtocolWarning');
+
+            linkInput.value = buildShareableUrl();
+            scriptInput.value = GOOGLE_SCRIPT_URL;
+
+            if (window.location.protocol === 'file:') {
+                fileWarning.classList.remove('hidden');
+            } else {
+                fileWarning.classList.add('hidden');
+            }
+
+            openModal('shareSyncModal');
+            lucide.createIcons();
+        }
+
+        async function copyShareableLink() {
+            const linkInput = document.getElementById('shareableLinkInput');
+            try {
+                await navigator.clipboard.writeText(linkInput.value);
+                showToast("Live collaboration link copied! Anyone with this link can view & edit live.", "success");
+            } catch (err) {
+                linkInput.select();
+                document.execCommand('copy');
+                showToast("Live collaboration link copied to clipboard.", "success");
+            }
+        }
+
+        async function updateScriptUrl() {
+            const newUrl = document.getElementById('customScriptUrlInput').value.trim();
+            if (!newUrl || !newUrl.startsWith('http')) {
+                showToast("Please enter a valid Google Apps Script Web App URL.", "error");
+                return;
+            }
+            GOOGLE_SCRIPT_URL = newUrl;
+            localStorage.setItem(SCRIPT_URL_STORAGE_KEY, newUrl);
+            lastKnownServerHash = "";
+            document.getElementById('shareableLinkInput').value = buildShareableUrl();
+            showToast("Updated shared Sync URL. Pulling live data...", "info");
+            await fetchSheetData({ forceNotify: true });
+        }
+
+        async function copyAppsScriptCode() {
+            const codeText = document.getElementById('appsScriptSnippet').textContent;
+            try {
+                await navigator.clipboard.writeText(codeText);
+                showToast("Google Apps Script code copied to clipboard.", "success");
+            } catch (err) {
+                showToast("Select and copy the script box manually.", "info");
             }
         }
 
