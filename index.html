@@ -105,14 +105,6 @@
             font-size: 0.78rem;
             letter-spacing: 0.02em;
         }
-        .mems-table th.sortable-th {
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.15s ease;
-        }
-        .mems-table th.sortable-th:hover {
-            background-color: #d48914;
-        }
         .mems-table td {
             border: 1px solid #7f8694;
             padding: 5px 12px;
@@ -137,17 +129,6 @@
         .mems-table tr.data-row.selected-row td:not(.category-cell) {
             background-color: #fef08a;
             font-weight: 700;
-        }
-
-        /* Motorpool Sort Pills in Summary */
-        .mp-sort-btn {
-            transition: all 0.15s ease;
-        }
-        .mp-sort-btn.active-mp-sort {
-            background-color: #0f172a;
-            color: #fbbf24;
-            border-color: #f59e0b;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         ::-webkit-scrollbar {
@@ -260,7 +241,7 @@
                 <div class="flex items-center gap-2 text-xs text-slate-300 font-semibold">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span>Interactive Asset LED Wall</span>
-                    <span id="totalMonitoredBadge" class="text-[11px] font-bold bg-slate-800 text-amber-300 border border-slate-700 px-2 py-0.5 rounded-md">69 Units Monitored</span>
+                    <span id="totalMonitoredBadge" class="text-[11px] font-bold bg-slate-800 text-amber-300 border border-slate-700 px-2 py-0.5 rounded-md">70 Units Monitored</span>
                     <span id="activeHighlightTag" class="hidden text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-md"></span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -289,74 +270,16 @@
                 <span class="text-[11px] font-semibold text-slate-600">Tip: Click any row below to highlight its units on the LED wall above</span>
             </div>
 
-            <!-- Motorpool Sort & Direction Bar -->
-            <div class="bg-slate-300/80 border border-slate-400/80 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2">
-                <div class="flex flex-wrap items-center gap-1.5">
-                    <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-wide flex items-center gap-1 mr-1">
-                        <i class="w-3.5 h-3.5 text-amber-700" data-lucide="arrow-up-down"></i> Sort by Motorpool:
-                    </span>
-                    <button type="button" id="mp-sort-none" onclick="setMotorpoolSort('default')" class="mp-sort-btn active-mp-sort px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 cursor-pointer">
-                        Default Order
-                    </button>
-                    <button type="button" id="mp-sort-GEM Motorpool" onclick="setMotorpoolSort('GEM Motorpool')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
-                        GEM Motorpool
-                    </button>
-                    <button type="button" id="mp-sort-SV Repair Units" onclick="setMotorpoolSort('SV Repair Units')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
-                        SV Repair Units
-                    </button>
-                    <button type="button" id="mp-sort-Los Amigos Motorpool" onclick="setMotorpoolSort('Los Amigos Motorpool')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
-                        Los Amigos Motorpool
-                    </button>
-                    <button type="button" id="mp-sort-PMS / GENSET" onclick="setMotorpoolSort('PMS / GENSET')" class="mp-sort-btn px-2.5 py-1 rounded-md text-[11px] font-bold border border-slate-500 bg-white text-slate-800 hover:bg-slate-100 cursor-pointer">
-                        PMS/GENSET
-                    </button>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button type="button" id="mpSortDirBtn" onclick="toggleMotorpoolSortDir()" class="px-2.5 py-1 rounded-md text-[11px] font-extrabold border border-slate-600 bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center gap-1 cursor-pointer" title="Toggle Sort Direction (High to Low / Low to High)">
-                        <span id="mpSortDirLabel">DESC (High → Low)</span>
-                    </button>
-                    <span id="activeSortStatusBadge" class="text-[11px] font-bold text-slate-700 bg-amber-200/80 border border-amber-500/50 px-2 py-0.5 rounded-md">
-                        Sort: Default Equipment Order
-                    </span>
-                </div>
-            </div>
-
             <div class="overflow-x-auto rounded-lg border border-slate-500 shadow-sm">
                 <table class="mems-table w-full text-left">
                     <thead>
                         <tr>
-                            <th class="w-48">CATEGORY</th>
-                            <th class="sortable-th" onclick="cycleColumnSort('type')">
-                                <div class="flex items-center justify-between gap-1">
-                                    <span>EQUIPMENT TYPE</span>
-                                    <span id="sort-ind-type" class="text-[10px] font-black text-slate-800">↕</span>
-                                </div>
-                            </th>
-                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('units')">
-                                <div class="flex items-center justify-center gap-1">
-                                    <span>NO. OF UNITS</span>
-                                    <span id="sort-ind-units" class="text-[10px] font-black text-slate-800">↕</span>
-                                </div>
-                            </th>
-                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('available')">
-                                <div class="flex items-center justify-center gap-1">
-                                    <span>AVAILABLE</span>
-                                    <span id="sort-ind-available" class="text-[10px] font-black text-slate-800">↕</span>
-                                </div>
-                            </th>
-                            <th class="text-center w-28 sortable-th" onclick="cycleColumnSort('down')">
-                                <div class="flex items-center justify-center gap-1">
-                                    <span>DOWN</span>
-                                    <span id="sort-ind-down" class="text-[10px] font-black text-slate-800">↕</span>
-                                </div>
-                            </th>
-                            <th class="text-center w-32 sortable-th" onclick="cycleColumnSort('availability')">
-                                <div class="flex items-center justify-center gap-1">
-                                    <span>AVAILABILITY%</span>
-                                    <span id="sort-ind-availability" class="text-[10px] font-black text-slate-800">↕</span>
-                                </div>
-                            </th>
+                            <th class="w-44">CATEGORY</th>
+                            <th>EQUIPMENT TYPE</th>
+                            <th class="text-center w-28">NO. OF UNITS</th>
+                            <th class="text-center w-28">AVAILABLE</th>
+                            <th class="text-center w-28">DOWN</th>
+                            <th class="text-center w-32">AVAILABILITY%</th>
                         </tr>
                     </thead>
                     <tbody id="memsSummaryTableBody">
@@ -419,21 +342,15 @@
                             <option value="CARGO TRUCK">CARGO TRUCK</option>
                             <option value="STAKE TRUCK">STAKE TRUCK</option>
                             <option value="PRIME MOVER">PRIME MOVER</option>
-                            <option value="HIGH BED TRUCK">HIGH BED TRUCK</option>
-                            <option value="LOW BED TRUCK">LOW BED TRUCK</option>
-                            <option value="BULK CEMENT TRUCK">BULK CEMENT TRUCK</option>
-                            <option value="DOLLY">DOLLY</option>
+                            <option value="ATTACHMENTS">ATTACHMENTS</option>
                             <option value="__CUSTOM__">+ Custom Equipment Type...</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Summary Category</label>
                         <select id="newAssetCategorySelect" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-slate-100 focus:outline-none focus:border-blue-500">
-                            <option value="Light Equipment">Light Equipment</option>
-                            <option value="Attachment">Attachment</option>
-                            <option value="Service Vehicle">Service Vehicle</option>
-                            <option value="Heavy Equipment">Heavy Equipment</option>
-                            <option value="Genset">Genset</option>
+                            <option value="Prime Equipment">Prime Equipment</option>
+                            <option value="Others">Others</option>
                         </select>
                     </div>
                 </div>
@@ -447,7 +364,7 @@
                 <!-- Single Asset Input -->
                 <div id="singleAssetInputWrapper">
                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Asset Number / Code</label>
-                    <input type="text" id="newSingleAssetCode" placeholder="e.g. BT-70, CT-80, PM-38, LBT-26, DL-01" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-slate-100 placeholder-slate-500 uppercase focus:outline-none focus:border-blue-500"/>
+                    <input type="text" id="newSingleAssetCode" placeholder="e.g. BT-70, CT-80, PM-38, LBT-26" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-slate-100 placeholder-slate-500 uppercase focus:outline-none focus:border-blue-500"/>
                 </div>
 
                 <!-- Bulk Asset Input -->
@@ -598,83 +515,12 @@
 
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxymo1wum7Gg4bxsMweu6IoxxG6BRCzrWVSBws0nuEtLzaLDp3ReC7UU3DG1UPc4zgyYg/exec";
-        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v5";
+        const LOCAL_STORAGE_KEY = "fleet_monitoring_ledger_v2";
 
-        const LIGHT_EQUIPMENT_TYPES = [
-            "BOOM TRUCK",
-            "CARGO TRUCK",
-            "STAKE TRUCK",
-            "PRIME MOVER",
-            "DUMP TRUCK",
-            "MINI DUMP TRUCK",
-            "FUEL TRUCK",
-            "PMT"
-        ];
-        const ATTACHMENT_TYPES = [
-            "HIGH BED TRUCK",
-            "LOW BED TRUCK",
-            "BULK CEMENT TRUCK",
-            "DOLLY",
-            "SHEET PILE DRIVER",
-            "HYDRAULIC BREAKER"
-        ];
-        const SERVICE_VEHICLE_TYPES = [
-            "TOYOTA FORTUNER",
-            "ISUZU D-MAX",
-            "NISSAN NAVARA",
-            "KIA K2700",
-            "KIA SORENTO",
-            "NISSAN X-TRAIL",
-            "MITSUBISHI PAJERO",
-            "JMC",
-            "FORD RANGER",
-            "TOYOTA HILUX",
-            "MITSUBISHI STRADA",
-            "KIA K2500"
-        ];
-        const HEAVY_EQUIPMENT_TYPES = [
-            "BULLDOZER",
-            "WHEEL TYPE BACKHOE",
-            "CRAWLER BACKHOE",
-            "WHEEL LOADER",
-            "ROAD ROLLER",
-            "CRANE",
-            "ROAD GRADER"
-        ];
-        const GENSET_TYPES = [
-            "GENSET 50KV",
-            "GENSET 100KV",
-            "GENSET 150KV",
-            "GENSET 250KV"
-        ];
-
-        const CATEGORY_ORDER = [
-            "Light Equipment",
-            "Attachment",
-            "Service Vehicle",
-            "Heavy Equipment",
-            "Genset"
-        ];
-
-        const ALL_BASE_TYPES = [
-            ...LIGHT_EQUIPMENT_TYPES,
-            ...ATTACHMENT_TYPES,
-            ...SERVICE_VEHICLE_TYPES,
-            ...HEAVY_EQUIPMENT_TYPES,
-            ...GENSET_TYPES
-        ];
-        const MOTORPOOL_OPTIONS = ["GEM Motorpool", "SV Repair Units", "Los Amigos Motorpool", "PMS / GENSET"];
-
-        const TYPE_GROUP_MAP = {};
-        LIGHT_EQUIPMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Light Equipment"; });
-        ATTACHMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Attachment"; });
-        SERVICE_VEHICLE_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Service Vehicle"; });
-        HEAVY_EQUIPMENT_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Heavy Equipment"; });
-        GENSET_TYPES.forEach(t => { TYPE_GROUP_MAP[t] = "Genset"; });
-
+        // Exact Requested Asset Numbers & Equipment Types
         const FLEET_DEFAULT_STATE = [
             {
-                category: "Light Equipment",
+                category: "Prime Equipment",
                 type: "BOOM TRUCK",
                 released: [
                     { id: "BT-06", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -704,7 +550,7 @@
                 pms: []
             },
             {
-                category: "Light Equipment",
+                category: "Prime Equipment",
                 type: "CARGO TRUCK",
                 released: [
                     { id: "CT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -737,7 +583,7 @@
                 pms: []
             },
             {
-                category: "Light Equipment",
+                category: "Prime Equipment",
                 type: "STAKE TRUCK",
                 released: [
                     { id: "ST-60", completion: 100, location: "GEM Motorpool", description: "Operational" }
@@ -749,7 +595,7 @@
                 pms: []
             },
             {
-                category: "Light Equipment",
+                category: "Prime Equipment",
                 type: "PRIME MOVER",
                 released: [
                     { id: "PM-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -778,9 +624,14 @@
                 pms: []
             },
             {
-                category: "Attachment",
-                type: "HIGH BED TRUCK",
+                category: "Others",
+                type: "ATTACHMENTS",
                 released: [
+                    { id: "LBT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-19", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "LBT-25", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-07", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-08", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-09", completion: 100, location: "GEM Motorpool", description: "Operational" },
@@ -789,25 +640,13 @@
                     { id: "HBT-20", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-21", completion: 100, location: "GEM Motorpool", description: "Operational" },
                     { id: "HBT-22", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "HBT-23", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                    { id: "HBT-23", completion: 100, location: "GEM Motorpool", description: "Operational" },
+                    { id: "BCT-04", completion: 100, location: "Los Amigos Motorpool", description: "Operational" },
+                    { id: "BCT-07", completion: 100, location: "Los Amigos Motorpool", description: "Operational" }
                 ],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Attachment",
-                type: "LOW BED TRUCK",
-                released: [
-                    { id: "LBT-10", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-16", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-19", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-24", completion: 100, location: "GEM Motorpool", description: "Operational" },
-                    { id: "LBT-25", completion: 100, location: "GEM Motorpool", description: "Operational" }
+                waiting: [
+                    { id: "BCT-05", completion: 30, location: "Los Amigos Motorpool", description: "Awaiting pneumatic discharge valve" }
                 ],
-                waiting: [],
                 ongoing: [
                     { id: "LBT-01", completion: 85, location: "GEM Motorpool", description: "Hydraulic ramp cylinder rebuild" },
                     { id: "LBT-17", completion: 70, location: "GEM Motorpool", description: "Axle bearing & brake shoe replacement" }
@@ -815,323 +654,16 @@
                 restored: [],
                 jobout: [],
                 pms: []
-            },
-            {
-                category: "Attachment",
-                type: "BULK CEMENT TRUCK",
-                released: [
-                    { id: "BCT-04", completion: 100, location: "Los Amigos Motorpool", description: "Operational" },
-                    { id: "BCT-07", completion: 100, location: "Los Amigos Motorpool", description: "Operational" }
-                ],
-                waiting: [
-                    { id: "BCT-05", completion: 30, location: "Los Amigos Motorpool", description: "Awaiting pneumatic discharge valve" }
-                ],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Attachment",
-                type: "DOLLY",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Light Equipment",
-                type: "DUMP TRUCK",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Light Equipment",
-                type: "MINI DUMP TRUCK",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Light Equipment",
-                type: "FUEL TRUCK",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Light Equipment",
-                type: "PMT",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Attachment",
-                type: "SHEET PILE DRIVER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Attachment",
-                type: "HYDRAULIC BREAKER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "TOYOTA FORTUNER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "ISUZU D-MAX",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "NISSAN NAVARA",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "KIA K2700",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "KIA SORENTO",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "NISSAN X-TRAIL",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "MITSUBISHI PAJERO",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "JMC",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "FORD RANGER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "TOYOTA HILUX",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "MITSUBISHI STRADA",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Service Vehicle",
-                type: "KIA K2500",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Heavy Equipment",
-                type: "BULLDOZER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Heavy Equipment",
-                type: "WHEEL TYPE BACKHOE",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Heavy Equipment",
-                type: "CRAWLER BACKHOE",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Heavy Equipment",
-                type: "WHEEL LOADER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Heavy Equipment",
-                type: "ROAD ROLLER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Heavy Equipment",
-                type: "CRANE",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Heavy Equipment",
-                type: "ROAD GRADER",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Genset",
-                type: "GENSET 50KV",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Genset",
-                type: "GENSET 100KV",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Genset",
-                type: "GENSET 150KV",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
-            },
-            {
-                category: "Genset",
-                type: "GENSET 250KV",
-                released: [],
-                waiting: [],
-                ongoing: [],
-                restored: [],
-                jobout: [],
-                pms: []
             }
         ];
+
+        const TYPE_GROUP_MAP = {
+            "BOOM TRUCK": "Prime Equipment",
+            "CARGO TRUCK": "Prime Equipment",
+            "STAKE TRUCK": "Prime Equipment",
+            "PRIME MOVER": "Prime Equipment",
+            "ATTACHMENTS": "Others"
+        };
 
         let state = [];
         let activeStatusFilter = "all"; // 'all' | 'available' | 'reported' | 'down' | 'restored'
@@ -1139,11 +671,6 @@
         let addEntryMode = "single"; // 'single' | 'bulk'
         let activeManageState = { category: "", type: "", unitCode: "", stateKey: "", unitObj: null };
         let deleteConfirmPending = false;
-
-        // Summary Sort State
-        let summarySortMotorpool = "default"; // 'default' | 'GEM Motorpool' | 'SV Repair Units' | 'Los Amigos Motorpool' | 'PMS / GENSET'
-        let summarySortColumn = null; // null | 'type' | 'units' | 'available' | 'down' | 'availability'
-        let summarySortDir = "desc"; // 'asc' | 'desc'
 
         window.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('locationFilter').addEventListener('change', renderDashboard);
@@ -1180,94 +707,16 @@
             lucide.createIcons();
         }
 
-        function normalizeCategory(cat, type) {
-            const upperType = (type || "").toUpperCase().trim();
-            if (TYPE_GROUP_MAP[upperType]) return TYPE_GROUP_MAP[upperType];
-            if (cat === "Prime Equipment" || cat === "Light Equipment") return "Light Equipment";
-            if (cat === "Others" || cat === "Attachments" || cat === "Attachment") return "Attachment";
-            if (cat === "Service Vehicle" || cat === "Service Vehicles") return "Service Vehicle";
-            if (cat === "Heavy Equipment") return "Heavy Equipment";
-            if (cat === "Genset" || cat === "Gensets") return "Genset";
-            return "Light Equipment";
-        }
-
         function ensureStateIntegrity() {
-            const normalizedRows = [];
-
             state.forEach(row => {
-                if (row.type === "ATTACHMENTS") {
-                    const buckets = ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'];
-                    const targetMap = {
-                        'HBT-': 'HIGH BED TRUCK',
-                        'LBT-': 'LOW BED TRUCK',
-                        'BCT-': 'BULK CEMENT TRUCK',
-                        'DL-': 'DOLLY'
-                    };
-
-                    buckets.forEach(bKey => {
-                        (row[bKey] || []).forEach(u => {
-                            const prefix = Object.keys(targetMap).find(p => u.id.toUpperCase().startsWith(p));
-                            const mappedType = prefix ? targetMap[prefix] : "HIGH BED TRUCK";
-                            let targetRow = normalizedRows.find(r => r.type === mappedType);
-                            if (!targetRow) {
-                                targetRow = {
-                                    category: "Attachment",
-                                    type: mappedType,
-                                    released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
-                                };
-                                normalizedRows.push(targetRow);
-                            }
-                            if (!targetRow[bKey].some(existing => existing.id === u.id)) {
-                                targetRow[bKey].push(u);
-                            }
-                        });
-                    });
-                } else {
-                    const cleanType = row.type === "BULK CEMENT RUCK" ? "BULK CEMENT TRUCK" : row.type;
-                    let existing = normalizedRows.find(r => r.type === cleanType);
-                    if (!existing) {
-                        existing = {
-                            category: normalizeCategory(row.category, cleanType),
-                            type: cleanType,
-                            released: [...(row.released || [])],
-                            restored: [...(row.restored || [])],
-                            waiting: [...(row.waiting || [])],
-                            pms: [...(row.pms || [])],
-                            ongoing: [...(row.ongoing || [])],
-                            jobout: [...(row.jobout || [])]
-                        };
-                        normalizedRows.push(existing);
-                    } else {
-                        ['released', 'restored', 'waiting', 'pms', 'ongoing', 'jobout'].forEach(bKey => {
-                            (row[bKey] || []).forEach(u => {
-                                if (!existing[bKey].some(x => x.id === u.id)) existing[bKey].push(u);
-                            });
-                        });
-                    }
-                }
+                if (!row.category) row.category = TYPE_GROUP_MAP[row.type] || "Others";
+                if (!row.released) row.released = [];
+                if (!row.restored) row.restored = [];
+                if (!row.waiting) row.waiting = [];
+                if (!row.pms) row.pms = [];
+                if (!row.ongoing) row.ongoing = [];
+                if (!row.jobout) row.jobout = [];
             });
-
-            ALL_BASE_TYPES.forEach(baseType => {
-                if (!normalizedRows.some(r => r.type === baseType)) {
-                    normalizedRows.push({
-                        category: TYPE_GROUP_MAP[baseType],
-                        type: baseType,
-                        released: [], restored: [], waiting: [], pms: [], ongoing: [], jobout: []
-                    });
-                }
-            });
-
-            normalizedRows.forEach(row => {
-                row.category = normalizeCategory(row.category, row.type);
-                row.released = row.released || [];
-                row.restored = row.restored || [];
-                row.waiting = row.waiting || [];
-                row.pms = row.pms || [];
-                row.ongoing = row.ongoing || [];
-                row.jobout = row.jobout || [];
-            });
-
-            state = normalizedRows;
         }
 
         async function fetchSheetData() {
@@ -1283,7 +732,6 @@
                     const data = await response.json();
                     if (Array.isArray(data) && data.length > 0 && data.some(r => r.type === "BOOM TRUCK" && (r.released?.some(u => u.id === "BT-06")))) {
                         state = data;
-                        ensureStateIntegrity();
                         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
                         badge.textContent = "Google Sheet Connected";
                     } else {
@@ -1324,21 +772,18 @@
         function resetToDefaults() {
             openConfirmModal(
                 "Reset FLEET MONITORING",
-                "Reset all asset numbers and LED statuses back to the default fleet monitoring baseline?",
+                "Reset all asset numbers and LED statuses back to the default 70-unit fleet monitoring baseline?",
                 async () => {
                     localStorage.removeItem(LOCAL_STORAGE_KEY);
                     state = JSON.parse(JSON.stringify(FLEET_DEFAULT_STATE));
                     activeStatusFilter = "all";
                     highlightedEquipmentType = null;
-                    summarySortMotorpool = "default";
-                    summarySortColumn = null;
-                    summarySortDir = "desc";
                     ensureStateIntegrity();
                     populateDynamicEquipmentTypes();
                     updateFilterUI();
                     renderDashboard();
                     await saveToSheet();
-                    showToast("Fleet Monitoring reset to default baseline.", "success");
+                    showToast("Fleet Monitoring reset to default 70-unit baseline.", "success");
                 }
             );
         }
@@ -1375,97 +820,10 @@
         function clearAllFilters() {
             activeStatusFilter = "all";
             highlightedEquipmentType = null;
-            summarySortMotorpool = "default";
-            summarySortColumn = null;
-            summarySortDir = "desc";
             document.getElementById('searchInput').value = '';
             document.getElementById('locationFilter').value = 'All Motorpools';
             updateFilterUI();
             renderDashboard();
-        }
-
-        // Motorpool & Summary Table Sorting Controls
-        function setMotorpoolSort(motorpoolName) {
-            if (motorpoolName === "default") {
-                summarySortMotorpool = "default";
-                summarySortColumn = null;
-            } else {
-                if (summarySortMotorpool === motorpoolName) {
-                    summarySortDir = summarySortDir === "desc" ? "asc" : "desc";
-                } else {
-                    summarySortMotorpool = motorpoolName;
-                    summarySortDir = "desc";
-                }
-            }
-            updateSortControlsUI();
-            renderDashboard();
-        }
-
-        function toggleMotorpoolSortDir() {
-            summarySortDir = summarySortDir === "desc" ? "asc" : "desc";
-            if (summarySortMotorpool === "default" && !summarySortColumn) {
-                summarySortColumn = "units";
-            }
-            updateSortControlsUI();
-            renderDashboard();
-        }
-
-        function cycleColumnSort(colKey) {
-            if (summarySortColumn === colKey) {
-                if (summarySortDir === "desc") {
-                    summarySortDir = "asc";
-                } else {
-                    summarySortColumn = null;
-                    summarySortDir = "desc";
-                }
-            } else {
-                summarySortColumn = colKey;
-                summarySortDir = colKey === "type" ? "asc" : "desc";
-            }
-            updateSortControlsUI();
-            renderDashboard();
-        }
-
-        function updateSortControlsUI() {
-            document.querySelectorAll('.mp-sort-btn').forEach(btn => btn.classList.remove('active-mp-sort'));
-            const activeBtnId = summarySortMotorpool === "default" ? "mp-sort-none" : `mp-sort-${summarySortMotorpool}`;
-            const activeBtn = document.getElementById(activeBtnId);
-            if (activeBtn) activeBtn.classList.add('active-mp-sort');
-
-            const dirLabel = document.getElementById('mpSortDirLabel');
-            if (dirLabel) {
-                dirLabel.textContent = summarySortDir === "desc" ? "DESC (High → Low)" : "ASC (Low → High)";
-            }
-
-            const cols = ['type', 'units', 'available', 'down', 'availability'];
-            cols.forEach(c => {
-                const ind = document.getElementById(`sort-ind-${c}`);
-                if (!ind) return;
-                if (summarySortColumn === c) {
-                    ind.textContent = summarySortDir === "asc" ? "▲" : "▼";
-                } else {
-                    ind.textContent = "↕";
-                }
-            });
-
-            const statusBadge = document.getElementById('activeSortStatusBadge');
-            if (statusBadge) {
-                const mpLabel = summarySortMotorpool === "PMS / GENSET" ? "PMS/GENSET" : summarySortMotorpool;
-                if (summarySortMotorpool !== "default") {
-                    statusBadge.textContent = `Sorted by: ${mpLabel} (${summarySortDir.toUpperCase()} Unit Count)`;
-                } else if (summarySortColumn) {
-                    const colNames = {
-                        type: "Equipment Type",
-                        units: "No. of Units",
-                        available: "Available",
-                        down: "Down",
-                        availability: "Availability %"
-                    };
-                    statusBadge.textContent = `Sorted by: ${colNames[summarySortColumn]} (${summarySortDir.toUpperCase()})`;
-                } else {
-                    statusBadge.textContent = "Sort: Default Equipment Order";
-                }
-            }
         }
 
         function updateFilterUI() {
@@ -1483,9 +841,8 @@
             const highlightTag = document.getElementById('activeHighlightTag');
             const hasSearch = document.getElementById('searchInput').value.trim() !== '';
             const hasLocation = document.getElementById('locationFilter').value !== 'All Motorpools';
-            const hasSort = summarySortMotorpool !== 'default' || summarySortColumn !== null;
 
-            if (activeStatusFilter !== 'all' || highlightedEquipmentType || hasSearch || hasLocation || hasSort) {
+            if (activeStatusFilter !== 'all' || highlightedEquipmentType || hasSearch || hasLocation) {
                 clearBtn.classList.remove('hidden');
             } else {
                 clearBtn.classList.add('hidden');
@@ -1497,8 +854,6 @@
             } else {
                 highlightTag.classList.add('hidden');
             }
-
-            updateSortControlsUI();
         }
 
         function renderDashboard() {
@@ -1621,8 +976,14 @@
             }
             emptyMsg.classList.add('hidden');
 
-            const typePriority = {};
-            ALL_BASE_TYPES.forEach((t, idx) => { typePriority[t] = idx + 1; });
+            // Group order priority matching user's equipment sequence, then natural numeric sort
+            const typePriority = {
+                "BOOM TRUCK": 1,
+                "CARGO TRUCK": 2,
+                "STAKE TRUCK": 3,
+                "PRIME MOVER": 4,
+                "ATTACHMENTS": 5
+            };
             cards.sort((a, b) => {
                 const pA = typePriority[a.type] || 99;
                 const pB = typePriority[b.type] || 99;
@@ -1667,58 +1028,13 @@
             }
         }
 
-        function computeRowMetrics(row, locationVal = "All Motorpools", specificMotorpool = null) {
-            const matchLoc = (u) => {
-                const unitLoc = u.location || "GEM Motorpool";
-                if (specificMotorpool) return unitLoc === specificMotorpool;
-                return locationVal === "All Motorpools" || unitLoc === locationVal;
-            };
-            const filterFn = (arr) => (arr || []).filter(matchLoc);
-
-            const availableCount = filterFn(row.released).length + filterFn(row.restored).length;
-            const downCount = filterFn(row.ongoing).length + filterFn(row.jobout).length + filterFn(row.waiting).length + filterFn(row.pms).length;
-            const totalUnits = availableCount + downCount;
-            const availPctNum = totalUnits > 0 ? (availableCount / totalUnits) * 100 : 0;
-
-            return {
-                availableCount,
-                downCount,
-                totalUnits,
-                availPctNum,
-                availPctStr: availPctNum.toFixed(2)
-            };
-        }
-
         function renderMemsSummaryTable(rows, locationVal = "All Motorpools") {
             const tbody = document.getElementById('memsSummaryTableBody');
             tbody.innerHTML = '';
 
             const groups = [
-                {
-                    name: "Light Equipment",
-                    orderedTypes: LIGHT_EQUIPMENT_TYPES,
-                    subtotalLabel: "Light Equipment Total"
-                },
-                {
-                    name: "Attachment",
-                    orderedTypes: ATTACHMENT_TYPES,
-                    subtotalLabel: "Attachment Total"
-                },
-                {
-                    name: "Service Vehicle",
-                    orderedTypes: SERVICE_VEHICLE_TYPES,
-                    subtotalLabel: "Service Vehicle Total"
-                },
-                {
-                    name: "Heavy Equipment",
-                    orderedTypes: HEAVY_EQUIPMENT_TYPES,
-                    subtotalLabel: "Heavy Equipment Total"
-                },
-                {
-                    name: "Genset",
-                    orderedTypes: GENSET_TYPES,
-                    subtotalLabel: "Genset Total"
-                }
+                { name: "Prime Equipment", subtotalLabel: "Prime Equipment Total" },
+                { name: "Others", subtotalLabel: "Other Equipment Total" }
             ];
 
             let grandTotalUnits = 0;
@@ -1726,53 +1042,20 @@
             let grandTotalDown = 0;
 
             groups.forEach(group => {
-                const baseGroupRows = group.orderedTypes.map(t => rows.find(r => r.type === t)).filter(Boolean);
-                const extraGroupRows = rows.filter(r => r.category === group.name && !group.orderedTypes.includes(r.type));
-                let groupRows = [...baseGroupRows, ...extraGroupRows];
+                const groupRows = rows.filter(r => r.category === group.name);
                 if (groupRows.length === 0) return;
-
-                // Attach computed metrics for sorting
-                let enriched = groupRows.map((row, defaultIdx) => ({
-                    row,
-                    defaultIdx,
-                    metrics: computeRowMetrics(row, locationVal, null),
-                    mpMetrics: summarySortMotorpool !== "default" ? computeRowMetrics(row, locationVal, summarySortMotorpool) : null
-                }));
-
-                if (summarySortMotorpool !== "default") {
-                    enriched.sort((a, b) => {
-                        const diff = a.mpMetrics.totalUnits - b.mpMetrics.totalUnits;
-                        if (diff !== 0) return summarySortDir === "desc" ? -diff : diff;
-                        const availDiff = a.mpMetrics.availableCount - b.mpMetrics.availableCount;
-                        if (availDiff !== 0) return summarySortDir === "desc" ? -availDiff : availDiff;
-                        return a.defaultIdx - b.defaultIdx;
-                    });
-                } else if (summarySortColumn) {
-                    enriched.sort((a, b) => {
-                        let cmp = 0;
-                        if (summarySortColumn === "type") {
-                            cmp = a.row.type.localeCompare(b.row.type);
-                        } else if (summarySortColumn === "units") {
-                            cmp = a.metrics.totalUnits - b.metrics.totalUnits;
-                        } else if (summarySortColumn === "available") {
-                            cmp = a.metrics.availableCount - b.metrics.availableCount;
-                        } else if (summarySortColumn === "down") {
-                            cmp = a.metrics.downCount - b.metrics.downCount;
-                        } else if (summarySortColumn === "availability") {
-                            cmp = a.metrics.availPctNum - b.metrics.availPctNum;
-                        }
-                        if (cmp !== 0) return summarySortDir === "asc" ? cmp : -cmp;
-                        return a.defaultIdx - b.defaultIdx;
-                    });
-                }
 
                 let subUnits = 0;
                 let subAvailable = 0;
                 let subDown = 0;
 
-                enriched.forEach((item, idx) => {
-                    const { row, metrics, mpMetrics } = item;
-                    const { totalUnits, availableCount, downCount, availPctStr } = metrics;
+                groupRows.forEach((row, idx) => {
+                    const filterLoc = (arr) => (arr || []).filter(u => locationVal === "All Motorpools" || (u.location || "GEM Motorpool") === locationVal);
+
+                    const availableCount = filterLoc(row.released).length + filterLoc(row.restored).length;
+                    const downCount = filterLoc(row.ongoing).length + filterLoc(row.jobout).length + filterLoc(row.waiting).length + filterLoc(row.pms).length;
+                    const totalUnits = availableCount + downCount;
+                    const availPct = totalUnits > 0 ? ((availableCount / totalUnits) * 100).toFixed(2) : "0.00";
 
                     subUnits += totalUnits;
                     subAvailable += availableCount;
@@ -1789,24 +1072,18 @@
                         .map(w => w.charAt(0).toUpperCase() + w.slice(1))
                         .join(' ');
 
-                    let mpTagHtml = '';
-                    if (mpMetrics) {
-                        const shortMp = summarySortMotorpool === "PMS / GENSET" ? "PMS/GENSET" : summarySortMotorpool;
-                        mpTagHtml = `<span class="ml-1.5 inline-block text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-950 border border-amber-600/30">${shortMp}: ${mpMetrics.totalUnits}</span>`;
-                    }
-
                     let categoryCellHtml = '';
                     if (idx === 0) {
-                        categoryCellHtml = `<td rowspan="${enriched.length}" class="category-cell align-top font-bold text-slate-900 bg-[#d8dce3] select-none">${group.name}</td>`;
+                        categoryCellHtml = `<td rowspan="${groupRows.length}" class="category-cell align-top font-bold text-slate-900 bg-[#d8dce3] select-none">${group.name}</td>`;
                     }
 
                     tr.innerHTML = `
                         ${categoryCellHtml}
-                        <td class="font-semibold">${formattedType}${mpTagHtml}</td>
+                        <td class="font-semibold">${formattedType}</td>
                         <td class="text-center font-bold">${totalUnits}</td>
                         <td class="text-center font-bold text-emerald-800">${availableCount}</td>
                         <td class="text-center font-bold text-rose-800">${downCount}</td>
-                        <td class="text-center font-extrabold">${availPctStr}%</td>
+                        <td class="text-center font-extrabold">${availPct}%</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -1846,12 +1123,14 @@
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
+        // Populate equipment types into the Add Asset Number dropdown (including any custom added ones)
         function populateDynamicEquipmentTypes() {
             const select = document.getElementById('newAssetTypeSelect');
             if (!select) return;
             const currentVal = select.value;
+            const baseTypes = ["BOOM TRUCK", "CARGO TRUCK", "STAKE TRUCK", "PRIME MOVER", "ATTACHMENTS"];
             const stateTypes = state.map(r => r.type);
-            const merged = [...new Set([...ALL_BASE_TYPES, ...stateTypes])];
+            const merged = [...new Set([...baseTypes, ...stateTypes])];
 
             select.innerHTML = '';
             merged.forEach(t => {
@@ -1901,9 +1180,9 @@
                 customWrapper.classList.add('hidden');
                 const existingRow = state.find(r => r.type === val);
                 if (existingRow) {
-                    catSelect.value = normalizeCategory(existingRow.category, val);
+                    catSelect.value = existingRow.category;
                 } else {
-                    catSelect.value = TYPE_GROUP_MAP[val] || "Attachment";
+                    catSelect.value = TYPE_GROUP_MAP[val] || "Others";
                 }
             }
         }
@@ -1966,8 +1245,7 @@
             } else {
                 const bulkText = document.getElementById('newBulkAssetCodes').value.toUpperCase();
                 rawCodes = bulkText
-                    .split(/[
-,;]+/)
+                    .split(/[\n,;]+/)
                     .map(s => s.trim())
                     .filter(Boolean);
                 if (rawCodes.length === 0) {
@@ -1976,6 +1254,7 @@
                 }
             }
 
+            // Collect all existing asset codes to prevent duplicates
             const existingMap = new Map();
             state.forEach(row => {
                 const allUnits = [
@@ -2137,8 +1416,7 @@
         }
 
         function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Asset Number,LED Status,Location,Completion,Target Date,Remarks
-";
+            let csvContent = "data:text/csv;charset=utf-8,Category,Equipment Type,Asset Number,LED Status,Location,Completion,Target Date,Remarks\n";
             state.forEach(row => {
                 const allLists = [
                     { list: row.released || [], status: "Available" },
@@ -2152,8 +1430,7 @@
                     list.forEach(u => {
                         const desc = (u.description || "").replace(/,/g, " ");
                         const comp = u.completion ?? (status === "Available" || status === "Restored" ? 100 : 0);
-                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}","${u.location || 'GEM Motorpool'}",${comp}%,"${u.targetDate || ''}","${desc}"
-`;
+                        csvContent += `"${row.category}","${row.type}","${u.id}","${status}","${u.location || 'GEM Motorpool'}",${comp}%,"${u.targetDate || ''}","${desc}"\n`;
                     });
                 });
             });
